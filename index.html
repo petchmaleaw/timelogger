@@ -665,7 +665,8 @@ function renderAdminLogs(){
     const dateStr=d.toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'});
     const timeStr=d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
     const gps=r.lat?`📍 ${parseFloat(r.lat).toFixed(5)}, ${parseFloat(r.lng).toFixed(5)}`:'';
-    const photoHtml=r.photoUrl?`<img class="admin-photo" data-src="${r.photoUrl}" onclick="viewPhoto('${r.photoUrl}')" alt="รูปภาพ">`:'' ;
+    const fixedUrl=fixPhotoUrl(r.photoUrl);
+    const photoHtml=fixedUrl?`<img class="admin-photo" data-src="${fixedUrl}" onclick="viewPhoto('${fixedUrl}')" alt="รูปภาพ" referrerpolicy="no-referrer">`:'' ;
     return `<div class="admin-log-item" onclick="toggleAdminPhoto(${i})">
       <div class="admin-log-top">
         <span class="admin-log-name">👤 ${r.employeeName||'-'}</span>
@@ -689,6 +690,19 @@ function toggleAdminPhoto(i){
     img.classList.toggle('loaded');
   }
 }
+// แปลง URL รูป Google Drive ให้เป็น direct URL ที่แสดงได้ใน <img>
+function fixPhotoUrl(url){
+  if(!url) return '';
+  // ถ้าเป็น format เก่า uc?export=view&id=XXX → แปลงเป็น lh3.googleusercontent.com
+  var match = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if(match) return 'https://lh3.googleusercontent.com/d/' + match[1];
+  // ถ้าเป็น drive.google.com/file/d/XXX/view → แปลงเหมือนกัน
+  var match2 = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if(match2) return 'https://lh3.googleusercontent.com/d/' + match2[1];
+  // ถ้าเป็น format ใหม่อยู่แล้ว return ตามเดิม
+  return url;
+}
+
 function showGallery(){
   const f=getAdminFiltered();
   const withPhoto=f.filter(r=>r.photoUrl);
@@ -714,14 +728,15 @@ function showGallery(){
     const d=new Date(r.timestamp);
     const dateStr=d.toLocaleDateString('th-TH',{month:'short',day:'numeric'});
     const timeStr=d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    const fixedUrl=fixPhotoUrl(r.photoUrl);
     const item=document.createElement('div');
     item.className='gallery-item';
     item.innerHTML=`
       <div class="gallery-spinner">⏳</div>
-      <img data-src="${r.photoUrl}" alt="" style="display:none">
+      <img data-src="${fixedUrl}" alt="" style="display:none" referrerpolicy="no-referrer">
       <div class="gallery-label"><b>${r.employeeName||'-'}</b>${dateStr} ${timeStr}</div>
     `;
-    item.onclick=()=>viewPhoto(r.photoUrl);
+    item.onclick=()=>viewPhoto(fixedUrl);
     grid.appendChild(item);
   });
   // Lazy-load ทีละรูปเพื่อไม่ให้ค้าง
