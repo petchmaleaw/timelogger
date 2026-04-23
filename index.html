@@ -286,7 +286,7 @@ video{width:100%;display:block;max-height:48vw;object-fit:cover}
 // ═══════════════════════════════════════
 // CONFIG
 // ═══════════════════════════════════════
-const WEBAPP_URL  = 'https://script.google.com/macros/s/AKfycbyOaQHXeHqS2eEoLR2FGRxDfV8WbW2P9vaPbBUiX6FJtQuCLAIrjGogk4bmIMoG0dc/exec';
+const WEBAPP_URL  = 'https://script.google.com/macros/s/AKfycbwccxlzCelrGAeYJvnb-IQqL4higDceZfSdz2_RY3A3au5rhX3KU_KnFIh1wdW_tyvs/exec';
 const ADMIN_PASS  = 'admin1234';
 const SALES_PASS  = '1234';
 const DB_KEY      = 'time_logs_v3';
@@ -524,30 +524,22 @@ function postToSheet(log){
     photoBase64:  log.photo || ''
   };
 
-  const body = JSON.stringify(payload);
-  console.log('[SYNC_V4] Start. Payload size:', body.length, 'bytes');
-
   return fetch(WEBAPP_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: body,
+    body: JSON.stringify(payload),
     redirect: 'follow'
   })
-  .then(res => {
-    console.log('[SYNC_V4] HTTP status:', res.status, 'final URL:', res.url);
-    return res.text().then(txt => ({status: res.status, text: txt, url: res.url}));
-  })
-  .then(r => {
-    console.log('[SYNC_V4] Response text (first 300):', r.text.substring(0,300));
+  .then(res => res.text())
+  .then(txt => {
     let data;
-    try { data = JSON.parse(r.text); }
-    catch(e){ throw new Error('Got non-JSON response: ' + r.text.substring(0,100)); }
+    try { data = JSON.parse(txt); }
+    catch(e){ throw new Error('Invalid response'); }
     if (data.status === 'ok') {
       if (data.photoUrl) log.photoUrl = data.photoUrl;
-      console.log('[SYNC_V4] Success!');
       return data;
     }
-    throw new Error('Server: ' + (data.msg || 'unknown error'));
+    throw new Error(data.msg || 'Server error');
   });
 }
 
@@ -560,10 +552,8 @@ async function syncSingleLog(log){
     showToast('✓ บันทึกและซิงค์สำเร็จ');
     renderLogs();
   }catch(e){
-    console.error('[syncSingleLog] error:', e);
     setSyncBadge('err');
-    // แสดง error จริงให้เห็น แทนที่จะพูดว่า "ไม่มีเน็ต" เสมอ
-    showToast('❌ Sync: ' + e.message.substring(0,70), 6000);
+    showToast('📶 Sync ไม่สำเร็จ — บันทึกไว้แล้ว จะซิงค์ใหม่ภายหลัง');
   }
 }
 
