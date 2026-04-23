@@ -511,28 +511,39 @@ function capturePhoto(){
 // ═══════════════════════════════════════
 // SYNC — ใช้ no-cors + image upload
 // ═══════════════════════════════════════
-async function postToSheet(log){
-  const payload={
-    timestamp:   log.ts,
-    employeeName:log.empName,
-    customer:    log.customer||'',
-    description: log.desc||'',
-    lat:         log.lat||'',
-    lng:         log.lng||'',
-    accuracy:    log.acc||'',
-    deviceId:    log.id,
-    photoBase64: log.photo||''   // ส่งรูปเป็น base64
-  };
+function postToSheet(log){
+  return new Promise((resolve, reject) => {
+    const payload = {
+      timestamp:    log.ts,
+      employeeName: log.empName,
+      customer:     log.customer || '',
+      description:  log.desc || '',
+      lat:          log.lat || '',
+      lng:          log.lng || '',
+      accuracy:     log.acc || '',
+      deviceId:     log.id,
+      photoBase64:  log.photo || ''
+    };
 
-  // ใช้ fetch mode no-cors เพื่อแก้ CORS บน Apps Script
-  // no-cors จะไม่ return response body — แต่ request ถึง server แน่นอน
-  await fetch(WEBAPP_URL, {
-    method:  'POST',
-    mode:    'no-cors',
-    headers: {'Content-Type':'text/plain'},
-    body:    JSON.stringify(payload)
+    // ใช้ form-encoded POST — ไม่ทริก CORS preflight และ Apps Script อ่านได้
+    const formData = new FormData();
+    formData.append('payload', JSON.stringify(payload));
+
+    fetch(WEBAPP_URL, {
+      method: 'POST',
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'ok') {
+        log.photoUrl = data.photoUrl || '';
+        resolve(data);
+      } else {
+        reject(new Error(data.msg || 'Server error'));
+      }
+    })
+    .catch(err => reject(err));
   });
-  // no-cors จะ return opaque response — ถือว่าสำเร็จถ้าไม่ throw
 }
 
 async function syncSingleLog(log){
