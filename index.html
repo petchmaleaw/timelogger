@@ -112,8 +112,15 @@ video{width:100%;display:block;max-height:48vw;object-fit:cover}
 .admin-log-time{font-size:11px;color:#9ca3af}
 .admin-log-detail{font-size:13px;color:#374151}
 .admin-log-gps{font-size:11px;color:#9ca3af;margin-top:2px}
-.admin-photo{width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-top:8px;display:none}
-.admin-photo.loaded{display:block}
+.admin-photo{width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-top:8px;background:#f3f4f6}
+.admin-photo.loading{min-height:120px;background:#f3f4f6 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="%239ca3af" stroke-width="2" stroke-dasharray="30 30" stroke-dashoffset="0"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg>') center no-repeat}
+
+.pagination{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px;padding:8px 0;flex-wrap:wrap}
+.page-btn{min-width:36px;height:36px;padding:0 10px;border:0.5px solid #d1d5db;background:#fff;border-radius:8px;font-size:13px;cursor:pointer;color:#374151;font-family:inherit}
+.page-btn:hover{background:#f9fafb}
+.page-btn:disabled{opacity:0.4;cursor:not-allowed}
+.page-btn.active{background:#2563eb;color:#fff;border-color:#2563eb;font-weight:600}
+.page-info{font-size:12px;color:#6b7280;margin:0 8px}
 
 .gallery-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
 .gallery-item{aspect-ratio:1;background:#f3f4f6;border-radius:10px;overflow:hidden;cursor:pointer;position:relative;border:0.5px solid #e5e7eb}
@@ -345,7 +352,8 @@ const SESSION_KEY = 'tl_session_v2';
 // STATE
 // ═══════════════════════════════════════
 let logs=[], stream=null, gpsCoords=null, gpsWatcher=null;
-let currentUser=null, isAdmin=false, adminAllData=[];
+let adminAllData=[], adminCurrentPage=1;
+const ADMIN_PAGE_SIZE=40;
 
 function loadLogs(){ try{ logs=JSON.parse(localStorage.getItem(DB_KEY)||'[]'); }catch(e){ logs=[]; } }
 function saveLogs(){ localStorage.setItem(DB_KEY,JSON.stringify(logs)); }
@@ -721,6 +729,7 @@ async function adminLoadData(){
     hideLoading();
     if(json.status==='ok'){
       adminAllData=json.data||[];
+      adminCurrentPage=1;
       populateAdminFilters(); renderAdminLogs();
       showToast('✓ โหลดสำเร็จ '+adminAllData.length+' รายการ');
     } else { showToast('❌ โหลดไม่สำเร็จ'); }
@@ -733,7 +742,8 @@ function populateAdminFilters(){
   const es=document.getElementById('admin-emp-filter');
   ms.innerHTML='<option value="">— ทุกเดือน —</option>'+months.map(function(k){ const [y,m]=k.split('-'); return '<option value="'+k+'">'+new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'})+'</option>'; }).join('');
   es.innerHTML='<option value="">— พนักงานทุกคน —</option>'+emps.map(function(e){ return '<option value="'+e+'">'+e+'</option>'; }).join('');
-  ms.onchange=renderAdminLogs; es.onchange=renderAdminLogs;
+  ms.onchange=function(){ adminCurrentPage=1; renderAdminLogs(); };
+  es.onchange=function(){ adminCurrentPage=1; renderAdminLogs(); };
 }
 function getAdminFiltered(){
   let d=[...adminAllData];
@@ -749,26 +759,57 @@ function renderAdminLogs(){
   document.getElementById('admin-stat-count').textContent=f.length;
   document.getElementById('admin-stat-emp').textContent=emps.size;
   const container=document.getElementById('admin-log-container');
-  if(!f.length){ container.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>ไม่มีข้อมูลที่ตรงกับตัวกรอง</p></div>'; return; }
-  container.innerHTML=f.map(function(r,i){
+  if(!f.length){
+    container.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>ไม่มีข้อมูลที่ตรงกับตัวกรอง</p></div>';
+    return;
+  }
+
+  // Pagination
+  const totalPages=Math.max(1, Math.ceil(f.length/ADMIN_PAGE_SIZE));
+  if(adminCurrentPage>totalPages) adminCurrentPage=1;
+  const startIdx=(adminCurrentPage-1)*ADMIN_PAGE_SIZE;
+  const endIdx=Math.min(startIdx+ADMIN_PAGE_SIZE, f.length);
+  const pageData=f.slice(startIdx, endIdx);
+
+  const rowsHtml=pageData.map(function(r,i){
+    const globalIdx=startIdx+i;
     const d=new Date(r.timestamp);
     const dateStr=d.toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'});
     const timeStr=d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
     const gps=r.lat?'📍 '+parseFloat(r.lat).toFixed(5)+', '+parseFloat(r.lng).toFixed(5):'';
     const fixedUrl=fixPhotoUrl(r.photoUrl);
-    const photoHtml=fixedUrl?'<img class="admin-photo" data-src="'+fixedUrl+'" onclick="viewPhoto(\''+fixedUrl+'\')" alt="" referrerpolicy="no-referrer">':'';
-    return '<div class="admin-log-item" onclick="toggleAdminPhoto('+i+')"><div class="admin-log-top"><span class="admin-log-name">👤 '+(r.employeeName||'-')+'</span><span class="admin-log-time">'+dateStr+' '+timeStr+'</span></div><div class="admin-log-detail">'+([r.customer,r.description].filter(Boolean).join(' — ')||'(ไม่มีรายละเอียด)')+'</div>'+(gps?'<div class="admin-log-gps">'+gps+'</div>':'')+photoHtml+'</div>';
+    // โหลดรูปทันที (ไม่ใช่ lazy load ด้วยการกด)
+    const photoHtml=fixedUrl
+      ? '<img class="admin-photo loading" src="'+fixedUrl+'" onclick="event.stopPropagation();viewPhoto(\''+fixedUrl+'\')" onload="this.classList.remove(\'loading\')" onerror="this.style.display=\'none\'" alt="" referrerpolicy="no-referrer" loading="lazy">'
+      : '';
+    return '<div class="admin-log-item"><div class="admin-log-top"><span class="admin-log-name">👤 '+(r.employeeName||'-')+'</span><span class="admin-log-time">'+dateStr+' '+timeStr+'</span></div><div class="admin-log-detail">'+([r.customer,r.description].filter(Boolean).join(' — ')||'(ไม่มีรายละเอียด)')+'</div>'+(gps?'<div class="admin-log-gps">'+gps+'</div>':'')+photoHtml+'</div>';
   }).join('');
+
+  // Pagination controls
+  let pagHtml='';
+  if(totalPages>1){
+    const startPage=Math.max(1, adminCurrentPage-2);
+    const endPage=Math.min(totalPages, startPage+4);
+    pagHtml='<div class="pagination">';
+    pagHtml+='<button type="button" class="page-btn" onclick="adminGoPage(1)" '+(adminCurrentPage===1?'disabled':'')+'>«</button>';
+    pagHtml+='<button type="button" class="page-btn" onclick="adminGoPage('+(adminCurrentPage-1)+')" '+(adminCurrentPage===1?'disabled':'')+'>‹</button>';
+    for(let p=startPage; p<=endPage; p++){
+      pagHtml+='<button type="button" class="page-btn '+(p===adminCurrentPage?'active':'')+'" onclick="adminGoPage('+p+')">'+p+'</button>';
+    }
+    pagHtml+='<button type="button" class="page-btn" onclick="adminGoPage('+(adminCurrentPage+1)+')" '+(adminCurrentPage===totalPages?'disabled':'')+'>›</button>';
+    pagHtml+='<button type="button" class="page-btn" onclick="adminGoPage('+totalPages+')" '+(adminCurrentPage===totalPages?'disabled':'')+'>»</button>';
+    pagHtml+='</div>';
+    pagHtml+='<div class="page-info" style="text-align:center">แสดง '+(startIdx+1)+'-'+endIdx+' จาก '+f.length+' รายการ (หน้า '+adminCurrentPage+'/'+totalPages+')</div>';
+  }
+
+  container.innerHTML=rowsHtml+pagHtml;
 }
-function toggleAdminPhoto(i){
-  const items=document.querySelectorAll('.admin-log-item');
-  const img=items[i]?items[i].querySelector('.admin-photo'):null;
-  if(!img) return;
-  if(!img.classList.contains('loaded')){
-    img.src=img.dataset.src;
-    img.onload=function(){ img.classList.add('loaded'); };
-    img.onerror=function(){ img.remove(); };
-  } else { img.classList.toggle('loaded'); }
+
+function adminGoPage(p){
+  adminCurrentPage=p;
+  renderAdminLogs();
+  // scroll กลับขึ้นบน
+  document.getElementById('admin-log-container').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function showGallery(){
   const f=getAdminFiltered();
