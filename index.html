@@ -524,23 +524,30 @@ function postToSheet(log){
     photoBase64:  log.photo || ''
   };
 
-  // ใช้ fetch + text/plain → "simple request" ไม่ทริก CORS preflight
-  // Apps Script อ่านจาก e.postData.contents ได้โดยตรง
+  const body = JSON.stringify(payload);
+  console.log('[SYNC_V4] Start. Payload size:', body.length, 'bytes');
+
   return fetch(WEBAPP_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(payload)
+    body: body,
+    redirect: 'follow'
   })
   .then(res => {
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    return res.json();
+    console.log('[SYNC_V4] HTTP status:', res.status, 'final URL:', res.url);
+    return res.text().then(txt => ({status: res.status, text: txt, url: res.url}));
   })
-  .then(data => {
+  .then(r => {
+    console.log('[SYNC_V4] Response text (first 300):', r.text.substring(0,300));
+    let data;
+    try { data = JSON.parse(r.text); }
+    catch(e){ throw new Error('Got non-JSON response: ' + r.text.substring(0,100)); }
     if (data.status === 'ok') {
       if (data.photoUrl) log.photoUrl = data.photoUrl;
+      console.log('[SYNC_V4] Success!');
       return data;
     }
-    throw new Error(data.msg || 'Server error');
+    throw new Error('Server: ' + (data.msg || 'unknown error'));
   });
 }
 
@@ -553,8 +560,10 @@ async function syncSingleLog(log){
     showToast('✓ บันทึกและซิงค์สำเร็จ');
     renderLogs();
   }catch(e){
+    console.error('[syncSingleLog] error:', e);
     setSyncBadge('err');
-    showToast('📶 ไม่มีอินเทอร์เน็ต — บันทึกไว้แล้ว จะซิงค์ใหม่ภายหลัง');
+    // แสดง error จริงให้เห็น แทนที่จะพูดว่า "ไม่มีเน็ต" เสมอ
+    showToast('❌ Sync: ' + e.message.substring(0,70), 6000);
   }
 }
 
