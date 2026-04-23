@@ -104,6 +104,13 @@ video{width:100%;display:block;max-height:48vw;object-fit:cover}
 .admin-photo{width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-top:8px;display:none}
 .admin-photo.loaded{display:block}
 
+.gallery-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.gallery-item{aspect-ratio:1;background:#f3f4f6;border-radius:10px;overflow:hidden;cursor:pointer;position:relative;border:0.5px solid #e5e7eb}
+.gallery-item img{width:100%;height:100%;object-fit:cover;display:block}
+.gallery-item .gallery-label{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.75));color:#fff;font-size:10px;padding:16px 8px 6px;line-height:1.3}
+.gallery-item .gallery-label b{font-size:11px;display:block;margin-bottom:2px}
+.gallery-spinner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#f3f4f6;font-size:20px}
+
 #photo-preview{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:200;flex-direction:column;align-items:center;justify-content:center;padding:20px}
 #photo-preview.show{display:flex}
 #photo-preview img{max-width:100%;max-height:80vh;border-radius:10px;object-fit:contain}
@@ -246,6 +253,7 @@ video{width:100%;display:block;max-height:48vw;object-fit:cover}
         <button class="btn-action btn-blue" style="margin:0;padding:11px;font-size:13px" onclick="adminLoadData()">🔄 โหลดข้อมูล</button>
         <button class="btn-action btn-outline" style="margin:0;padding:11px;font-size:13px" onclick="adminExportCSV()">💾 Export CSV</button>
       </div>
+      <button class="btn-action btn-green" style="margin:0 0 12px;padding:11px;font-size:13px" onclick="showGallery()">📸 ดูรูปทั้งหมด (Gallery)</button>
       <select class="filter-select" id="admin-month-filter"><option value="">— ทุกเดือน —</option></select>
       <select class="filter-select" id="admin-emp-filter"><option value="">— พนักงานทุกคน —</option></select>
       <div class="stat-row">
@@ -673,8 +681,56 @@ function toggleAdminPhoto(i){
     img.classList.toggle('loaded');
   }
 }
+function showGallery(){
+  const f=getAdminFiltered();
+  const withPhoto=f.filter(r=>r.photoUrl);
+  if(!f.length){ showToast('ไม่มีข้อมูล กรุณาโหลดข้อมูลก่อน'); return; }
+  if(!withPhoto.length){ showToast('ไม่มีรูปภาพในช่วงที่เลือก'); return; }
+  const container=document.getElementById('admin-log-container');
+  const mf=document.getElementById('admin-month-filter').value;
+  const ef=document.getElementById('admin-emp-filter').value;
+  let title='📸 Gallery: ทุกเดือน / ทุกคน';
+  if(mf){ const [y,m]=mf.split('-'); title='📸 Gallery: '+new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'}); }
+  if(ef) title+=' — '+ef;
+
+  container.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:600;color:#1f2937">${title}</div>
+      <button style="background:none;border:0.5px solid #d1d5db;border-radius:8px;padding:5px 10px;font-size:12px;color:#6b7280;cursor:pointer" onclick="renderAdminLogs()">← กลับ</button>
+    </div>
+    <div style="font-size:11px;color:#9ca3af;margin-bottom:8px">${withPhoto.length} รูป จาก ${f.length} รายการ</div>
+    <div class="gallery-grid" id="gallery-grid"></div>
+  `;
+  const grid=document.getElementById('gallery-grid');
+  withPhoto.forEach((r,i)=>{
+    const d=new Date(r.timestamp);
+    const dateStr=d.toLocaleDateString('th-TH',{month:'short',day:'numeric'});
+    const timeStr=d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    const item=document.createElement('div');
+    item.className='gallery-item';
+    item.innerHTML=`
+      <div class="gallery-spinner">⏳</div>
+      <img data-src="${r.photoUrl}" alt="" style="display:none">
+      <div class="gallery-label"><b>${r.employeeName||'-'}</b>${dateStr} ${timeStr}</div>
+    `;
+    item.onclick=()=>viewPhoto(r.photoUrl);
+    grid.appendChild(item);
+  });
+  // Lazy-load ทีละรูปเพื่อไม่ให้ค้าง
+  const imgs=grid.querySelectorAll('img');
+  let idx=0;
+  function loadNext(){
+    if(idx>=imgs.length) return;
+    const img=imgs[idx++];
+    img.onload=()=>{ img.style.display='block'; img.previousElementSibling?.remove&&img.parentElement.querySelector('.gallery-spinner')?.remove(); loadNext(); };
+    img.onerror=()=>{ img.parentElement.querySelector('.gallery-spinner').textContent='❌'; loadNext(); };
+    img.src=img.dataset.src;
+  }
+  // โหลดพร้อมกัน 4 รูปแรก แล้วค่อย chain
+  for(let k=0;k<Math.min(4,imgs.length);k++) loadNext();
+}
+
 function adminExportCSV(){
-  const f=getAdminFiltered(); if(!f.length){ showToast('ไม่มีข้อมูล'); return; }
   const mf=document.getElementById('admin-month-filter').value;
   const ef=document.getElementById('admin-emp-filter').value;
   // เพิ่ม column photoUrl
