@@ -135,7 +135,7 @@ video{width:100%;display:block;max-height:48vw;object-fit:cover}
     <h2>Time Logger</h2>
     <p class="sub">ระบบบันทึกเวลาทำงาน</p>
     <div class="login-tab">
-      <button class="active" id="tab-sales" onclick="switchTab('sales')">👤 Sales</button>
+      <button class="active" id="tab-sales" onclick="switchTab('sales')">👤 User</button>
       <button id="tab-register" onclick="switchTab('register')">📝 สมัคร</button>
       <button id="tab-admin" onclick="switchTab('admin')">👑 Admin</button>
     </div>
@@ -143,10 +143,6 @@ video{width:100%;display:block;max-height:48vw;object-fit:cover}
     <input class="login-input" type="password" id="login-pass" placeholder="รหัสผ่าน" autocomplete="new-password">
     <button class="login-btn" onclick="doLogin()" id="login-btn">เข้าสู่ระบบ</button>
     <div class="login-err" id="login-err"></div>
-    <div class="hint-box" id="hint-box">
-      กรอก username + รหัสผ่านที่สมัครไว้<br>
-      หากยังไม่มีบัญชี กดแท็บ <b>📝 สมัคร</b>
-    </div>
   </div>
 </div>
 
@@ -248,11 +244,9 @@ video{width:100%;display:block;max-height:48vw;object-fit:cover}
     <h1>👑 Admin Dashboard</h1>
     <button class="icon-btn" onclick="doLogout()">🚪</button>
   </div>
-  <div class="emp-banner" style="padding:0">
-    <div style="display:flex;width:100%">
-      <button id="admin-tab-logs" onclick="switchAdminView('logs')" style="flex:1;padding:12px 8px;border:none;background:#fff;cursor:pointer;font-size:13px;font-weight:500;color:#2563eb;border-bottom:2px solid #2563eb">📊 ข้อมูลเวลา</button>
-      <button id="admin-tab-users" onclick="switchAdminView('users')" style="flex:1;padding:12px 8px;border:none;background:#fff;cursor:pointer;font-size:13px;font-weight:500;color:#9ca3af;border-bottom:2px solid transparent">👥 ผู้ใช้<span id="pending-badge" style="display:none;background:#dc2626;color:#fff;font-size:10px;padding:1px 6px;border-radius:8px;margin-left:4px">0</span></button>
-    </div>
+  <div style="display:flex;background:#fff;border-bottom:0.5px solid #e5e7eb;flex-shrink:0">
+    <button id="admin-tab-logs" onclick="switchAdminView('logs')" style="flex:1;padding:14px 8px;border:none;background:transparent;cursor:pointer;font-size:14px;font-weight:500;color:#2563eb;border-bottom:2px solid #2563eb;font-family:inherit">📊 ข้อมูลเวลา</button>
+    <button id="admin-tab-users" onclick="switchAdminView('users')" style="flex:1;padding:14px 8px;border:none;background:transparent;cursor:pointer;font-size:14px;font-weight:500;color:#9ca3af;border-bottom:2px solid transparent;font-family:inherit">👥 ผู้ใช้<span id="pending-badge" style="display:none;background:#dc2626;color:#fff;font-size:10px;padding:1px 6px;border-radius:8px;margin-left:4px">0</span></button>
   </div>
   <div class="content" id="admin-content">
     <!-- LOGS VIEW -->
@@ -358,20 +352,16 @@ function switchTab(m){
   document.getElementById('tab-admin').classList.toggle('active',m==='admin');
   const nameEl=document.getElementById('login-name');
   const btnEl=document.getElementById('login-btn');
-  const hintEl=document.getElementById('hint-box');
   document.getElementById('login-err').textContent='';
   if(m==='admin'){
-    nameEl.placeholder='admin';
+    nameEl.placeholder='admin username';
     btnEl.textContent='เข้าสู่ระบบ';
-    hintEl.innerHTML='กรอก username และรหัสผ่าน Admin';
   } else if(m==='register'){
     nameEl.placeholder='username (ขั้นต่ำ 3 ตัวอักษร)';
     btnEl.textContent='📝 สมัครสมาชิก';
-    hintEl.innerHTML='สมัครแล้วรอ Admin อนุมัติก่อนใช้งาน<br>username/password อย่างน้อย 3 และ 4 ตัวอักษร';
   } else {
     nameEl.placeholder='username';
     btnEl.textContent='เข้าสู่ระบบ';
-    hintEl.innerHTML='กรอก username + รหัสผ่านที่สมัครไว้<br>หากยังไม่มีบัญชี กดแท็บ <b>📝 สมัคร</b>';
   }
 }
 
