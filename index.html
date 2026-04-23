@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Time Logger">
+<meta name="theme-color" content="#2563eb">
+<title>Time Logger</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+body{background:#f3f4f6;color:#1a1a1a;min-height:100vh;overscroll-behavior:none}
+.screen{display:none;flex-direction:column;height:100vh;height:-webkit-fill-available}
+.screen.active{display:flex}
+.topbar{background:#2563eb;color:#fff;padding:env(safe-area-inset-top,12px) 16px 12px;padding-top:calc(env(safe-area-inset-top,0px) + 14px);display:flex;align-items:center;gap:10px;flex-shrink:0;z-index:10}
+.topbar h1{font-size:16px;font-weight:500;flex:1}
+.icon-btn{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:6px 8px;border-radius:8px;min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center}
+.back-btn{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:2px 6px;min-width:36px;display:flex;align-items:center;justify-content:center}
+.content{flex:1;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch}
+.card{background:#fff;border-radius:14px;border:0.5px solid #e2e2e2;padding:14px;margin-bottom:12px}
+
+/* Login */
+#login-screen{background:#f3f4f6;justify-content:center;align-items:center}
+.login-box{background:#fff;border-radius:20px;padding:28px 24px;width:90%;max-width:340px;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.login-box h2{font-size:20px;font-weight:600;margin-bottom:4px;text-align:center}
+.login-box p{font-size:13px;color:#6b7280;margin-bottom:20px;text-align:center}
+.login-tab{display:flex;background:#f3f4f6;border-radius:10px;padding:3px;margin-bottom:18px;gap:3px}
+.login-tab button{flex:1;padding:8px;border:none;background:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;color:#6b7280}
+.login-tab button.active{background:#fff;color:#2563eb;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.login-input{width:100%;border:0.5px solid #d1d5db;border-radius:10px;padding:11px 13px;font-size:15px;color:#1a1a1a;background:#fff;outline:none;margin-bottom:10px;-webkit-appearance:none}
+.login-input:focus{border-color:#2563eb}
+.login-btn{width:100%;background:#2563eb;color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:500;cursor:pointer;margin-top:4px}
+.login-btn:active{opacity:.85}
+.login-err{color:#dc2626;font-size:12px;text-align:center;margin-top:8px;min-height:16px}
+
+/* Employee banner */
+.emp-banner{background:#fff;border-bottom:0.5px solid #e5e7eb;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.emp-avatar{width:36px;height:36px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#2563eb;flex-shrink:0}
+.emp-name-text{font-size:14px;font-weight:500;color:#1f2937;flex:1}
+.emp-sub{font-size:11px;color:#9ca3af}
+.sync-badge{font-size:11px;padding:3px 8px;border-radius:6px;font-weight:500}
+.sync-ok{background:#d1fae5;color:#065f46}
+.sync-pending{background:#fef3c7;color:#92400e}
+.sync-err{background:#fee2e2;color:#991b1b}
+
+/* Log items */
+.log-item{display:flex;gap:12px;align-items:flex-start}
+.log-thumb{width:64px;height:64px;border-radius:10px;flex-shrink:0;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden;cursor:pointer}
+.log-thumb img{width:100%;height:100%;object-fit:cover}
+.log-info{flex:1;min-width:0}
+.log-info .time{font-weight:600;font-size:15px;color:#1a1a1a}
+.log-info .date{font-size:12px;color:#6b7280;margin-bottom:3px}
+.log-info .emp-tag{display:inline-block;background:#dbeafe;color:#1d4ed8;font-size:11px;padding:2px 7px;border-radius:6px;margin-bottom:3px;font-weight:500}
+.log-info .desc{font-size:13px;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.log-info .gps{font-size:11px;color:#9ca3af;margin-top:2px}
+.empty-state{text-align:center;padding:60px 20px;color:#9ca3af}
+.empty-state .icon{font-size:52px;margin-bottom:12px}
+
+/* Camera */
+#cam-screen .content{padding:0;overflow:hidden}
+.cam-wrap{display:flex;flex-direction:column;height:100%}
+.video-wrap{position:relative;background:#000;flex-shrink:0}
+video{width:100%;display:block;max-height:48vw;object-fit:cover}
+#overlay{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+.cam-controls{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;background:#fff}
+.input-group{margin-bottom:12px}
+.input-group label{font-size:12px;color:#6b7280;display:block;margin-bottom:5px;font-weight:500}
+.input-group input,.input-group textarea{width:100%;border:0.5px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:15px;color:#1a1a1a;background:#fff;resize:none;-webkit-appearance:none;outline:none}
+.input-group textarea{height:68px}
+.input-group input:focus,.input-group textarea:focus{border-color:#2563eb}
+.input-group input[readonly]{background:#f9fafb;color:#6b7280}
+.gps-row{display:flex;align-items:center;gap:8px;font-size:12px;color:#6b7280;margin-bottom:14px;flex-wrap:wrap}
+.gps-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;transition:background .4s;background:#f59e0b}
+.btn-capture{width:100%;background:#2563eb;color:#fff;border:none;border-radius:12px;padding:15px;font-size:15px;font-weight:600;cursor:pointer;min-height:50px}
+.btn-capture:active{opacity:.85}
+.btn-capture:disabled{background:#93c5fd}
+
+/* Nav */
+.nav-bar{display:flex;background:#fff;border-top:0.5px solid #e2e2e2;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;border:none;background:none;cursor:pointer;color:#9ca3af;font-size:10px;gap:3px;min-height:56px}
+.nav-btn.active{color:#2563eb}
+.nav-icon{font-size:22px;line-height:1}
+.fab{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 72px);right:20px;width:58px;height:58px;border-radius:50%;background:#2563eb;color:#fff;border:none;font-size:28px;cursor:pointer;box-shadow:0 4px 16px rgba(37,99,235,.45);display:flex;align-items:center;justify-content:center;z-index:100}
+
+/* Export/Admin */
+.month-select,.filter-select{width:100%;border:0.5px solid #d1d5db;border-radius:10px;padding:11px 12px;font-size:14px;color:#1a1a1a;background:#fff;margin-bottom:12px;-webkit-appearance:none}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-box{background:#eff6ff;border-radius:12px;padding:14px;text-align:center}
+.stat-box .num{font-size:26px;font-weight:600;color:#2563eb}
+.stat-box .lbl{font-size:11px;color:#3b82f6;margin-top:3px}
+.btn-export{width:100%;background:#2563eb;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:500;cursor:pointer;margin-bottom:10px;min-height:50px}
+.btn-export.secondary{background:#fff;color:#2563eb;border:1px solid #2563eb}
+.btn-export.danger{background:#fff;color:#dc2626;border:1px solid #dc2626}
+.btn-export:active{opacity:.85}
+.export-log{background:#f9fafb;border-radius:10px;padding:12px;font-size:11px;color:#6b7280;max-height:140px;overflow-y:auto;white-space:pre-wrap;font-family:monospace}
+
+/* Admin log rows */
+.admin-log-item{border-bottom:0.5px solid #f3f4f6;padding:10px 0}
+.admin-log-item:last-child{border-bottom:none}
+.admin-log-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px}
+.admin-log-name{font-size:13px;font-weight:600;color:#1d4ed8}
+.admin-log-time{font-size:11px;color:#9ca3af}
+.admin-log-detail{font-size:12px;color:#374151}
+.admin-log-gps{font-size:11px;color:#9ca3af;margin-top:2px}
+.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:6px;font-weight:500;margin-right:4px}
+.pill-blue{background:#dbeafe;color:#1d4ed8}
+.pill-green{background:#d1fae5;color:#065f46}
+
+/* Photo preview */
+#photo-preview{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:200;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+#photo-preview.show{display:flex}
+#photo-preview img{max-width:100%;max-height:80vh;border-radius:10px;object-fit:contain}
+#photo-preview .close-btn{margin-top:16px;color:#fff;background:rgba(255,255,255,.15);border:none;border-radius:10px;padding:10px 28px;font-size:14px;cursor:pointer}
+
+/* Loading */
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,.7);z-index:500;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.loading-overlay.show{display:flex}
+.spinner{width:36px;height:36px;border:3px solid #dbeafe;border-top-color:#2563eb;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-size:14px;color:#2563eb;font-weight:500}
+
+/* Modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:flex-end;justify-content:center}
+.modal-bg.show{display:flex}
+.modal-box{background:#fff;border-radius:20px 20px 0 0;padding:24px 20px calc(env(safe-area-inset-bottom,16px) + 20px);width:100%;max-width:480px}
+.modal-box h2{font-size:16px;font-weight:600;margin-bottom:6px}
+.modal-box p{font-size:13px;color:#6b7280;margin-bottom:16px}
+.modal-input{width:100%;border:1px solid #d1d5db;border-radius:10px;padding:12px 14px;font-size:15px;color:#1a1a1a;background:#fff;outline:none;-webkit-appearance:none}
+.modal-input:focus{border-color:#2563eb}
+.modal-btn{width:100%;background:#2563eb;color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:500;cursor:pointer;margin-top:12px}
+
+.toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 80px);left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;z-index:400;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ LOGIN ═══════════════════════════════ -->
+<div class="screen active" id="login-screen">
+  <div class="login-box">
+    <div style="font-size:40px;text-align:center;margin-bottom:8px">⏱️</div>
+    <h2>Time Logger</h2>
+    <p>ระบบบันทึกเวลาทำงาน</p>
+    <div class="login-tab">
+      <button class="active" id="tab-sales" onclick="switchTab('sales')">👤 Sales</button>
+      <button id="tab-admin" onclick="switchTab('admin')">👑 Admin</button>
+    </div>
+    <input class="login-input" type="text" id="login-name" placeholder="ชื่อ-นามสกุล" autocomplete="off">
+    <input class="login-input" type="password" id="login-pass" placeholder="รหัสผ่าน" autocomplete="off">
+    <button class="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <div class="login-err" id="login-err"></div>
+    <p style="font-size:11px;color:#d1d5db;text-align:center;margin-top:14px">Sales: ใส่ชื่อจริง + รหัส <b>1234</b><br>Admin: ชื่อ <b>admin</b> + รหัส <b>admin1234</b></p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ HOME (SALES) ═══════════════════════════════ -->
+<div class="screen" id="home-screen">
+  <div class="topbar">
+    <h1>บันทึกเวลาทำงาน</h1>
+    <button class="icon-btn" onclick="goExport()" title="Export">📤</button>
+    <button class="icon-btn" onclick="doLogout()" title="ออกจากระบบ">🚪</button>
+  </div>
+  <div class="emp-banner">
+    <div class="emp-avatar" id="emp-avatar">?</div>
+    <div style="flex:1;min-width:0">
+      <div class="emp-name-text" id="emp-display">-</div>
+      <div class="emp-sub">Sales</div>
+    </div>
+    <span class="sync-badge sync-ok" id="sync-status">✓ ซิงค์แล้ว</span>
+  </div>
+  <div class="content" id="log-list">
+    <div class="empty-state" id="empty-msg">
+      <div class="icon">📷</div>
+      <p>ยังไม่มีการบันทึก<br>กดปุ่ม <b>+</b> เพื่อเริ่มบันทึกเวลา</p>
+    </div>
+  </div>
+  <button class="fab" onclick="goCamera()">+</button>
+  <div class="nav-bar">
+    <button class="nav-btn active" onclick="showHome()"><span class="nav-icon">🏠</span>หน้าหลัก</button>
+    <button class="nav-btn" onclick="goExport()"><span class="nav-icon">📤</span>Export</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ CAMERA ═══════════════════════════════ -->
+<div class="screen" id="cam-screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="stopCamera();showHome()">←</button>
+    <h1>บันทึกเวลา</h1>
+  </div>
+  <div class="content">
+    <div class="cam-wrap">
+      <div class="video-wrap">
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="overlay"></canvas>
+      </div>
+      <div class="cam-controls">
+        <div class="input-group">
+          <label>👤 พนักงาน</label>
+          <input type="text" id="emp-readonly" readonly>
+        </div>
+        <div class="input-group">
+          <label>🏢 ชื่อลูกค้า / สถานที่</label>
+          <input type="text" id="customer-name" placeholder="เช่น บริษัท ABC จำกัด">
+        </div>
+        <div class="input-group">
+          <label>📝 รายละเอียด</label>
+          <textarea id="desc-input" placeholder="เช่น ติดตั้งอุปกรณ์, ตรวจเช็คระบบ..."></textarea>
+        </div>
+        <div class="gps-row">
+          <div class="gps-dot" id="gps-dot"></div>
+          <span id="gps-status">กำลังระบุตำแหน่ง...</span>
+        </div>
+        <button class="btn-capture" id="capture-btn" onclick="capturePhoto()">📷 ถ่ายภาพและบันทึก</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ EXPORT (SALES) ═══════════════════════════════ -->
+<div class="screen" id="export-screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="showHome()">←</button>
+    <h1>Export รายงาน</h1>
+  </div>
+  <div class="content">
+    <div class="card">
+      <p style="font-size:13px;color:#6b7280;margin-bottom:10px;font-weight:500">เลือกเดือน</p>
+      <select class="month-select" id="month-select"></select>
+      <div class="stat-row">
+        <div class="stat-box"><div class="num" id="stat-count">0</div><div class="lbl">รายการ</div></div>
+        <div class="stat-box"><div class="num" id="stat-days">0</div><div class="lbl">วันทำงาน</div></div>
+      </div>
+      <button class="btn-export" onclick="exportEmail()">📧 ส่งอีเมล</button>
+      <button class="btn-export secondary" onclick="exportDownload()">💾 บันทึก CSV</button>
+      <button class="btn-export" onclick="syncNow()" style="background:#059669;margin-top:4px">☁️ Sync ขึ้น Google Sheets</button>
+    </div>
+    <div class="card">
+      <p style="font-size:12px;font-weight:500;margin-bottom:8px;color:#374151">ตัวอย่างข้อมูล</p>
+      <div class="export-log" id="export-preview">เลือกเดือนเพื่อดูตัวอย่าง</div>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <button class="nav-btn" onclick="showHome()"><span class="nav-icon">🏠</span>หน้าหลัก</button>
+    <button class="nav-btn active"><span class="nav-icon">📤</span>Export</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ ADMIN ═══════════════════════════════ -->
+<div class="screen" id="admin-screen">
+  <div class="topbar">
+    <h1>👑 Admin Dashboard</h1>
+    <button class="icon-btn" onclick="doLogout()">🚪</button>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button class="btn-export" style="margin:0;flex:1;padding:11px;font-size:13px" onclick="adminLoadData()">🔄 โหลดข้อมูล</button>
+        <button class="btn-export secondary" style="margin:0;flex:1;padding:11px;font-size:13px" onclick="adminExportCSV()">💾 Export CSV</button>
+      </div>
+      <select class="filter-select" id="admin-month-filter">
+        <option value="">— ทุกเดือน —</option>
+      </select>
+      <select class="filter-select" id="admin-emp-filter">
+        <option value="">— พนักงานทุกคน —</option>
+      </select>
+      <div class="stat-row">
+        <div class="stat-box"><div class="num" id="admin-stat-count">-</div><div class="lbl">รายการทั้งหมด</div></div>
+        <div class="stat-box"><div class="num" id="admin-stat-emp">-</div><div class="lbl">จำนวนพนักงาน</div></div>
+      </div>
+    </div>
+    <div class="card" id="admin-log-container">
+      <div class="empty-state"><div class="icon">☁️</div><p>กด "โหลดข้อมูล" เพื่อดึงข้อมูลจาก Google Sheets</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- PHOTO PREVIEW -->
+<div id="photo-preview">
+  <img id="preview-img" src="" alt="">
+  <button class="close-btn" onclick="document.getElementById('photo-preview').classList.remove('show')">ปิด</button>
+</div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-txt" id="loading-txt">กำลังโหลด...</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  CONFIG — ใส่ Web App URL ของคุณที่นี่
+// ══════════════════════════════════════════════
+const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwccxlzCelrGAeYJvnb-IQqL4higDceZfSdz2_RY3A3au5rhX3KU_KnFIh1wdW_tyvs/exec';
+const ADMIN_PASS = 'admin1234';
+const SALES_PASS = '1234';
+const DB_KEY = 'time_logs_v2';
+const SESSION_KEY = 'tl_session';
+
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+let logs = [], stream = null, gpsCoords = null, gpsWatcher = null;
+let currentUser = null, isAdmin = false;
+let adminAllData = [];
+
+function loadLogs(){ try{ logs = JSON.parse(localStorage.getItem(DB_KEY)||'[]'); }catch(e){ logs=[]; } }
+function saveLogs(){ localStorage.setItem(DB_KEY, JSON.stringify(logs)); }
+loadLogs();
+
+// restore session
+(function(){
+  try{
+    const s = JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null');
+    if(s){ currentUser=s.name; isAdmin=s.admin; showAfterLogin(); }
+  }catch(e){}
+})();
+
+// ══════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════
+function getInitials(n){ if(!n) return '?'; const p=n.trim().split(' '); return (p[0][0]+(p[1]?p[1][0]:'')).toUpperCase(); }
+function showLoading(txt='กำลังโหลด...'){ document.getElementById('loading-txt').textContent=txt; document.getElementById('loading').classList.add('show'); }
+function hideLoading(){ document.getElementById('loading').classList.remove('show'); }
+function showToast(msg, dur=2500){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), dur);
+}
+function go(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+
+// ══════════════════════════════════════════════
+//  LOGIN
+// ══════════════════════════════════════════════
+let loginMode = 'sales';
+function switchTab(mode){
+  loginMode = mode;
+  document.getElementById('tab-sales').classList.toggle('active', mode==='sales');
+  document.getElementById('tab-admin').classList.toggle('active', mode==='admin');
+  document.getElementById('login-name').placeholder = mode==='admin' ? 'admin' : 'ชื่อ-นามสกุล';
+}
+function doLogin(){
+  const name = document.getElementById('login-name').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-err');
+  err.textContent='';
+  if(!name){ err.textContent='กรุณากรอกชื่อ'; return; }
+  if(loginMode==='admin'){
+    if(name!=='admin'||pass!==ADMIN_PASS){ err.textContent='ชื่อหรือรหัสผ่านไม่ถูกต้อง'; return; }
+    currentUser='Admin'; isAdmin=true;
+  } else {
+    if(pass!==SALES_PASS){ err.textContent='รหัสผ่านไม่ถูกต้อง (ค่าเริ่มต้น: 1234)'; return; }
+    currentUser=name; isAdmin=false;
+  }
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({name:currentUser, admin:isAdmin}));
+  showAfterLogin();
+}
+document.getElementById('login-pass').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+function doLogout(){
+  sessionStorage.removeItem(SESSION_KEY);
+  currentUser=null; isAdmin=false;
+  document.getElementById('login-name').value='';
+  document.getElementById('login-pass').value='';
+  document.getElementById('login-err').textContent='';
+  go('login-screen');
+}
+function showAfterLogin(){
+  if(isAdmin){ go('admin-screen'); }
+  else { updateEmpUI(); renderLogs(); go('home-screen'); checkPendingSync(); }
+}
+
+// ══════════════════════════════════════════════
+//  EMPLOYEE UI
+// ══════════════════════════════════════════════
+function updateEmpUI(){
+  document.getElementById('emp-display').textContent = currentUser||'-';
+  document.getElementById('emp-avatar').textContent = getInitials(currentUser);
+  if(document.getElementById('emp-readonly')) document.getElementById('emp-readonly').value = currentUser||'';
+}
+
+// ══════════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════════
+function showHome(){ updateEmpUI(); renderLogs(); go('home-screen'); }
+function goCamera(){ updateEmpUI(); go('cam-screen'); startCamera(); startGPS(); }
+function goExport(){ go('export-screen'); populateMonths(); }
+
+// ══════════════════════════════════════════════
+//  RENDER LOGS
+// ══════════════════════════════════════════════
+function myLogs(){ return logs.filter(l=>l.empName===currentUser); }
+function renderLogs(){
+  const list=document.getElementById('log-list');
+  const mine=myLogs();
+  document.getElementById('empty-msg').style.display=mine.length?'none':'block';
+  list.querySelectorAll('.card').forEach(c=>c.remove());
+  [...mine].reverse().forEach(log=>{
+    const card=document.createElement('div'); card.className='card';
+    const d=new Date(log.ts);
+    const dateStr=d.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+    const timeStr=d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    const synced=log.synced?'<span class="pill pill-green">☁️ ซิงค์แล้ว</span>':'<span class="pill" style="background:#fef3c7;color:#92400e">⏳ รอซิงค์</span>';
+    card.innerHTML=`<div class="log-item">
+      <div class="log-thumb" onclick="viewPhoto('${log.photo||''}')">
+        ${log.photo?`<img src="${log.photo}" alt="">`:'📷'}
+      </div>
+      <div class="log-info">
+        <div class="date">${dateStr}</div>
+        <div class="time">${timeStr}</div>
+        <div style="margin-bottom:3px">${synced}</div>
+        <div class="desc">${[log.customer,log.desc].filter(Boolean).join(' — ')||'(ไม่มีรายละเอียด)'}</div>
+        <div class="gps">${log.lat?'📍 '+log.lat.toFixed(5)+', '+log.lng.toFixed(5):'ไม่มีข้อมูล GPS'}</div>
+      </div>
+    </div>`;
+    list.appendChild(card);
+  });
+}
+
+// ══════════════════════════════════════════════
+//  CAMERA
+// ══════════════════════════════════════════════
+function startCamera(){
+  const vid=document.getElementById('video');
+  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false})
+    .then(s=>{ stream=s; vid.srcObject=s; vid.play(); drawOverlay(); })
+    .catch(()=>{ alert('ไม่สามารถเข้าถึงกล้องได้\nกรุณาอนุญาตการใช้งานกล้อง'); showHome(); });
+}
+function stopCamera(){
+  if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
+  if(gpsWatcher){ navigator.geolocation.clearWatch(gpsWatcher); gpsWatcher=null; }
+}
+function startGPS(){
+  gpsCoords=null;
+  const dot=document.getElementById('gps-dot'), st=document.getElementById('gps-status');
+  dot.style.background='#f59e0b'; st.textContent='กำลังระบุตำแหน่ง...';
+  if(!navigator.geolocation){ st.textContent='ไม่รองรับ GPS'; return; }
+  gpsWatcher=navigator.geolocation.watchPosition(pos=>{
+    gpsCoords={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:Math.round(pos.coords.accuracy)};
+    dot.style.background='#22c55e';
+    st.textContent=`📍 ${gpsCoords.lat.toFixed(5)}, ${gpsCoords.lng.toFixed(5)} (±${gpsCoords.acc}m)`;
+  },()=>{ dot.style.background='#ef4444'; st.textContent='ไม่สามารถระบุตำแหน่งได้'; },
+  {enableHighAccuracy:true,maximumAge:5000,timeout:15000});
+}
+function drawOverlay(){
+  const vid=document.getElementById('video'), cvs=document.getElementById('overlay');
+  function tick(){
+    if(!stream) return;
+    cvs.width=vid.clientWidth; cvs.height=vid.clientHeight;
+    const ctx=cvs.getContext('2d'), now=new Date();
+    const ds=now.toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'});
+    const ts=now.toLocaleTimeString('th-TH');
+    const fs=Math.max(11,Math.round(cvs.height*0.05));
+    const barH=Math.max(48,cvs.height*0.17);
+    ctx.clearRect(0,0,cvs.width,cvs.height);
+    ctx.fillStyle='rgba(0,0,0,0.52)';
+    ctx.fillRect(0,cvs.height-barH,cvs.width,barH);
+    ctx.fillStyle='#fff'; ctx.font=`bold ${fs}px sans-serif`;
+    ctx.fillText(ds+' '+ts, 10, cvs.height-barH+fs+4);
+    ctx.fillStyle='#93c5fd'; ctx.font=`${Math.round(fs*.82)}px sans-serif`;
+    ctx.fillText('👤 '+(currentUser||''), 10, cvs.height-barH+fs*2+4);
+    if(gpsCoords){ ctx.fillStyle='rgba(255,255,255,.6)'; ctx.font=`${Math.round(fs*.68)}px sans-serif`; ctx.fillText('GPS: '+gpsCoords.lat.toFixed(5)+', '+gpsCoords.lng.toFixed(5), 10, cvs.height-8); }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function capturePhoto(){
+  const vid=document.getElementById('video');
+  const cvs=document.createElement('canvas');
+  cvs.width=vid.videoWidth||1280; cvs.height=vid.videoHeight||720;
+  const ctx=cvs.getContext('2d');
+  ctx.drawImage(vid,0,0,cvs.width,cvs.height);
+  const now=new Date();
+  const ds=now.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+  const ts=now.toLocaleTimeString('th-TH');
+  const customer=document.getElementById('customer-name').value.trim();
+  const desc=document.getElementById('desc-input').value.trim();
+  const fs=Math.max(16,Math.round(cvs.height*0.038));
+  const lines=[`${ds}  ${ts}`,`👤 ${currentUser||''}`,customer?`🏢 ${customer}`:'',desc?`📝 ${desc.substring(0,60)}`:'',gpsCoords?`📍 GPS: ${gpsCoords.lat.toFixed(5)}, ${gpsCoords.lng.toFixed(5)}`:''].filter(Boolean);
+  const barH=(lines.length*(fs+6))+14;
+  ctx.fillStyle='rgba(0,0,0,0.56)';
+  ctx.fillRect(0,cvs.height-barH,cvs.width,barH);
+  lines.forEach((line,i)=>{
+    ctx.font=i===0?`bold ${fs}px sans-serif`:`${Math.round(fs*.85)}px sans-serif`;
+    ctx.fillStyle=i===1?'#93c5fd':i===0?'#fff':'#d1fae5';
+    ctx.fillText(line,12,cvs.height-barH+12+(i*(fs+6))+fs);
+  });
+  const photo=cvs.toDataURL('image/jpeg',0.72);
+  const log={
+    id:'lg_'+Date.now(), ts:now.toISOString(), empName:currentUser,
+    customer, desc, photo,
+    lat:gpsCoords?gpsCoords.lat:null, lng:gpsCoords?gpsCoords.lng:null,
+    acc:gpsCoords?gpsCoords.acc:null, synced:false
+  };
+  logs.push(log); saveLogs();
+  document.getElementById('customer-name').value='';
+  document.getElementById('desc-input').value='';
+  stopCamera(); showHome();
+  setTimeout(()=>syncSingleLog(log), 800);
+}
+
+// ══════════════════════════════════════════════
+//  SYNC TO GOOGLE SHEETS
+// ══════════════════════════════════════════════
+async function syncSingleLog(log){
+  setSyncBadge('pending');
+  try{
+    const payload={
+      timestamp: log.ts, employeeName: log.empName,
+      customer: log.customer, description: log.desc,
+      lat: log.lat||'', lng: log.lng||'', accuracy: log.acc||'',
+      photoUrl: '', deviceId: log.id
+    };
+    const res = await fetch(WEBAPP_URL, {method:'POST', body:JSON.stringify(payload)});
+    const data = await res.json();
+    if(data.status==='ok'){
+      log.synced=true; saveLogs();
+      setSyncBadge('ok'); showToast('✓ บันทึกและซิงค์สำเร็จ');
+    } else { setSyncBadge('err'); showToast('⚠️ Sync ไม่สำเร็จ (จะลองใหม่ภายหลัง)'); }
+  }catch(e){ setSyncBadge('err'); showToast('📶 ไม่มีอินเทอร์เน็ต — บันทึกไว้แล้ว'); }
+}
+
+async function syncNow(){
+  const pending = logs.filter(l=>l.empName===currentUser && !l.synced);
+  if(!pending.length){ showToast('✓ ข้อมูลซิงค์ทั้งหมดแล้ว'); return; }
+  showLoading(`กำลัง Sync ${pending.length} รายการ...`);
+  let ok=0;
+  for(const log of pending){
+    try{
+      const payload={timestamp:log.ts,employeeName:log.empName,customer:log.customer,description:log.desc,lat:log.lat||'',lng:log.lng||'',accuracy:log.acc||'',photoUrl:'',deviceId:log.id};
+      const res=await fetch(WEBAPP_URL,{method:'POST',body:JSON.stringify(payload)});
+      const data=await res.json();
+      if(data.status==='ok'){ log.synced=true; ok++; }
+    }catch(e){}
+  }
+  saveLogs(); hideLoading();
+  showToast(`☁️ Sync สำเร็จ ${ok}/${pending.length} รายการ`);
+  setSyncBadge(ok===pending.length?'ok':'err');
+  renderLogs();
+}
+
+function checkPendingSync(){
+  const pending=logs.filter(l=>l.empName===currentUser && !l.synced);
+  setSyncBadge(pending.length?'pending':'ok');
+}
+function setSyncBadge(state){
+  const el=document.getElementById('sync-status');
+  if(!el) return;
+  el.className='sync-badge';
+  if(state==='ok'){ el.classList.add('sync-ok'); el.textContent='✓ ซิงค์แล้ว'; }
+  else if(state==='pending'){ el.classList.add('sync-pending'); el.textContent='⏳ รอซิงค์'; }
+  else { el.classList.add('sync-err'); el.textContent='✗ Sync ล้มเหลว'; }
+}
+
+// ══════════════════════════════════════════════
+//  EXPORT (SALES)
+// ══════════════════════════════════════════════
+function getMonthKey(ts){ const d=new Date(ts); return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'); }
+function populateMonths(){
+  const mine=myLogs();
+  const sel=document.getElementById('month-select');
+  const keys=[...new Set(mine.map(l=>getMonthKey(l.ts)))].sort().reverse();
+  const now=new Date(), thisKey=now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0');
+  if(!keys.includes(thisKey)) keys.unshift(thisKey);
+  sel.innerHTML=keys.map(k=>{ const [y,m]=k.split('-'); return `<option value="${k}">${new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'})}</option>`; }).join('');
+  sel.onchange=updateExportPreview; updateExportPreview();
+}
+function getFiltered(){
+  const key=document.getElementById('month-select').value;
+  return myLogs().filter(l=>getMonthKey(l.ts)===key);
+}
+function updateExportPreview(){
+  const f=getFiltered(), days=new Set(f.map(l=>new Date(l.ts).toDateString())).size;
+  document.getElementById('stat-count').textContent=f.length;
+  document.getElementById('stat-days').textContent=days;
+  if(!f.length){ document.getElementById('export-preview').textContent='ไม่มีข้อมูลในเดือนนี้'; return; }
+  const rows=['วันที่,เวลา,พนักงาน,ลูกค้า,รายละเอียด,GPS Lat,GPS Lng,ซิงค์'];
+  f.forEach(l=>{ const d=new Date(l.ts); rows.push([d.toLocaleDateString('th-TH'),d.toLocaleTimeString('th-TH'),'"'+(l.empName||'')+'"','"'+(l.customer||'')+'"','"'+(l.desc||'')+'"',l.lat?l.lat.toFixed(6):'',l.lng?l.lng.toFixed(6):'',l.synced?'✓':'รอ'].join(',')); });
+  document.getElementById('export-preview').textContent=rows.join('\n');
+}
+function buildCSV(rows_data){ const rows=['วันที่,เวลา,พนักงาน,ลูกค้า,รายละเอียด,GPS Lat,GPS Lng']; rows_data.forEach(l=>{ const d=new Date(l.ts||l.timestamp); rows.push([d.toLocaleDateString('th-TH'),d.toLocaleTimeString('th-TH'),'"'+(l.empName||l.employeeName||'')+'"','"'+(l.customer||'')+'"','"'+(l.desc||l.description||'')+'"',l.lat?parseFloat(l.lat).toFixed(6):'',l.lng?parseFloat(l.lng).toFixed(6):''].join(',')); }); return rows.join('\n'); }
+function downloadCSV(content, filename){ const blob=new Blob(['\uFEFF'+content],{type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url); }
+function exportDownload(){ downloadCSV(buildCSV(getFiltered()), 'time_log_'+document.getElementById('month-select').value+'.csv'); }
+function exportEmail(){
+  const f=getFiltered(); if(!f.length){ alert('ไม่มีข้อมูล'); return; }
+  const key=document.getElementById('month-select').value; const [y,m]=key.split('-');
+  const ml=new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'});
+  const days=new Set(f.map(l=>new Date(l.ts).toDateString())).size;
+  let body=`รายงานบันทึกเวลาทำงาน เดือน${ml}\nพนักงาน: ${currentUser}\nจำนวนรายการ: ${f.length} | วันทำงาน: ${days} วัน\n\n`;
+  f.forEach((l,i)=>{ const d=new Date(l.ts); body+=`${i+1}. ${d.toLocaleDateString('th-TH')} ${d.toLocaleTimeString('th-TH')}\n`; if(l.customer) body+=`   ลูกค้า: ${l.customer}\n`; if(l.desc) body+=`   รายละเอียด: ${l.desc}\n`; if(l.lat) body+=`   GPS: ${l.lat.toFixed(5)}, ${l.lng.toFixed(5)}\n`; body+='\n'; });
+  window.location.href=`mailto:?subject=${encodeURIComponent('รายงานบันทึกเวลา '+ml+' - '+currentUser)}&body=${encodeURIComponent(body)}`;
+}
+
+// ══════════════════════════════════════════════
+//  ADMIN
+// ══════════════════════════════════════════════
+async function adminLoadData(){
+  showLoading('กำลังดึงข้อมูลจาก Google Sheets...');
+  try{
+    const res = await fetch(WEBAPP_URL+'?action=get');
+    const json = await res.json();
+    hideLoading();
+    if(json.status==='ok'){
+      adminAllData = json.data||[];
+      populateAdminFilters();
+      renderAdminLogs();
+      showToast(`✓ โหลดสำเร็จ ${adminAllData.length} รายการ`);
+    } else { showToast('❌ โหลดข้อมูลไม่สำเร็จ'); }
+  }catch(e){ hideLoading(); showToast('❌ ไม่สามารถเชื่อมต่อได้ กรุณาตรวจสอบอินเทอร์เน็ต'); }
+}
+
+function populateAdminFilters(){
+  const months=[...new Set(adminAllData.map(r=>{ const d=new Date(r.timestamp); return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'); }))].sort().reverse();
+  const emps=[...new Set(adminAllData.map(r=>r.employeeName).filter(Boolean))].sort();
+  const mSel=document.getElementById('admin-month-filter');
+  const eSel=document.getElementById('admin-emp-filter');
+  mSel.innerHTML='<option value="">— ทุกเดือน —</option>'+months.map(k=>{ const [y,m]=k.split('-'); return `<option value="${k}">${new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'})}</option>`; }).join('');
+  eSel.innerHTML='<option value="">— พนักงานทุกคน —</option>'+emps.map(e=>`<option value="${e}">${e}</option>`).join('');
+  mSel.onchange=renderAdminLogs; eSel.onchange=renderAdminLogs;
+}
+
+function getAdminFiltered(){
+  let d=[...adminAllData];
+  const mf=document.getElementById('admin-month-filter').value;
+  const ef=document.getElementById('admin-emp-filter').value;
+  if(mf) d=d.filter(r=>{ const dt=new Date(r.timestamp); const k=dt.getFullYear()+'-'+(dt.getMonth()+1).toString().padStart(2,'0'); return k===mf; });
+  if(ef) d=d.filter(r=>r.employeeName===ef);
+  return d.sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+}
+
+function renderAdminLogs(){
+  const f=getAdminFiltered();
+  const emps=new Set(f.map(r=>r.employeeName).filter(Boolean));
+  document.getElementById('admin-stat-count').textContent=f.length;
+  document.getElementById('admin-stat-emp').textContent=emps.size;
+  const container=document.getElementById('admin-log-container');
+  if(!f.length){ container.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>ไม่มีข้อมูลที่ตรงกับตัวกรอง</p></div>'; return; }
+  container.innerHTML=f.map(r=>{
+    const d=new Date(r.timestamp);
+    const dateStr=d.toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'});
+    const timeStr=d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    const gps=r.lat?`📍 ${parseFloat(r.lat).toFixed(5)}, ${parseFloat(r.lng).toFixed(5)}`:'';
+    return `<div class="admin-log-item">
+      <div class="admin-log-top">
+        <span class="admin-log-name">👤 ${r.employeeName||'-'}</span>
+        <span class="admin-log-time">${dateStr} ${timeStr}</span>
+      </div>
+      <div class="admin-log-detail">${[r.customer,r.description].filter(Boolean).join(' — ')||'(ไม่มีรายละเอียด)'}</div>
+      ${gps?`<div class="admin-log-gps">${gps}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function adminExportCSV(){
+  const f=getAdminFiltered();
+  if(!f.length){ showToast('ไม่มีข้อมูล'); return; }
+  const mf=document.getElementById('admin-month-filter').value;
+  const ef=document.getElementById('admin-emp-filter').value;
+  const name='admin_export'+(mf?'_'+mf:'')+(ef?'_'+ef:'')+'.csv';
+  downloadCSV(buildCSV(f.map(r=>({ts:r.timestamp,empName:r.employeeName,customer:r.customer,desc:r.description,lat:r.lat,lng:r.lng}))), name);
+}
+
+// ══════════════════════════════════════════════
+//  MISC
+// ══════════════════════════════════════════════
+function viewPhoto(src){ if(!src) return; document.getElementById('preview-img').src=src; document.getElementById('photo-preview').classList.add('show'); }
+</script>
+</body>
+</html>
