@@ -136,15 +136,16 @@ video{width:100%;display:block;max-height:48vw;object-fit:cover}
     <p class="sub">ระบบบันทึกเวลาทำงาน</p>
     <div class="login-tab">
       <button class="active" id="tab-sales" onclick="switchTab('sales')">👤 Sales</button>
+      <button id="tab-register" onclick="switchTab('register')">📝 สมัคร</button>
       <button id="tab-admin" onclick="switchTab('admin')">👑 Admin</button>
     </div>
-    <input class="login-input" type="text" id="login-name" placeholder="ชื่อ-นามสกุล" autocomplete="off">
+    <input class="login-input" type="text" id="login-name" placeholder="username" autocomplete="off">
     <input class="login-input" type="password" id="login-pass" placeholder="รหัสผ่าน" autocomplete="new-password">
-    <button class="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <button class="login-btn" onclick="doLogin()" id="login-btn">เข้าสู่ระบบ</button>
     <div class="login-err" id="login-err"></div>
-    <div class="hint-box">
-      Sales: ชื่อจริง + รหัส <b>1234</b><br>
-      Admin: ชื่อ <b>admin</b> + รหัส <b>admin1234</b>
+    <div class="hint-box" id="hint-box">
+      กรอก username + รหัสผ่านที่สมัครไว้<br>
+      หากยังไม่มีบัญชี กดแท็บ <b>📝 สมัคร</b>
     </div>
   </div>
 </div>
@@ -247,22 +248,45 @@ video{width:100%;display:block;max-height:48vw;object-fit:cover}
     <h1>👑 Admin Dashboard</h1>
     <button class="icon-btn" onclick="doLogout()">🚪</button>
   </div>
-  <div class="content">
-    <div class="card">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-        <button class="btn-action btn-blue" style="margin:0;padding:11px;font-size:13px" onclick="adminLoadData()">🔄 โหลดข้อมูล</button>
-        <button class="btn-action btn-outline" style="margin:0;padding:11px;font-size:13px" onclick="adminExportCSV()">💾 Export CSV</button>
+  <div class="emp-banner" style="padding:0">
+    <div style="display:flex;width:100%">
+      <button class="nav-btn" id="admin-tab-logs" onclick="switchAdminView('logs')" style="border-bottom:2px solid #2563eb">📊 ข้อมูลเวลา</button>
+      <button class="nav-btn" id="admin-tab-users" onclick="switchAdminView('users')" style="border-bottom:2px solid transparent">👥 ผู้ใช้<span id="pending-badge" style="display:none;background:#dc2626;color:#fff;font-size:10px;padding:1px 6px;border-radius:8px;margin-left:4px">0</span></button>
+    </div>
+  </div>
+  <div class="content" id="admin-content">
+    <!-- LOGS VIEW -->
+    <div id="admin-view-logs">
+      <div class="card">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+          <button class="btn-action btn-blue" style="margin:0;padding:11px;font-size:13px" onclick="adminLoadData()">🔄 โหลดข้อมูล</button>
+          <button class="btn-action btn-outline" style="margin:0;padding:11px;font-size:13px" onclick="adminExportCSV()">💾 Export CSV</button>
+        </div>
+        <button class="btn-action btn-green" style="margin:0 0 12px;padding:11px;font-size:13px" onclick="showGallery()">📸 ดูรูปทั้งหมด (Gallery)</button>
+        <select class="filter-select" id="admin-month-filter"><option value="">— ทุกเดือน —</option></select>
+        <select class="filter-select" id="admin-emp-filter"><option value="">— พนักงานทุกคน —</option></select>
+        <div class="stat-row">
+          <div class="stat-box"><div class="num" id="admin-stat-count">-</div><div class="lbl">รายการทั้งหมด</div></div>
+          <div class="stat-box"><div class="num" id="admin-stat-emp">-</div><div class="lbl">จำนวนพนักงาน</div></div>
+        </div>
       </div>
-      <button class="btn-action btn-green" style="margin:0 0 12px;padding:11px;font-size:13px" onclick="showGallery()">📸 ดูรูปทั้งหมด (Gallery)</button>
-      <select class="filter-select" id="admin-month-filter"><option value="">— ทุกเดือน —</option></select>
-      <select class="filter-select" id="admin-emp-filter"><option value="">— พนักงานทุกคน —</option></select>
-      <div class="stat-row">
-        <div class="stat-box"><div class="num" id="admin-stat-count">-</div><div class="lbl">รายการทั้งหมด</div></div>
-        <div class="stat-box"><div class="num" id="admin-stat-emp">-</div><div class="lbl">จำนวนพนักงาน</div></div>
+      <div class="card" id="admin-log-container">
+        <div class="empty-state"><div class="icon">☁️</div><p>กด "โหลดข้อมูล" เพื่อดึงข้อมูลจาก Google Sheets</p></div>
       </div>
     </div>
-    <div class="card" id="admin-log-container">
-      <div class="empty-state"><div class="icon">☁️</div><p>กด "โหลดข้อมูล" เพื่อดึงข้อมูลจาก Google Sheets</p></div>
+
+    <!-- USERS VIEW -->
+    <div id="admin-view-users" style="display:none">
+      <div class="card">
+        <button class="btn-action btn-blue" style="margin:0 0 10px;padding:11px;font-size:13px" onclick="adminLoadUsers()">🔄 โหลดรายชื่อผู้ใช้</button>
+        <div class="stat-row">
+          <div class="stat-box"><div class="num" id="user-stat-pending">0</div><div class="lbl">รออนุมัติ</div></div>
+          <div class="stat-box"><div class="num" id="user-stat-approved">0</div><div class="lbl">อนุมัติแล้ว</div></div>
+        </div>
+      </div>
+      <div class="card" id="user-list-container">
+        <div class="empty-state"><div class="icon">👥</div><p>กด "โหลดรายชื่อ" เพื่อดูข้อมูล</p></div>
+      </div>
     </div>
   </div>
 </div>
@@ -330,24 +354,69 @@ let loginMode='sales';
 function switchTab(m){
   loginMode=m;
   document.getElementById('tab-sales').classList.toggle('active',m==='sales');
+  document.getElementById('tab-register').classList.toggle('active',m==='register');
   document.getElementById('tab-admin').classList.toggle('active',m==='admin');
-  document.getElementById('login-name').placeholder=m==='admin'?'admin':'ชื่อ-นามสกุล';
+  const nameEl=document.getElementById('login-name');
+  const btnEl=document.getElementById('login-btn');
+  const hintEl=document.getElementById('hint-box');
+  document.getElementById('login-err').textContent='';
+  if(m==='admin'){
+    nameEl.placeholder='admin';
+    btnEl.textContent='เข้าสู่ระบบ';
+    hintEl.innerHTML='Admin: ชื่อ <b>admin</b> + รหัส <b>admin1234</b>';
+  } else if(m==='register'){
+    nameEl.placeholder='username (ขั้นต่ำ 3 ตัวอักษร)';
+    btnEl.textContent='📝 สมัครสมาชิก';
+    hintEl.innerHTML='สมัครแล้วรอ Admin อนุมัติก่อนใช้งาน<br>username/password อย่างน้อย 3 และ 4 ตัวอักษร';
+  } else {
+    nameEl.placeholder='username';
+    btnEl.textContent='เข้าสู่ระบบ';
+    hintEl.innerHTML='กรอก username + รหัสผ่านที่สมัครไว้<br>หากยังไม่มีบัญชี กดแท็บ <b>📝 สมัคร</b>';
+  }
 }
-function doLogin(){
+
+async function doLogin(){
   const name=document.getElementById('login-name').value.trim();
   const pass=document.getElementById('login-pass').value;
   const err=document.getElementById('login-err');
   err.textContent='';
-  if(!name){ err.textContent='กรุณากรอกชื่อ'; return; }
+  if(!name){ err.textContent='กรุณากรอก username'; return; }
+  if(!pass){ err.textContent='กรุณากรอกรหัสผ่าน'; return; }
+
+  // ═══ REGISTER ═══
+  if(loginMode==='register'){
+    showLoading('กำลังสมัครสมาชิก...');
+    try{
+      const data=await apiPost({action:'register',username:name,password:pass});
+      hideLoading();
+      if(data.status==='ok'){
+        showToast('✓ '+data.msg, 4000);
+        switchTab('sales');
+        document.getElementById('login-pass').value='';
+      } else { err.textContent=data.msg||'สมัครไม่สำเร็จ'; }
+    }catch(e){ hideLoading(); err.textContent='เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง'; }
+    return;
+  }
+
+  // ═══ ADMIN (hardcoded) ═══
   if(loginMode==='admin'){
     if(name!=='admin'||pass!==ADMIN_PASS){ err.textContent='ชื่อหรือรหัสผ่านไม่ถูกต้อง'; return; }
     currentUser='Admin'; isAdmin=true;
-  } else {
-    if(pass!==SALES_PASS){ err.textContent='รหัสผ่านไม่ถูกต้อง'; return; }
-    currentUser=name; isAdmin=false;
+    sessionStorage.setItem(SESSION_KEY,JSON.stringify({name:currentUser,admin:isAdmin}));
+    showAfterLogin(); return;
   }
-  sessionStorage.setItem(SESSION_KEY,JSON.stringify({name:currentUser,admin:isAdmin}));
-  showAfterLogin();
+
+  // ═══ SALES (check กับ server) ═══
+  showLoading('กำลังเข้าสู่ระบบ...');
+  try{
+    const data=await apiPost({action:'login',username:name,password:pass});
+    hideLoading();
+    if(data.status==='ok'){
+      currentUser=data.user.username; isAdmin=false;
+      sessionStorage.setItem(SESSION_KEY,JSON.stringify({name:currentUser,admin:isAdmin}));
+      showAfterLogin();
+    } else { err.textContent=data.msg||'เข้าสู่ระบบไม่สำเร็จ'; }
+  }catch(e){ hideLoading(); err.textContent='เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง'; }
 }
 document.getElementById('login-pass').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
 function doLogout(){
@@ -359,7 +428,7 @@ function doLogout(){
   go('login-screen');
 }
 function showAfterLogin(){
-  if(isAdmin){ go('admin-screen'); }
+  if(isAdmin){ go('admin-screen'); checkPendingUsersOnLoad(); }
   else { updateEmpUI(); renderLogs(); go('home-screen'); checkPendingSync(); }
 }
 
@@ -511,6 +580,18 @@ function capturePhoto(){
 // ═══════════════════════════════════════
 // SYNC — ใช้ no-cors + image upload
 // ═══════════════════════════════════════
+// Helper: POST ไป Apps Script
+function apiPost(payload){
+  return fetch(WEBAPP_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload),
+    redirect: 'follow'
+  })
+  .then(res => res.text())
+  .then(txt => JSON.parse(txt));
+}
+
 function postToSheet(log){
   const payload = {
     timestamp:    log.ts,
