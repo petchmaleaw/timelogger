@@ -179,6 +179,10 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
     </div>
     <input class="login-input" type="text" id="login-name" placeholder="username" autocomplete="off">
     <input class="login-input" type="password" id="login-pass" placeholder="รหัสผ่าน" autocomplete="new-password">
+    <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;cursor:pointer;font-size:13px;color:#374151;user-select:none" id="remember-wrap">
+      <input type="checkbox" id="remember-me" style="width:16px;height:16px;accent-color:#2563eb;cursor:pointer">
+      <span>💾 จดจำ username และรหัสผ่าน</span>
+    </label>
     <button class="login-btn" onclick="doLogin()" id="login-btn">เข้าสู่ระบบ</button>
     <div class="login-err" id="login-err"></div>
   </div>
@@ -365,6 +369,7 @@ const WEBAPP_URL  = 'https://script.google.com/macros/s/AKfycbyOaQHXeHqS2eEoLR2F
 const ADMIN_PASS  = 'admin1234';
 const DB_KEY      = 'time_logs_v3';
 const SESSION_KEY = 'tl_session_v2';
+const REMEMBER_KEY= 'tl_remember_v1';
 
 // ═══════════════════════════════════════
 // STATE
@@ -419,7 +424,10 @@ function switchTab(m){
   document.getElementById('tab-admin').classList.toggle('active',m==='admin');
   const nameEl=document.getElementById('login-name');
   const btnEl=document.getElementById('login-btn');
+  const rememberWrap=document.getElementById('remember-wrap');
   document.getElementById('login-err').textContent='';
+  // แสดง checkbox จดจำฉัน เฉพาะตอน user login
+  rememberWrap.style.display=(m==='sales')?'flex':'none';
   if(m==='admin'){ nameEl.placeholder='admin username'; btnEl.textContent='เข้าสู่ระบบ'; }
   else if(m==='register'){ nameEl.placeholder='username (ขั้นต่ำ 3 ตัวอักษร)'; btnEl.textContent='📝 สมัครสมาชิก'; }
   else { nameEl.placeholder='username'; btnEl.textContent='เข้าสู่ระบบ'; }
@@ -428,6 +436,7 @@ function switchTab(m){
 async function doLogin(){
   const name=document.getElementById('login-name').value.trim();
   const pass=document.getElementById('login-pass').value;
+  const remember=document.getElementById('remember-me').checked;
   const err=document.getElementById('login-err');
   err.textContent='';
   if(!name){ err.textContent='กรุณากรอก username'; return; }
@@ -461,10 +470,29 @@ async function doLogin(){
     if(data.status==='ok'){
       currentUser=data.user.username; isAdmin=false;
       sessionStorage.setItem(SESSION_KEY,JSON.stringify({name:currentUser,admin:isAdmin}));
+      // บันทึก credentials ถ้าติ๊ก "จดจำฉัน"
+      if(remember){
+        localStorage.setItem(REMEMBER_KEY, JSON.stringify({username:name, password:pass}));
+      } else {
+        localStorage.removeItem(REMEMBER_KEY);
+      }
       showAfterLogin();
     } else { err.textContent=data.msg||'เข้าสู่ระบบไม่สำเร็จ'; }
   }catch(e){ hideLoading(); err.textContent='เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง'; }
 }
+
+// โหลด saved credentials ตอนเปิดหน้า
+function loadSavedCredentials(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(REMEMBER_KEY)||'null');
+    if(saved && saved.username){
+      document.getElementById('login-name').value=saved.username;
+      document.getElementById('login-pass').value=saved.password||'';
+      document.getElementById('remember-me').checked=true;
+    }
+  }catch(e){}
+}
+loadSavedCredentials();
 
 document.getElementById('login-pass').addEventListener('keydown',function(e){ if(e.key==='Enter') doLogin(); });
 
