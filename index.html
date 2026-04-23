@@ -250,8 +250,8 @@ video{width:100%;display:block;max-height:48vw;object-fit:cover}
   </div>
   <div class="emp-banner" style="padding:0">
     <div style="display:flex;width:100%">
-      <button class="nav-btn" id="admin-tab-logs" onclick="switchAdminView('logs')" style="border-bottom:2px solid #2563eb">📊 ข้อมูลเวลา</button>
-      <button class="nav-btn" id="admin-tab-users" onclick="switchAdminView('users')" style="border-bottom:2px solid transparent">👥 ผู้ใช้<span id="pending-badge" style="display:none;background:#dc2626;color:#fff;font-size:10px;padding:1px 6px;border-radius:8px;margin-left:4px">0</span></button>
+      <button id="admin-tab-logs" onclick="switchAdminView('logs')" style="flex:1;padding:12px 8px;border:none;background:#fff;cursor:pointer;font-size:13px;font-weight:500;color:#2563eb;border-bottom:2px solid #2563eb">📊 ข้อมูลเวลา</button>
+      <button id="admin-tab-users" onclick="switchAdminView('users')" style="flex:1;padding:12px 8px;border:none;background:#fff;cursor:pointer;font-size:13px;font-weight:500;color:#9ca3af;border-bottom:2px solid transparent">👥 ผู้ใช้<span id="pending-badge" style="display:none;background:#dc2626;color:#fff;font-size:10px;padding:1px 6px;border-radius:8px;margin-left:4px">0</span></button>
     </div>
   </div>
   <div class="content" id="admin-content">
@@ -363,7 +363,7 @@ function switchTab(m){
   if(m==='admin'){
     nameEl.placeholder='admin';
     btnEl.textContent='เข้าสู่ระบบ';
-    hintEl.innerHTML='Admin: ชื่อ <b>admin</b> + รหัส <b>admin1234</b>';
+    hintEl.innerHTML='กรอก username และรหัสผ่าน Admin';
   } else if(m==='register'){
     nameEl.placeholder='username (ขั้นต่ำ 3 ตัวอักษร)';
     btnEl.textContent='📝 สมัครสมาชิก';
