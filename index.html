@@ -524,17 +524,17 @@ function postToSheet(log){
     photoBase64:  log.photo || ''
   };
 
-  // ส่งเป็น URL-encoded form data — Apps Script จะอ่านจาก e.parameter.payload
-  // การใช้ URLSearchParams จะส่ง Content-Type: application/x-www-form-urlencoded
-  // ซึ่งเป็น "simple request" ตาม CORS spec → ไม่ทริก preflight → ไม่ติด CORS
-  const body = new URLSearchParams();
-  body.append('payload', JSON.stringify(payload));
-
+  // ใช้ fetch + text/plain → "simple request" ไม่ทริก CORS preflight
+  // Apps Script อ่านจาก e.postData.contents ได้โดยตรง
   return fetch(WEBAPP_URL, {
     method: 'POST',
-    body: body
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
   })
-  .then(res => res.json())
+  .then(res => {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  })
   .then(data => {
     if (data.status === 'ok') {
       if (data.photoUrl) log.photoUrl = data.photoUrl;
