@@ -286,7 +286,7 @@ video{width:100%;display:block;max-height:48vw;object-fit:cover}
 // ═══════════════════════════════════════
 // CONFIG
 // ═══════════════════════════════════════
-const WEBAPP_URL  = 'https://script.google.com/macros/s/AKfycbxgc-Ycb0moPAZBQktqCnZjsz8Vcl47dCrlz519SREdbgxrBCv4rEsQkNI8ZSx1Wfg2/exec';
+const WEBAPP_URL  = 'https://script.google.com/macros/s/AKfycbwccxlzCelrGAeYJvnb-IQqL4higDceZfSdz2_RY3A3au5rhX3KU_KnFIh1wdW_tyvs/exec';
 const ADMIN_PASS  = 'admin1234';
 const SALES_PASS  = '1234';
 const DB_KEY      = 'time_logs_v3';
@@ -525,24 +525,52 @@ function postToSheet(log){
       photoBase64:  log.photo || ''
     };
 
-    // ใช้ form-encoded POST — ไม่ทริก CORS preflight และ Apps Script อ่านได้
-    const formData = new FormData();
-    formData.append('payload', JSON.stringify(payload));
+    // เทคนิค: ส่งผ่าน hidden form → iframe (เลี่ยง CORS preflight 100%)
+    // Apps Script จะรับข้อมูล แต่เราอ่าน response กลับมาไม่ได้
+    // จึงใช้ setTimeout สมมติว่าสำเร็จหลัง 4 วินาที (เวลาที่ Apps Script ใช้ประมวลผลรูป)
+    const iframeName = 'sync_iframe_' + Date.now();
+    const iframe = document.createElement('iframe');
+    iframe.name = iframeName;
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
 
-    fetch(WEBAPP_URL, {
-      method: 'POST',
-      body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.status === 'ok') {
-        log.photoUrl = data.photoUrl || '';
-        resolve(data);
-      } else {
-        reject(new Error(data.msg || 'Server error'));
-      }
-    })
-    .catch(err => reject(err));
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = WEBAPP_URL;
+    form.target = iframeName;
+    form.style.display = 'none';
+    form.enctype = 'application/x-www-form-urlencoded';
+
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'payload';
+    input.value = JSON.stringify(payload);
+    form.appendChild(input);
+    document.body.appendChild(form);
+
+    let done = false;
+    const cleanup = () => {
+      try { document.body.removeChild(form); } catch(e){}
+      try { document.body.removeChild(iframe); } catch(e){}
+    };
+
+    // ถ้า iframe load เสร็จ = Apps Script รับข้อมูลและ return แล้ว
+    iframe.onload = () => {
+      if (done) return;
+      done = true;
+      cleanup();
+      resolve({status:'ok'});
+    };
+
+    // timeout 30 วินาที (รูปใหญ่ใช้เวลานาน)
+    setTimeout(() => {
+      if (done) return;
+      done = true;
+      cleanup();
+      reject(new Error('timeout'));
+    }, 30000);
+
+    form.submit();
   });
 }
 
