@@ -74,6 +74,14 @@ video{width:100%;display:block;max-height:48vw;object-fit:cover}
 .btn-capture{width:100%;background:#2563eb;color:#fff;border:none;border-radius:12px;padding:15px;font-size:15px;font-weight:600;cursor:pointer;min-height:50px}
 .btn-capture:active{opacity:.85}
 
+.cam-switch-btn{position:absolute;top:10px;right:10px;width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,0.55);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;-webkit-tap-highlight-color:transparent}
+.cam-switch-btn:active{transform:scale(0.9)}
+.cam-off-placeholder{width:100%;background:#1f2937;color:#9ca3af;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px 20px;font-size:14px;gap:12px}
+.cam-off-placeholder .icon{font-size:48px}
+.camera-toggle{display:flex;align-items:center;gap:10px;background:#f3f4f6;padding:10px 12px;border-radius:10px;margin-bottom:12px;cursor:pointer}
+.camera-toggle input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:#2563eb}
+.camera-toggle label{flex:1;font-size:13px;color:#374151;cursor:pointer;font-weight:500}
+
 .nav-bar{display:flex;background:#fff;border-top:0.5px solid #e2e2e2;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,0px)}
 .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;border:none;background:none;cursor:pointer;color:#9ca3af;font-size:10px;gap:3px;min-height:56px}
 .nav-btn.active{color:#2563eb}
@@ -192,11 +200,20 @@ video{width:100%;display:block;max-height:48vw;object-fit:cover}
   </div>
   <div class="content">
     <div class="cam-wrap">
-      <div class="video-wrap">
+      <div class="video-wrap" id="video-wrap">
         <video id="video" autoplay playsinline muted></video>
         <canvas id="overlay"></canvas>
+        <button type="button" class="cam-switch-btn" id="cam-switch" onclick="switchCamera()" title="สลับกล้อง">🔄</button>
+      </div>
+      <div class="cam-off-placeholder" id="cam-off" style="display:none">
+        <div class="icon">📷</div>
+        <div>ปิดกล้อง — บันทึกเฉพาะข้อมูล + GPS<br>(ไม่มีรูปภาพ)</div>
       </div>
       <div class="cam-controls">
+        <div class="camera-toggle">
+          <input type="checkbox" id="cam-enabled" checked onchange="toggleCamera()">
+          <label for="cam-enabled">📸 เปิดใช้งานกล้อง (ถ่ายรูปประกอบการบันทึก)</label>
+        </div>
         <div class="input-group">
           <label>👤 ผู้ใช้</label>
           <input type="text" id="emp-readonly" readonly>
@@ -465,14 +482,49 @@ function renderLogs(){
 // ═══════════════════════════════════════
 // CAMERA
 // ═══════════════════════════════════════
+let currentFacingMode='environment';  // 'environment' = หลัง, 'user' = หน้า
+let cameraEnabled=true;
+
+function toggleCamera(){
+  const cb=document.getElementById('cam-enabled');
+  cameraEnabled=cb.checked;
+  const wrap=document.getElementById('video-wrap');
+  const off=document.getElementById('cam-off');
+  const btn=document.getElementById('capture-btn');
+  if(cameraEnabled){
+    wrap.style.display='block';
+    off.style.display='none';
+    btn.textContent='📷 ถ่ายภาพและบันทึก';
+    startCamera();
+  } else {
+    wrap.style.display='none';
+    off.style.display='flex';
+    btn.textContent='✓ บันทึกเวลา (ไม่ถ่ายรูป)';
+    stopCameraStream();
+  }
+}
+
+function switchCamera(){
+  currentFacingMode = currentFacingMode==='environment' ? 'user' : 'environment';
+  stopCameraStream();
+  startCamera();
+  showToast(currentFacingMode==='environment'?'🔄 กล้องหลัง':'🔄 กล้องหน้า', 1500);
+}
+
+function stopCameraStream(){
+  if(stream){ stream.getTracks().forEach(function(t){ t.stop(); }); stream=null; }
+}
+
 function startCamera(){
+  if(!cameraEnabled) return;
   const vid=document.getElementById('video');
-  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false})
+  stopCameraStream();
+  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:currentFacingMode},width:{ideal:1280},height:{ideal:720}},audio:false})
     .then(function(s){ stream=s; vid.srcObject=s; vid.play(); drawOverlay(); })
     .catch(function(){ alert('ไม่สามารถเข้าถึงกล้องได้'); showHome(); });
 }
 function stopCamera(){
-  if(stream){ stream.getTracks().forEach(function(t){ t.stop(); }); stream=null; }
+  stopCameraStream();
   if(gpsWatcher){ navigator.geolocation.clearWatch(gpsWatcher); gpsWatcher=null; }
 }
 function startGPS(){
@@ -509,38 +561,42 @@ function drawOverlay(){
 }
 
 function capturePhoto(){
-  const vid=document.getElementById('video');
-  const cvs=document.createElement('canvas');
-  cvs.width=vid.videoWidth||1280; cvs.height=vid.videoHeight||720;
-  const ctx=cvs.getContext('2d');
-  ctx.drawImage(vid,0,0,cvs.width,cvs.height);
   const now=new Date();
   const customer=document.getElementById('customer-name').value.trim();
   const desc=document.getElementById('desc-input').value.trim();
-  const fs=Math.max(16,Math.round(cvs.height*0.038));
-  const lines=[
-    now.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'})+'  '+now.toLocaleTimeString('th-TH'),
-    '👤 '+(currentUser||''),
-    customer?'🏢 '+customer:'',
-    desc?'📝 '+desc.substring(0,60):'',
-    gpsCoords?'📍 GPS: '+gpsCoords.lat.toFixed(5)+', '+gpsCoords.lng.toFixed(5):''
-  ].filter(Boolean);
-  const barH=(lines.length*(fs+6))+14;
-  ctx.fillStyle='rgba(0,0,0,0.56)'; ctx.fillRect(0,cvs.height-barH,cvs.width,barH);
-  lines.forEach(function(line,i){
-    ctx.font=i===0?'bold '+fs+'px sans-serif':Math.round(fs*.85)+'px sans-serif';
-    ctx.fillStyle=i===1?'#93c5fd':i===0?'#fff':'#d1fae5';
-    ctx.fillText(line,12,cvs.height-barH+12+(i*(fs+6))+fs);
-  });
+  let finalBase64='';
 
-  let finalBase64;
-  if(cvs.width>800){
-    const small=document.createElement('canvas');
-    const ratio=800/cvs.width;
-    small.width=800; small.height=Math.round(cvs.height*ratio);
-    small.getContext('2d').drawImage(cvs,0,0,small.width,small.height);
-    finalBase64=small.toDataURL('image/jpeg',0.7);
-  } else { finalBase64=cvs.toDataURL('image/jpeg',0.7); }
+  // ถ้าเปิดกล้องไว้ → ถ่ายรูปพร้อม overlay
+  if(cameraEnabled && stream){
+    const vid=document.getElementById('video');
+    const cvs=document.createElement('canvas');
+    cvs.width=vid.videoWidth||1280; cvs.height=vid.videoHeight||720;
+    const ctx=cvs.getContext('2d');
+    ctx.drawImage(vid,0,0,cvs.width,cvs.height);
+    const fs=Math.max(16,Math.round(cvs.height*0.038));
+    const lines=[
+      now.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'})+'  '+now.toLocaleTimeString('th-TH'),
+      '👤 '+(currentUser||''),
+      customer?'🏢 '+customer:'',
+      desc?'📝 '+desc.substring(0,60):'',
+      gpsCoords?'📍 GPS: '+gpsCoords.lat.toFixed(5)+', '+gpsCoords.lng.toFixed(5):''
+    ].filter(Boolean);
+    const barH=(lines.length*(fs+6))+14;
+    ctx.fillStyle='rgba(0,0,0,0.56)'; ctx.fillRect(0,cvs.height-barH,cvs.width,barH);
+    lines.forEach(function(line,i){
+      ctx.font=i===0?'bold '+fs+'px sans-serif':Math.round(fs*.85)+'px sans-serif';
+      ctx.fillStyle=i===1?'#93c5fd':i===0?'#fff':'#d1fae5';
+      ctx.fillText(line,12,cvs.height-barH+12+(i*(fs+6))+fs);
+    });
+
+    if(cvs.width>800){
+      const small=document.createElement('canvas');
+      const ratio=800/cvs.width;
+      small.width=800; small.height=Math.round(cvs.height*ratio);
+      small.getContext('2d').drawImage(cvs,0,0,small.width,small.height);
+      finalBase64=small.toDataURL('image/jpeg',0.7);
+    } else { finalBase64=cvs.toDataURL('image/jpeg',0.7); }
+  }
 
   const log={ id:'lg_'+Date.now(), ts:now.toISOString(), empName:currentUser, customer:customer, desc:desc, photo:finalBase64, lat:gpsCoords?gpsCoords.lat:null, lng:gpsCoords?gpsCoords.lng:null, acc:gpsCoords?gpsCoords.acc:null, synced:false, photoUrl:'' };
   logs.push(log); saveLogs();
