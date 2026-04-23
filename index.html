@@ -59,12 +59,12 @@ body{background:#f3f4f6;color:#1a1a1a;min-height:100vh;overscroll-behavior:none}
 .empty-state{text-align:center;padding:60px 20px;color:#9ca3af}
 .empty-state .icon{font-size:52px;margin-bottom:12px}
 
-#cam-screen .content{padding:0;overflow:hidden}
-.cam-wrap{display:flex;flex-direction:column;height:100%}
+#cam-screen .content{padding:0;overflow:auto;-webkit-overflow-scrolling:touch}
+.cam-wrap{display:flex;flex-direction:column;min-height:100%}
 .video-wrap{position:relative;background:#000;flex-shrink:0;max-width:320px;margin:0 auto;width:100%}
 video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000}
 #overlay{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
-.cam-controls{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;background:#fff}
+.cam-controls{overflow:visible;padding:14px 14px 20px;background:#fff}
 .input-group{margin-bottom:12px}
 .input-group label{font-size:12px;color:#6b7280;display:block;margin-bottom:5px;font-weight:500}
 .input-group input,.input-group textarea{width:100%;border:0.5px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:15px;color:#1a1a1a;background:#fff;resize:none;-webkit-appearance:none;outline:none}
