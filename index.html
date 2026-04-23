@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Time Logger">
+<meta name="theme-color" content="#2563eb">
+<title>Time Logger</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+body{background:#f3f4f6;color:#1a1a1a;min-height:100vh;min-height:-webkit-fill-available;overscroll-behavior:none}
+.screen{display:none;flex-direction:column;height:100vh;height:-webkit-fill-available}
+.screen.active{display:flex}
+.topbar{background:#2563eb;color:#fff;padding:env(safe-area-inset-top,12px) 16px 12px;padding-top:calc(env(safe-area-inset-top,12px) + 10px);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.topbar h1{font-size:16px;font-weight:500;flex:1}
+.topbar .icon-btn{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:4px 6px;border-radius:6px;min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center}
+.content{flex:1;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch}
+.card{background:#fff;border-radius:14px;border:0.5px solid #e2e2e2;padding:14px;margin-bottom:12px}
+
+/* Employee name banner */
+.emp-banner{background:#fff;border-bottom:0.5px solid #e5e7eb;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.emp-avatar{width:36px;height:36px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#2563eb;flex-shrink:0}
+.emp-name-text{font-size:14px;font-weight:500;color:#1f2937;flex:1}
+.emp-sub{font-size:11px;color:#9ca3af}
+.btn-edit-name{background:none;border:0.5px solid #d1d5db;border-radius:8px;padding:5px 10px;font-size:12px;color:#6b7280;cursor:pointer;white-space:nowrap}
+
+/* Name modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:flex-end;justify-content:center}
+.modal-bg.show{display:flex}
+.modal-box{background:#fff;border-radius:20px 20px 0 0;padding:24px 20px calc(env(safe-area-inset-bottom,16px) + 20px);width:100%;max-width:480px}
+.modal-box h2{font-size:16px;font-weight:600;margin-bottom:6px}
+.modal-box p{font-size:13px;color:#6b7280;margin-bottom:16px}
+.modal-input{width:100%;border:1px solid #d1d5db;border-radius:10px;padding:12px 14px;font-size:15px;color:#1a1a1a;background:#fff;outline:none}
+.modal-input:focus{border-color:#2563eb}
+.modal-btn{width:100%;background:#2563eb;color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:500;cursor:pointer;margin-top:12px}
+
+/* Log items */
+.log-item{display:flex;gap:12px;align-items:flex-start}
+.log-thumb{width:64px;height:64px;border-radius:10px;flex-shrink:0;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden;cursor:pointer}
+.log-thumb img{width:100%;height:100%;object-fit:cover}
+.log-info{flex:1;min-width:0}
+.log-info .time{font-weight:600;font-size:15px;color:#1a1a1a}
+.log-info .date{font-size:12px;color:#6b7280;margin-bottom:3px}
+.log-info .emp-tag{display:inline-block;background:#dbeafe;color:#1d4ed8;font-size:11px;padding:2px 7px;border-radius:6px;margin-bottom:3px;font-weight:500}
+.log-info .desc{font-size:13px;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.log-info .gps{font-size:11px;color:#9ca3af;margin-top:2px}
+.empty-state{text-align:center;padding:60px 20px;color:#9ca3af}
+.empty-state .icon{font-size:52px;margin-bottom:12px}
+.empty-state p{font-size:14px;line-height:1.7}
+
+/* Camera */
+#cam-screen .content{padding:0;overflow:hidden}
+.cam-wrap{display:flex;flex-direction:column;height:100%}
+.video-wrap{position:relative;background:#000;flex-shrink:0}
+video{width:100%;display:block;max-height:50vw;object-fit:cover}
+#overlay{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+.cam-controls{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;background:#fff}
+.input-group{margin-bottom:12px}
+.input-group label{font-size:12px;color:#6b7280;display:block;margin-bottom:5px;font-weight:500}
+.input-group input,.input-group textarea{width:100%;border:0.5px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:15px;color:#1a1a1a;background:#fff;resize:none;-webkit-appearance:none;outline:none}
+.input-group textarea{height:72px}
+.input-group input:focus,.input-group textarea:focus{border-color:#2563eb}
+.gps-row{display:flex;align-items:center;gap:8px;font-size:12px;color:#6b7280;margin-bottom:14px;flex-wrap:wrap}
+.gps-dot{width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0;transition:background .4s}
+.btn-capture{width:100%;background:#2563eb;color:#fff;border:none;border-radius:12px;padding:15px;font-size:15px;font-weight:600;cursor:pointer;min-height:50px}
+.btn-capture:active{opacity:.85}
+.btn-capture:disabled{background:#93c5fd}
+
+/* Export */
+.month-select{width:100%;border:0.5px solid #d1d5db;border-radius:10px;padding:11px 12px;font-size:14px;color:#1a1a1a;background:#fff;margin-bottom:14px;-webkit-appearance:none;appearance:none}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-box{background:#eff6ff;border-radius:12px;padding:14px;text-align:center}
+.stat-box .num{font-size:26px;font-weight:600;color:#2563eb}
+.stat-box .lbl{font-size:11px;color:#3b82f6;margin-top:3px}
+.btn-export{width:100%;background:#2563eb;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:500;cursor:pointer;margin-bottom:10px;min-height:50px}
+.btn-export.secondary{background:#fff;color:#2563eb;border:1px solid #2563eb}
+.btn-export:active{opacity:.85}
+.export-log{background:#f9fafb;border-radius:10px;padding:12px;font-size:11px;color:#6b7280;max-height:160px;overflow-y:auto;white-space:pre-wrap;font-family:monospace}
+
+/* Nav */
+.nav-bar{display:flex;background:#fff;border-top:0.5px solid #e2e2e2;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;border:none;background:none;cursor:pointer;color:#9ca3af;font-size:10px;gap:3px;min-height:56px}
+.nav-btn.active{color:#2563eb}
+.nav-icon{font-size:22px;line-height:1}
+
+/* FAB */
+.fab{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 72px);right:20px;width:58px;height:58px;border-radius:50%;background:#2563eb;color:#fff;border:none;font-size:28px;cursor:pointer;box-shadow:0 4px 16px rgba(37,99,235,.45);display:flex;align-items:center;justify-content:center;z-index:100;-webkit-tap-highlight-color:transparent}
+
+/* Photo preview */
+#photo-preview{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+#photo-preview.show{display:flex}
+#photo-preview img{max-width:100%;max-height:80vh;border-radius:10px;object-fit:contain}
+#photo-preview .close-btn{margin-top:16px;color:#fff;background:rgba(255,255,255,.15);border:none;border-radius:10px;padding:10px 28px;font-size:14px;cursor:pointer}
+
+.back-btn{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:2px 6px;min-width:36px;display:flex;align-items:center;justify-content:center}
+.no-emp-warn{background:#fef3c7;border:0.5px solid #fcd34d;border-radius:10px;padding:10px 12px;font-size:13px;color:#92400e;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="screen active" id="home-screen">
+  <div class="topbar">
+    <h1>บันทึกเวลาทำงาน</h1>
+    <button class="icon-btn" onclick="goExport()">📤</button>
+  </div>
+  <div class="emp-banner" id="emp-banner">
+    <div class="emp-avatar" id="emp-avatar">?</div>
+    <div style="flex:1;min-width:0">
+      <div class="emp-name-text" id="emp-display">ยังไม่ได้ตั้งชื่อ</div>
+      <div class="emp-sub">พนักงาน</div>
+    </div>
+    <button class="btn-edit-name" onclick="showNameModal()">✏️ แก้ไข</button>
+  </div>
+  <div class="content" id="log-list">
+    <div class="empty-state" id="empty-msg">
+      <div class="icon">📷</div>
+      <p>ยังไม่มีการบันทึก<br>กดปุ่ม <strong>+</strong> เพื่อเริ่มบันทึกเวลา</p>
+    </div>
+  </div>
+  <button class="fab" onclick="goCamera()">+</button>
+  <div class="nav-bar">
+    <button class="nav-btn active" onclick="showHome()"><span class="nav-icon">🏠</span>หน้าหลัก</button>
+    <button class="nav-btn" onclick="goExport()"><span class="nav-icon">📤</span>Export</button>
+  </div>
+</div>
+
+<!-- CAMERA -->
+<div class="screen" id="cam-screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="stopCamera();showHome()">←</button>
+    <h1>บันทึกเวลา</h1>
+  </div>
+  <div class="content">
+    <div class="cam-wrap">
+      <div class="video-wrap">
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="overlay"></canvas>
+      </div>
+      <div class="cam-controls">
+        <div id="no-emp-warn" class="no-emp-warn" style="display:none">⚠️ กรุณาตั้งชื่อพนักงานก่อนบันทึก</div>
+        <div class="input-group">
+          <label>👤 พนักงาน</label>
+          <input type="text" id="emp-readonly" readonly style="background:#f9fafb;color:#6b7280">
+        </div>
+        <div class="input-group">
+          <label>🏢 ชื่อลูกค้า / สถานที่</label>
+          <input type="text" id="customer-name" placeholder="เช่น บริษัท ABC จำกัด">
+        </div>
+        <div class="input-group">
+          <label>📝 รายละเอียด (Description)</label>
+          <textarea id="desc-input" placeholder="เช่น ติดตั้งอุปกรณ์, ตรวจเช็คระบบ..."></textarea>
+        </div>
+        <div class="gps-row">
+          <div class="gps-dot" id="gps-dot"></div>
+          <span id="gps-status">กำลังระบุตำแหน่ง...</span>
+        </div>
+        <button class="btn-capture" id="capture-btn" onclick="capturePhoto()">📷 ถ่ายภาพและบันทึก</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT -->
+<div class="screen" id="export-screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="showHome()">←</button>
+    <h1>Export รายงาน</h1>
+  </div>
+  <div class="content">
+    <div class="card">
+      <p style="font-size:13px;color:#6b7280;margin-bottom:10px;font-weight:500">เลือกเดือนที่ต้องการ Export</p>
+      <select class="month-select" id="month-select"></select>
+      <div class="stat-row">
+        <div class="stat-box"><div class="num" id="stat-count">0</div><div class="lbl">รายการบันทึก</div></div>
+        <div class="stat-box"><div class="num" id="stat-days">0</div><div class="lbl">วันที่ทำงาน</div></div>
+      </div>
+      <button class="btn-export" onclick="exportEmail()">📧 ส่งอีเมล</button>
+      <button class="btn-export secondary" onclick="exportDownload()">💾 บันทึกไฟล์ CSV</button>
+    </div>
+    <div class="card">
+      <p style="font-size:12px;font-weight:500;margin-bottom:8px;color:#374151">ตัวอย่างข้อมูล</p>
+      <div class="export-log" id="export-preview">เลือกเดือนเพื่อดูตัวอย่าง</div>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <button class="nav-btn" onclick="showHome()"><span class="nav-icon">🏠</span>หน้าหลัก</button>
+    <button class="nav-btn active"><span class="nav-icon">📤</span>Export</button>
+  </div>
+</div>
+
+<!-- PHOTO PREVIEW -->
+<div id="photo-preview">
+  <img id="preview-img" src="" alt="">
+  <button class="close-btn" onclick="document.getElementById('photo-preview').classList.remove('show')">ปิด</button>
+</div>
+
+<!-- NAME MODAL -->
+<div class="modal-bg" id="name-modal">
+  <div class="modal-box">
+    <h2>ชื่อพนักงาน</h2>
+    <p>ชื่อจะถูกบันทึกลงในรูปภาพและรายงานทุกครั้ง</p>
+    <input class="modal-input" type="text" id="name-input" placeholder="กรอกชื่อ-นามสกุล" maxlength="50">
+    <button class="modal-btn" onclick="saveName()">บันทึกชื่อ</button>
+  </div>
+</div>
+
+<script>
+const DB_KEY='time_logs_v1', EMP_KEY='employee_name_v1';
+let logs=[], stream=null, gpsCoords=null, gpsWatcher=null;
+let empName='';
+
+function loadAll(){
+  try{ logs=JSON.parse(localStorage.getItem(DB_KEY)||'[]'); }catch(e){ logs=[]; }
+  empName=localStorage.getItem(EMP_KEY)||'';
+}
+function saveLogs(){ localStorage.setItem(DB_KEY,JSON.stringify(logs)); }
+function saveEmp(){ localStorage.setItem(EMP_KEY,empName); }
+loadAll();
+
+function getInitials(n){ if(!n) return '?'; const p=n.trim().split(' '); return (p[0][0]+(p[1]?p[1][0]:'')).toUpperCase(); }
+
+function updateEmpUI(){
+  document.getElementById('emp-display').textContent=empName||'ยังไม่ได้ตั้งชื่อ';
+  document.getElementById('emp-avatar').textContent=empName?getInitials(empName):'?';
+  document.getElementById('emp-readonly').value=empName||'';
+  document.getElementById('no-emp-warn').style.display=empName?'none':'block';
+}
+
+function showNameModal(){
+  document.getElementById('name-input').value=empName;
+  document.getElementById('name-modal').classList.add('show');
+  setTimeout(()=>document.getElementById('name-input').focus(),200);
+}
+function saveName(){
+  const v=document.getElementById('name-input').value.trim();
+  if(!v){ alert('กรุณากรอกชื่อพนักงาน'); return; }
+  empName=v; saveEmp(); updateEmpUI();
+  document.getElementById('name-modal').classList.remove('show');
+}
+document.getElementById('name-modal').addEventListener('click',function(e){ if(e.target===this) this.classList.remove('show'); });
+document.getElementById('name-input').addEventListener('keydown',function(e){ if(e.key==='Enter') saveName(); });
+
+function showHome(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('home-screen').classList.add('active');
+  updateEmpUI(); renderLogs();
+  if(!empName) setTimeout(showNameModal,400);
+}
+function goCamera(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('cam-screen').classList.add('active');
+  updateEmpUI(); startCamera(); startGPS();
+}
+function goExport(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('export-screen').classList.add('active');
+  populateMonths();
+}
+
+function renderLogs(){
+  const list=document.getElementById('log-list');
+  document.getElementById('empty-msg').style.display=logs.length?'none':'block';
+  list.querySelectorAll('.card').forEach(c=>c.remove());
+  [...logs].reverse().forEach(log=>{
+    const card=document.createElement('div');
+    card.className='card';
+    const d=new Date(log.ts);
+    const dateStr=d.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+    const timeStr=d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    card.innerHTML=`<div class="log-item">
+      <div class="log-thumb" onclick="viewPhoto('${log.photo}')">
+        ${log.photo?`<img src="${log.photo}" alt="">`:'📷'}
+      </div>
+      <div class="log-info">
+        <div class="date">${dateStr}</div>
+        <div class="time">${timeStr}</div>
+        ${log.empName?`<span class="emp-tag">👤 ${log.empName}</span>`:''}
+        <div class="desc">${[log.customer,log.desc].filter(Boolean).join(' — ')||'(ไม่มีรายละเอียด)'}</div>
+        <div class="gps">${log.lat?'📍 '+log.lat.toFixed(5)+', '+log.lng.toFixed(5):'ไม่มีข้อมูล GPS'}</div>
+      </div>
+    </div>`;
+    list.appendChild(card);
+  });
+}
+
+function startCamera(){
+  const vid=document.getElementById('video');
+  const constraints={video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false};
+  navigator.mediaDevices.getUserMedia(constraints)
+    .then(s=>{ stream=s; vid.srcObject=s; vid.play(); drawOverlay(); })
+    .catch(()=>{ alert('ไม่สามารถเข้าถึงกล้องได้\nกรุณาอนุญาตการใช้งานกล้องในการตั้งค่า'); showHome(); });
+}
+function stopCamera(){
+  if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
+  if(gpsWatcher){ navigator.geolocation.clearWatch(gpsWatcher); gpsWatcher=null; }
+}
+function startGPS(){
+  gpsCoords=null;
+  const dot=document.getElementById('gps-dot'), st=document.getElementById('gps-status');
+  dot.style.background='#f59e0b'; st.textContent='กำลังระบุตำแหน่ง...';
+  if(!navigator.geolocation){ st.textContent='ไม่รองรับ GPS'; return; }
+  gpsWatcher=navigator.geolocation.watchPosition(pos=>{
+    gpsCoords={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:Math.round(pos.coords.accuracy)};
+    dot.style.background='#22c55e';
+    st.textContent=`📍 ${gpsCoords.lat.toFixed(5)}, ${gpsCoords.lng.toFixed(5)} (±${gpsCoords.acc}m)`;
+  },()=>{ dot.style.background='#ef4444'; st.textContent='ไม่สามารถระบุตำแหน่งได้'; },
+  {enableHighAccuracy:true,maximumAge:5000,timeout:15000});
+}
+
+function drawOverlay(){
+  const vid=document.getElementById('video'), cvs=document.getElementById('overlay');
+  function tick(){
+    if(!stream) return;
+    cvs.width=vid.clientWidth; cvs.height=vid.clientHeight;
+    const ctx=cvs.getContext('2d'), now=new Date();
+    const ds=now.toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'});
+    const ts=now.toLocaleTimeString('th-TH');
+    const barH=Math.max(52,cvs.height*0.16);
+    ctx.clearRect(0,0,cvs.width,cvs.height);
+    ctx.fillStyle='rgba(0,0,0,0.5)';
+    ctx.fillRect(0,cvs.height-barH,cvs.width,barH);
+    ctx.fillStyle='#fff';
+    const fs=Math.max(12,Math.round(cvs.height*0.05));
+    ctx.font=`bold ${fs}px sans-serif`;
+    ctx.fillText(ds+' '+ts, 10, cvs.height-barH+fs+4);
+    if(empName){
+      ctx.font=`${Math.round(fs*0.82)}px sans-serif`;
+      ctx.fillStyle='#93c5fd';
+      ctx.fillText('👤 '+empName, 10, cvs.height-barH+fs*2+4);
+    }
+    if(gpsCoords){
+      ctx.fillStyle='rgba(255,255,255,0.65)';
+      ctx.font=`${Math.round(fs*0.68)}px sans-serif`;
+      ctx.fillText('GPS: '+gpsCoords.lat.toFixed(5)+', '+gpsCoords.lng.toFixed(5), 10, cvs.height-8);
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function capturePhoto(){
+  if(!empName){ showHome(); setTimeout(showNameModal,300); return; }
+  const vid=document.getElementById('video');
+  const cvs=document.createElement('canvas');
+  cvs.width=vid.videoWidth||1280; cvs.height=vid.videoHeight||720;
+  const ctx=cvs.getContext('2d');
+  ctx.drawImage(vid,0,0,cvs.width,cvs.height);
+  const now=new Date();
+  const ds=now.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+  const ts=now.toLocaleTimeString('th-TH');
+  const customer=document.getElementById('customer-name').value.trim();
+  const desc=document.getElementById('desc-input').value.trim();
+  const fs=Math.max(16,Math.round(cvs.height*0.04));
+  const lines=[`${ds}  ${ts}`,`👤 ${empName}`,customer?`🏢 ${customer}`:'',desc?`📝 ${desc.substring(0,55)}`:'',gpsCoords?`📍 GPS: ${gpsCoords.lat.toFixed(5)}, ${gpsCoords.lng.toFixed(5)}`:''].filter(Boolean);
+  const barH=(lines.length*(fs+6))+14;
+  ctx.fillStyle='rgba(0,0,0,0.58)';
+  ctx.fillRect(0,cvs.height-barH,cvs.width,barH);
+  lines.forEach((line,i)=>{
+    ctx.font=i===0?`bold ${fs}px sans-serif`:`${Math.round(fs*0.85)}px sans-serif`;
+    ctx.fillStyle=i===1?'#93c5fd':i===0?'#ffffff':'#d1fae5';
+    ctx.fillText(line,12,cvs.height-barH+12+(i*(fs+6))+fs);
+  });
+  const photo=cvs.toDataURL('image/jpeg',0.75);
+  logs.push({id:Date.now(),ts:now.toISOString(),empName,customer,desc,photo,lat:gpsCoords?gpsCoords.lat:null,lng:gpsCoords?gpsCoords.lng:null,acc:gpsCoords?gpsCoords.acc:null});
+  saveLogs();
+  document.getElementById('customer-name').value='';
+  document.getElementById('desc-input').value='';
+  stopCamera(); showHome();
+}
+
+function viewPhoto(src){ if(!src) return; document.getElementById('preview-img').src=src; document.getElementById('photo-preview').classList.add('show'); }
+
+function getMonthKey(ts){ const d=new Date(ts); return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'); }
+function populateMonths(){
+  const sel=document.getElementById('month-select');
+  const keys=[...new Set(logs.map(l=>getMonthKey(l.ts)))].sort().reverse();
+  const now=new Date(), thisKey=now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0');
+  if(!keys.includes(thisKey)) keys.unshift(thisKey);
+  sel.innerHTML=keys.map(k=>{ const [y,m]=k.split('-'); const label=new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'}); return `<option value="${k}">${label}</option>`; }).join('');
+  sel.onchange=updateExportPreview; updateExportPreview();
+}
+function getFiltered(){ const key=document.getElementById('month-select').value; return logs.filter(l=>getMonthKey(l.ts)===key); }
+function updateExportPreview(){
+  const f=getFiltered(), days=new Set(f.map(l=>new Date(l.ts).toDateString())).size;
+  document.getElementById('stat-count').textContent=f.length;
+  document.getElementById('stat-days').textContent=days;
+  if(!f.length){ document.getElementById('export-preview').textContent='ไม่มีข้อมูลในเดือนนี้'; return; }
+  const rows=['วันที่,เวลา,พนักงาน,ลูกค้า,รายละเอียด,GPS Lat,GPS Lng'];
+  f.forEach(l=>{ const d=new Date(l.ts); rows.push([d.toLocaleDateString('th-TH'),d.toLocaleTimeString('th-TH'),'"'+(l.empName||'')+'"','"'+(l.customer||'')+'"','"'+(l.desc||'')+'"',l.lat?l.lat.toFixed(6):'',l.lng?l.lng.toFixed(6):''].join(',')); });
+  document.getElementById('export-preview').textContent=rows.join('\n');
+}
+function buildCSV(){ const f=getFiltered(); const rows=['วันที่,เวลา,พนักงาน,ลูกค้า,รายละเอียด,GPS Lat,GPS Lng']; f.forEach(l=>{ const d=new Date(l.ts); rows.push([d.toLocaleDateString('th-TH'),d.toLocaleTimeString('th-TH'),'"'+(l.empName||'')+'"','"'+(l.customer||'')+'"','"'+(l.desc||'')+'"',l.lat?l.lat.toFixed(6):'',l.lng?l.lng.toFixed(6):''].join(',')); }); return rows.join('\n'); }
+function exportDownload(){ const csv=buildCSV(); const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); const key=document.getElementById('month-select').value; a.href=url; a.download='time_log_'+key+'.csv'; a.click(); URL.revokeObjectURL(url); }
+function exportEmail(){
+  const f=getFiltered(); if(!f.length){ alert('ไม่มีข้อมูลในเดือนนี้'); return; }
+  const key=document.getElementById('month-select').value; const [y,m]=key.split('-');
+  const ml=new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'});
+  const days=new Set(f.map(l=>new Date(l.ts).toDateString())).size;
+  let body=`รายงานบันทึกเวลาทำงาน เดือน${ml}\nจำนวนรายการ: ${f.length} | วันทำงาน: ${days} วัน\n\n`;
+  f.forEach((l,i)=>{ const d=new Date(l.ts); body+=`${i+1}. ${d.toLocaleDateString('th-TH')} ${d.toLocaleTimeString('th-TH')}\n   พนักงาน: ${l.empName||'-'}\n`; if(l.customer) body+=`   ลูกค้า: ${l.customer}\n`; if(l.desc) body+=`   รายละเอียด: ${l.desc}\n`; if(l.lat) body+=`   GPS: ${l.lat.toFixed(5)}, ${l.lng.toFixed(5)}\n`; body+='\n'; });
+  window.location.href=`mailto:?subject=${encodeURIComponent('รายงานบันทึกเวลาทำงาน '+ml)}&body=${encodeURIComponent(body)}`;
+}
+
+// Init
+updateEmpUI(); renderLogs();
+if(!empName) setTimeout(showNameModal,600);
+</script>
+</body>
+</html>
