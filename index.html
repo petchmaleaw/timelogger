@@ -25,14 +25,13 @@ body{background:#f3f4f6;color:#1a1a1a;min-height:100vh;overscroll-behavior:none}
 .login-box h2{font-size:20px;font-weight:600;margin-bottom:4px;text-align:center}
 .login-box .sub{font-size:13px;color:#6b7280;margin-bottom:20px;text-align:center}
 .login-tab{display:flex;background:#f3f4f6;border-radius:10px;padding:3px;margin-bottom:16px;gap:3px}
-.login-tab button{flex:1;padding:8px;border:none;background:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;color:#6b7280}
+.login-tab button{flex:1;padding:8px 4px;border:none;background:none;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;color:#6b7280}
 .login-tab button.active{background:#fff;color:#2563eb;box-shadow:0 1px 4px rgba(0,0,0,.1)}
 .login-input{width:100%;border:0.5px solid #d1d5db;border-radius:10px;padding:11px 13px;font-size:15px;color:#1a1a1a;background:#fff;outline:none;margin-bottom:10px;-webkit-appearance:none}
 .login-input:focus{border-color:#2563eb}
 .login-btn{width:100%;background:#2563eb;color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:500;cursor:pointer;margin-top:2px}
 .login-btn:active{opacity:.85}
 .login-err{color:#dc2626;font-size:12px;text-align:center;margin-top:8px;min-height:16px}
-.hint-box{background:#f0fdf4;border-radius:10px;padding:10px 12px;font-size:11px;color:#166534;margin-top:14px;line-height:1.7}
 
 .emp-banner{background:#fff;border-bottom:0.5px solid #e5e7eb;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
 .emp-avatar{width:36px;height:36px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#2563eb;flex-shrink:0}
@@ -93,10 +92,14 @@ video{width:100%;display:block;max-height:48vw;object-fit:cover}
 .btn-action:active{opacity:.85}
 .export-log{background:#f9fafb;border-radius:10px;padding:12px;font-size:11px;color:#6b7280;max-height:140px;overflow-y:auto;white-space:pre-wrap;font-family:monospace}
 
+.admin-tabs{display:flex;background:#fff;border-bottom:0.5px solid #e5e7eb;flex-shrink:0}
+.admin-tab-btn{flex:1;padding:14px 8px;border:none;background:transparent;cursor:pointer;font-size:14px;font-weight:500;color:#9ca3af;border-bottom:2px solid transparent;font-family:inherit}
+.admin-tab-btn.active{color:#2563eb;border-bottom-color:#2563eb}
+.pending-badge{display:none;background:#dc2626;color:#fff;font-size:10px;padding:1px 6px;border-radius:8px;margin-left:4px;font-weight:500}
+
 .admin-log-item{border-bottom:0.5px solid #f3f4f6;padding:12px 0;cursor:pointer}
 .admin-log-item:last-child{border-bottom:none}
-.admin-log-item:active{background:#f9fafb}
-.admin-log-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.admin-log-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;flex-wrap:wrap;gap:4px}
 .admin-log-name{font-size:13px;font-weight:600;color:#1d4ed8}
 .admin-log-time{font-size:11px;color:#9ca3af}
 .admin-log-detail{font-size:13px;color:#374151}
@@ -124,6 +127,13 @@ video{width:100%;display:block;max-height:48vw;object-fit:cover}
 
 .toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 80px);left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;z-index:400;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
 .toast.show{opacity:1}
+
+.user-item{border-bottom:0.5px solid #f3f4f6;padding:12px 0}
+.user-item:last-child{border-bottom:none}
+.user-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.btn-approve{background:#059669;color:#fff;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:500;cursor:pointer}
+.btn-reject{background:#fff;color:#dc2626;border:1px solid #dc2626;border-radius:8px;padding:8px;font-size:12px;font-weight:500;cursor:pointer}
+.btn-delete-user{background:#fff;color:#6b7280;border:0.5px solid #d1d5db;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-top:8px}
 </style>
 </head>
 <body>
@@ -157,7 +167,7 @@ video{width:100%;display:block;max-height:48vw;object-fit:cover}
     <div class="emp-avatar" id="emp-avatar">?</div>
     <div style="flex:1;min-width:0">
       <div class="emp-name-text" id="emp-display">-</div>
-      <div class="emp-sub">Sales</div>
+      <div class="emp-sub">User</div>
     </div>
     <span class="sync-badge sync-ok" id="sync-status">✓ ซิงค์แล้ว</span>
   </div>
@@ -188,7 +198,7 @@ video{width:100%;display:block;max-height:48vw;object-fit:cover}
       </div>
       <div class="cam-controls">
         <div class="input-group">
-          <label>👤 พนักงาน</label>
+          <label>👤 ผู้ใช้</label>
           <input type="text" id="emp-readonly" readonly>
         </div>
         <div class="input-group">
@@ -244,11 +254,11 @@ video{width:100%;display:block;max-height:48vw;object-fit:cover}
     <h1>👑 Admin Dashboard</h1>
     <button class="icon-btn" onclick="doLogout()">🚪</button>
   </div>
-  <div style="display:flex;background:#fff;border-bottom:0.5px solid #e5e7eb;flex-shrink:0">
-    <button id="admin-tab-logs" onclick="switchAdminView('logs')" style="flex:1;padding:14px 8px;border:none;background:transparent;cursor:pointer;font-size:14px;font-weight:500;color:#2563eb;border-bottom:2px solid #2563eb;font-family:inherit">📊 ข้อมูลเวลา</button>
-    <button id="admin-tab-users" onclick="switchAdminView('users')" style="flex:1;padding:14px 8px;border:none;background:transparent;cursor:pointer;font-size:14px;font-weight:500;color:#9ca3af;border-bottom:2px solid transparent;font-family:inherit">👥 ผู้ใช้<span id="pending-badge" style="display:none;background:#dc2626;color:#fff;font-size:10px;padding:1px 6px;border-radius:8px;margin-left:4px">0</span></button>
+  <div class="admin-tabs">
+    <button type="button" class="admin-tab-btn active" id="admin-tab-logs" onclick="switchAdminView('logs')">📊 ข้อมูลเวลา</button>
+    <button type="button" class="admin-tab-btn" id="admin-tab-users" onclick="switchAdminView('users')">👥 ผู้ใช้<span id="pending-badge" class="pending-badge">0</span></button>
   </div>
-  <div class="content" id="admin-content">
+  <div class="content">
     <!-- LOGS VIEW -->
     <div id="admin-view-logs">
       <div class="card">
@@ -306,7 +316,6 @@ video{width:100%;display:block;max-height:48vw;object-fit:cover}
 // ═══════════════════════════════════════
 const WEBAPP_URL  = 'https://script.google.com/macros/s/AKfycbyOaQHXeHqS2eEoLR2FGRxDfV8WbW2P9vaPbBUiX6FJtQuCLAIrjGogk4bmIMoG0dc/exec';
 const ADMIN_PASS  = 'admin1234';
-const SALES_PASS  = '1234';
 const DB_KEY      = 'time_logs_v3';
 const SESSION_KEY = 'tl_session_v2';
 
@@ -320,26 +329,36 @@ function loadLogs(){ try{ logs=JSON.parse(localStorage.getItem(DB_KEY)||'[]'); }
 function saveLogs(){ localStorage.setItem(DB_KEY,JSON.stringify(logs)); }
 loadLogs();
 
-// restore session
-(function(){
-  try{
-    const s=JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null');
-    if(s){ currentUser=s.name; isAdmin=s.admin; showAfterLogin(); }
-  }catch(e){}
-})();
-
 // ═══════════════════════════════════════
 // UTILS
 // ═══════════════════════════════════════
 function gi(n){ if(!n) return '?'; const p=n.trim().split(' '); return (p[0][0]+(p[1]?p[1][0]:'')).toUpperCase(); }
-function showLoading(t='กำลังโหลด...'){ document.getElementById('loading-txt').textContent=t; document.getElementById('loading').classList.add('show'); }
+function showLoading(t){ document.getElementById('loading-txt').textContent=t||'กำลังโหลด...'; document.getElementById('loading').classList.add('show'); }
 function hideLoading(){ document.getElementById('loading').classList.remove('show'); }
 let toastTimer;
-function showToast(msg,dur=2800){
+function showToast(msg,dur){
   const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
-  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),dur);
+  clearTimeout(toastTimer); toastTimer=setTimeout(function(){ t.classList.remove('show'); }, dur||2800);
 }
-function go(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function go(id){ document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); }); document.getElementById(id).classList.add('active'); }
+
+function apiPost(payload){
+  return fetch(WEBAPP_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload),
+    redirect: 'follow'
+  }).then(function(res){ return res.text(); }).then(function(txt){ return JSON.parse(txt); });
+}
+
+function fixPhotoUrl(url){
+  if(!url) return '';
+  var m=url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if(m) return 'https://lh3.googleusercontent.com/d/'+m[1];
+  var m2=url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if(m2) return 'https://lh3.googleusercontent.com/d/'+m2[1];
+  return url;
+}
 
 // ═══════════════════════════════════════
 // LOGIN
@@ -353,16 +372,9 @@ function switchTab(m){
   const nameEl=document.getElementById('login-name');
   const btnEl=document.getElementById('login-btn');
   document.getElementById('login-err').textContent='';
-  if(m==='admin'){
-    nameEl.placeholder='admin username';
-    btnEl.textContent='เข้าสู่ระบบ';
-  } else if(m==='register'){
-    nameEl.placeholder='username (ขั้นต่ำ 3 ตัวอักษร)';
-    btnEl.textContent='📝 สมัครสมาชิก';
-  } else {
-    nameEl.placeholder='username';
-    btnEl.textContent='เข้าสู่ระบบ';
-  }
+  if(m==='admin'){ nameEl.placeholder='admin username'; btnEl.textContent='เข้าสู่ระบบ'; }
+  else if(m==='register'){ nameEl.placeholder='username (ขั้นต่ำ 3 ตัวอักษร)'; btnEl.textContent='📝 สมัครสมาชิก'; }
+  else { nameEl.placeholder='username'; btnEl.textContent='เข้าสู่ระบบ'; }
 }
 
 async function doLogin(){
@@ -373,7 +385,6 @@ async function doLogin(){
   if(!name){ err.textContent='กรุณากรอก username'; return; }
   if(!pass){ err.textContent='กรุณากรอกรหัสผ่าน'; return; }
 
-  // ═══ REGISTER ═══
   if(loginMode==='register'){
     showLoading('กำลังสมัครสมาชิก...');
     try{
@@ -388,7 +399,6 @@ async function doLogin(){
     return;
   }
 
-  // ═══ ADMIN (hardcoded) ═══
   if(loginMode==='admin'){
     if(name!=='admin'||pass!==ADMIN_PASS){ err.textContent='ชื่อหรือรหัสผ่านไม่ถูกต้อง'; return; }
     currentUser='Admin'; isAdmin=true;
@@ -396,7 +406,6 @@ async function doLogin(){
     showAfterLogin(); return;
   }
 
-  // ═══ SALES (check กับ server) ═══
   showLoading('กำลังเข้าสู่ระบบ...');
   try{
     const data=await apiPost({action:'login',username:name,password:pass});
@@ -408,7 +417,9 @@ async function doLogin(){
     } else { err.textContent=data.msg||'เข้าสู่ระบบไม่สำเร็จ'; }
   }catch(e){ hideLoading(); err.textContent='เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง'; }
 }
-document.getElementById('login-pass').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+
+document.getElementById('login-pass').addEventListener('keydown',function(e){ if(e.key==='Enter') doLogin(); });
+
 function doLogout(){
   sessionStorage.removeItem(SESSION_KEY);
   currentUser=null; isAdmin=false;
@@ -418,52 +429,35 @@ function doLogout(){
   go('login-screen');
 }
 function showAfterLogin(){
-  if(isAdmin){ go('admin-screen'); checkPendingUsersOnLoad(); }
+  if(isAdmin){ go('admin-screen'); switchAdminView('logs'); checkPendingUsersOnLoad(); }
   else { updateEmpUI(); renderLogs(); go('home-screen'); checkPendingSync(); }
 }
 
 // ═══════════════════════════════════════
-// EMPLOYEE UI
+// EMPLOYEE UI + NAV
 // ═══════════════════════════════════════
 function updateEmpUI(){
   document.getElementById('emp-display').textContent=currentUser||'-';
   document.getElementById('emp-avatar').textContent=gi(currentUser);
-  const er=document.getElementById('emp-readonly');
-  if(er) er.value=currentUser||'';
+  const er=document.getElementById('emp-readonly'); if(er) er.value=currentUser||'';
 }
 function showHome(){ updateEmpUI(); renderLogs(); go('home-screen'); }
 function goCamera(){ updateEmpUI(); go('cam-screen'); startCamera(); startGPS(); }
 function goExport(){ go('export-screen'); populateMonths(); }
 
-// ═══════════════════════════════════════
-// RENDER LOGS
-// ═══════════════════════════════════════
-function myLogs(){ return logs.filter(l=>l.empName===currentUser); }
+function myLogs(){ return logs.filter(function(l){ return l.empName===currentUser; }); }
 function renderLogs(){
   const list=document.getElementById('log-list');
   const mine=myLogs();
   document.getElementById('empty-msg').style.display=mine.length?'none':'block';
-  list.querySelectorAll('.card').forEach(c=>c.remove());
-  [...mine].reverse().forEach(log=>{
+  list.querySelectorAll('.card').forEach(function(c){ c.remove(); });
+  [...mine].reverse().forEach(function(log){
     const card=document.createElement('div'); card.className='card';
     const d=new Date(log.ts);
     const dateStr=d.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
     const timeStr=d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-    const syncPill=log.synced
-      ?'<span class="pill pill-green">☁️ ซิงค์แล้ว</span>'
-      :'<span class="pill pill-amber">⏳ รอซิงค์</span>';
-    card.innerHTML=`<div class="log-item">
-      <div class="log-thumb" onclick="viewPhoto('${log.photo||''}')">
-        ${log.photo?`<img src="${log.photo}" alt="">`:'📷'}
-      </div>
-      <div class="log-info">
-        <div class="date">${dateStr}</div>
-        <div class="time">${timeStr}</div>
-        <div>${syncPill}</div>
-        <div class="desc">${[log.customer,log.desc].filter(Boolean).join(' — ')||'(ไม่มีรายละเอียด)'}</div>
-        <div class="gps">${log.lat?'📍 '+log.lat.toFixed(5)+', '+log.lng.toFixed(5):'ไม่มีข้อมูล GPS'}</div>
-      </div>
-    </div>`;
+    const syncPill=log.synced?'<span class="pill pill-green">☁️ ซิงค์แล้ว</span>':'<span class="pill pill-amber">⏳ รอซิงค์</span>';
+    card.innerHTML='<div class="log-item"><div class="log-thumb" onclick="viewPhoto(\''+(log.photo||'')+'\')">'+(log.photo?'<img src="'+log.photo+'" alt="">':'📷')+'</div><div class="log-info"><div class="date">'+dateStr+'</div><div class="time">'+timeStr+'</div><div>'+syncPill+'</div><div class="desc">'+([log.customer,log.desc].filter(Boolean).join(' — ')||'(ไม่มีรายละเอียด)')+'</div><div class="gps">'+(log.lat?'📍 '+log.lat.toFixed(5)+', '+log.lng.toFixed(5):'ไม่มีข้อมูล GPS')+'</div></div></div>';
     list.appendChild(card);
   });
 }
@@ -474,11 +468,11 @@ function renderLogs(){
 function startCamera(){
   const vid=document.getElementById('video');
   navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false})
-    .then(s=>{ stream=s; vid.srcObject=s; vid.play(); drawOverlay(); })
-    .catch(()=>{ alert('ไม่สามารถเข้าถึงกล้องได้\nกรุณาอนุญาตการใช้งานกล้อง'); showHome(); });
+    .then(function(s){ stream=s; vid.srcObject=s; vid.play(); drawOverlay(); })
+    .catch(function(){ alert('ไม่สามารถเข้าถึงกล้องได้'); showHome(); });
 }
 function stopCamera(){
-  if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
+  if(stream){ stream.getTracks().forEach(function(t){ t.stop(); }); stream=null; }
   if(gpsWatcher){ navigator.geolocation.clearWatch(gpsWatcher); gpsWatcher=null; }
 }
 function startGPS(){
@@ -487,8 +481,8 @@ function startGPS(){
   dot.style.background='#f59e0b'; st.textContent='กำลังระบุตำแหน่ง...';
   if(!navigator.geolocation){ st.textContent='ไม่รองรับ GPS'; return; }
   gpsWatcher=navigator.geolocation.watchPosition(
-    pos=>{ gpsCoords={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:Math.round(pos.coords.accuracy)}; dot.style.background='#22c55e'; st.textContent=`📍 ${gpsCoords.lat.toFixed(5)}, ${gpsCoords.lng.toFixed(5)} (±${gpsCoords.acc}m)`; },
-    ()=>{ dot.style.background='#ef4444'; st.textContent='ไม่สามารถระบุตำแหน่งได้'; },
+    function(pos){ gpsCoords={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:Math.round(pos.coords.accuracy)}; dot.style.background='#22c55e'; st.textContent='📍 '+gpsCoords.lat.toFixed(5)+', '+gpsCoords.lng.toFixed(5)+' (±'+gpsCoords.acc+'m)'; },
+    function(){ dot.style.background='#ef4444'; st.textContent='ไม่สามารถระบุตำแหน่งได้'; },
     {enableHighAccuracy:true,maximumAge:5000,timeout:15000}
   );
 }
@@ -497,18 +491,18 @@ function drawOverlay(){
   function tick(){
     if(!stream) return;
     cvs.width=vid.clientWidth; cvs.height=vid.clientHeight;
-    if(!cvs.width) { requestAnimationFrame(tick); return; }
+    if(!cvs.width){ requestAnimationFrame(tick); return; }
     const ctx=cvs.getContext('2d'), now=new Date();
     const fs=Math.max(11,Math.round(cvs.height*0.05));
     const barH=Math.max(48,cvs.height*0.18);
     ctx.clearRect(0,0,cvs.width,cvs.height);
     ctx.fillStyle='rgba(0,0,0,0.52)';
     ctx.fillRect(0,cvs.height-barH,cvs.width,barH);
-    ctx.fillStyle='#fff'; ctx.font=`bold ${fs}px sans-serif`;
+    ctx.fillStyle='#fff'; ctx.font='bold '+fs+'px sans-serif';
     ctx.fillText(now.toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'})+' '+now.toLocaleTimeString('th-TH'),10,cvs.height-barH+fs+4);
-    ctx.fillStyle='#93c5fd'; ctx.font=`${Math.round(fs*.82)}px sans-serif`;
+    ctx.fillStyle='#93c5fd'; ctx.font=Math.round(fs*.82)+'px sans-serif';
     ctx.fillText('👤 '+(currentUser||''),10,cvs.height-barH+fs*2+4);
-    if(gpsCoords){ ctx.fillStyle='rgba(255,255,255,.6)'; ctx.font=`${Math.round(fs*.68)}px sans-serif`; ctx.fillText('GPS: '+gpsCoords.lat.toFixed(5)+', '+gpsCoords.lng.toFixed(5),10,cvs.height-8); }
+    if(gpsCoords){ ctx.fillStyle='rgba(255,255,255,.6)'; ctx.font=Math.round(fs*.68)+'px sans-serif'; ctx.fillText('GPS: '+gpsCoords.lat.toFixed(5)+', '+gpsCoords.lng.toFixed(5),10,cvs.height-8); }
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
@@ -525,22 +519,20 @@ function capturePhoto(){
   const desc=document.getElementById('desc-input').value.trim();
   const fs=Math.max(16,Math.round(cvs.height*0.038));
   const lines=[
-    `${now.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'})}  ${now.toLocaleTimeString('th-TH')}`,
-    `👤 ${currentUser||''}`,
-    customer?`🏢 ${customer}`:'',
-    desc?`📝 ${desc.substring(0,60)}`:'',
-    gpsCoords?`📍 GPS: ${gpsCoords.lat.toFixed(5)}, ${gpsCoords.lng.toFixed(5)}`:''
+    now.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'})+'  '+now.toLocaleTimeString('th-TH'),
+    '👤 '+(currentUser||''),
+    customer?'🏢 '+customer:'',
+    desc?'📝 '+desc.substring(0,60):'',
+    gpsCoords?'📍 GPS: '+gpsCoords.lat.toFixed(5)+', '+gpsCoords.lng.toFixed(5):''
   ].filter(Boolean);
   const barH=(lines.length*(fs+6))+14;
-  ctx.fillStyle='rgba(0,0,0,0.56)';
-  ctx.fillRect(0,cvs.height-barH,cvs.width,barH);
-  lines.forEach((line,i)=>{
-    ctx.font=i===0?`bold ${fs}px sans-serif`:`${Math.round(fs*.85)}px sans-serif`;
+  ctx.fillStyle='rgba(0,0,0,0.56)'; ctx.fillRect(0,cvs.height-barH,cvs.width,barH);
+  lines.forEach(function(line,i){
+    ctx.font=i===0?'bold '+fs+'px sans-serif':Math.round(fs*.85)+'px sans-serif';
     ctx.fillStyle=i===1?'#93c5fd':i===0?'#fff':'#d1fae5';
     ctx.fillText(line,12,cvs.height-barH+12+(i*(fs+6))+fs);
   });
 
-  // บีบอัดรูปให้เล็กลงก่อนเก็บและส่ง (max 800px wide)
   let finalBase64;
   if(cvs.width>800){
     const small=document.createElement('canvas');
@@ -548,104 +540,52 @@ function capturePhoto(){
     small.width=800; small.height=Math.round(cvs.height*ratio);
     small.getContext('2d').drawImage(cvs,0,0,small.width,small.height);
     finalBase64=small.toDataURL('image/jpeg',0.7);
-  } else {
-    finalBase64=cvs.toDataURL('image/jpeg',0.7);
-  }
+  } else { finalBase64=cvs.toDataURL('image/jpeg',0.7); }
 
-  const log={
-    id:'lg_'+Date.now(), ts:now.toISOString(), empName:currentUser,
-    customer, desc, photo:finalBase64,
-    lat:gpsCoords?gpsCoords.lat:null,
-    lng:gpsCoords?gpsCoords.lng:null,
-    acc:gpsCoords?gpsCoords.acc:null,
-    synced:false, photoUrl:''
-  };
+  const log={ id:'lg_'+Date.now(), ts:now.toISOString(), empName:currentUser, customer:customer, desc:desc, photo:finalBase64, lat:gpsCoords?gpsCoords.lat:null, lng:gpsCoords?gpsCoords.lng:null, acc:gpsCoords?gpsCoords.acc:null, synced:false, photoUrl:'' };
   logs.push(log); saveLogs();
   document.getElementById('customer-name').value='';
   document.getElementById('desc-input').value='';
   stopCamera(); showHome();
-  setTimeout(()=>syncSingleLog(log),1000);
+  setTimeout(function(){ syncSingleLog(log); },1000);
 }
 
 // ═══════════════════════════════════════
-// SYNC — ใช้ no-cors + image upload
+// SYNC
 // ═══════════════════════════════════════
-// Helper: POST ไป Apps Script
-function apiPost(payload){
-  return fetch(WEBAPP_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(payload),
-    redirect: 'follow'
-  })
-  .then(res => res.text())
-  .then(txt => JSON.parse(txt));
-}
-
 function postToSheet(log){
-  const payload = {
-    timestamp:    log.ts,
-    employeeName: log.empName,
-    customer:     log.customer || '',
-    description:  log.desc || '',
-    lat:          log.lat || '',
-    lng:          log.lng || '',
-    accuracy:     log.acc || '',
-    deviceId:     log.id,
-    photoBase64:  log.photo || ''
-  };
-
-  return fetch(WEBAPP_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(payload),
-    redirect: 'follow'
-  })
-  .then(res => res.text())
-  .then(txt => {
-    let data;
-    try { data = JSON.parse(txt); }
-    catch(e){ throw new Error('Invalid response'); }
-    if (data.status === 'ok') {
-      if (data.photoUrl) log.photoUrl = data.photoUrl;
-      return data;
-    }
-    throw new Error(data.msg || 'Server error');
-  });
+  const payload={ timestamp:log.ts, employeeName:log.empName, customer:log.customer||'', description:log.desc||'', lat:log.lat||'', lng:log.lng||'', accuracy:log.acc||'', deviceId:log.id, photoBase64:log.photo||'' };
+  return fetch(WEBAPP_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload), redirect:'follow' })
+    .then(function(res){ return res.text(); })
+    .then(function(txt){
+      let data; try{ data=JSON.parse(txt); }catch(e){ throw new Error('Invalid response'); }
+      if(data.status==='ok'){ if(data.photoUrl) log.photoUrl=data.photoUrl; return data; }
+      throw new Error(data.msg||'Server error');
+    });
 }
-
 async function syncSingleLog(log){
   setSyncBadge('pending');
   try{
     await postToSheet(log);
     log.synced=true; saveLogs();
-    setSyncBadge('ok');
-    showToast('✓ บันทึกและซิงค์สำเร็จ');
-    renderLogs();
-  }catch(e){
-    setSyncBadge('err');
-    showToast('📶 Sync ไม่สำเร็จ — บันทึกไว้แล้ว จะซิงค์ใหม่ภายหลัง');
-  }
+    setSyncBadge('ok'); showToast('✓ บันทึกและซิงค์สำเร็จ'); renderLogs();
+  }catch(e){ setSyncBadge('err'); showToast('📶 Sync ไม่สำเร็จ — บันทึกไว้แล้ว จะซิงค์ใหม่ภายหลัง'); }
 }
-
 async function syncNow(){
-  const pending=logs.filter(l=>l.empName===currentUser&&!l.synced);
+  const pending=logs.filter(function(l){ return l.empName===currentUser&&!l.synced; });
   if(!pending.length){ showToast('✓ ข้อมูลซิงค์ทั้งหมดแล้ว'); return; }
-  showLoading(`กำลัง Sync ${pending.length} รายการ...`);
+  showLoading('กำลัง Sync '+pending.length+' รายการ...');
   let ok=0;
-  for(const log of pending){
-    try{ await postToSheet(log); log.synced=true; ok++; }catch(e){}
-  }
+  for(const log of pending){ try{ await postToSheet(log); log.synced=true; ok++; }catch(e){} }
   saveLogs(); hideLoading();
-  showToast(`☁️ Sync สำเร็จ ${ok}/${pending.length} รายการ`);
+  showToast('☁️ Sync สำเร็จ '+ok+'/'+pending.length+' รายการ');
   setSyncBadge(ok===pending.length?'ok':'err');
   renderLogs();
 }
-
 function checkPendingSync(){
-  const p=logs.filter(l=>l.empName===currentUser&&!l.synced);
+  const p=logs.filter(function(l){ return l.empName===currentUser&&!l.synced; });
   setSyncBadge(p.length?'pending':'ok');
-  if(p.length) setTimeout(()=>syncNow(),2000);
+  if(p.length) setTimeout(function(){ syncNow(); },2000);
 }
 function setSyncBadge(s){
   const el=document.getElementById('sync-status'); if(!el) return;
@@ -661,122 +601,117 @@ function setSyncBadge(s){
 function getMK(ts){ const d=new Date(ts); return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'); }
 function populateMonths(){
   const mine=myLogs(), sel=document.getElementById('month-select');
-  const keys=[...new Set(mine.map(l=>getMK(l.ts)))].sort().reverse();
+  const keys=[...new Set(mine.map(function(l){ return getMK(l.ts); }))].sort().reverse();
   const now=new Date(), tk=now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0');
   if(!keys.includes(tk)) keys.unshift(tk);
-  sel.innerHTML=keys.map(k=>{ const [y,m]=k.split('-'); return `<option value="${k}">${new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'})}</option>`; }).join('');
+  sel.innerHTML=keys.map(function(k){ const [y,m]=k.split('-'); return '<option value="'+k+'">'+new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'})+'</option>'; }).join('');
   sel.onchange=updateExportPreview; updateExportPreview();
 }
-function getFiltered(){ const k=document.getElementById('month-select').value; return myLogs().filter(l=>getMK(l.ts)===k); }
+function getFiltered(){ const k=document.getElementById('month-select').value; return myLogs().filter(function(l){ return getMK(l.ts)===k; }); }
 function updateExportPreview(){
-  const f=getFiltered(), days=new Set(f.map(l=>new Date(l.ts).toDateString())).size;
+  const f=getFiltered(), days=new Set(f.map(function(l){ return new Date(l.ts).toDateString(); })).size;
   document.getElementById('stat-count').textContent=f.length;
   document.getElementById('stat-days').textContent=days;
   if(!f.length){ document.getElementById('export-preview').textContent='ไม่มีข้อมูลในเดือนนี้'; return; }
-  const rows=['วันที่,เวลา,พนักงาน,ลูกค้า,รายละเอียด,GPS Lat,GPS Lng,ซิงค์'];
-  f.forEach(l=>{ const d=new Date(l.ts); rows.push([d.toLocaleDateString('th-TH'),d.toLocaleTimeString('th-TH'),'"'+(l.empName||'')+'"','"'+(l.customer||'')+'"','"'+(l.desc||'')+'"',l.lat?l.lat.toFixed(6):'',l.lng?l.lng.toFixed(6):'',l.synced?'✓':'รอ'].join(',')); });
+  const rows=['วันที่,เวลา,ผู้ใช้,ลูกค้า,รายละเอียด,GPS Lat,GPS Lng,ซิงค์'];
+  f.forEach(function(l){ const d=new Date(l.ts); rows.push([d.toLocaleDateString('th-TH'),d.toLocaleTimeString('th-TH'),'"'+(l.empName||'')+'"','"'+(l.customer||'')+'"','"'+(l.desc||'')+'"',l.lat?l.lat.toFixed(6):'',l.lng?l.lng.toFixed(6):'',l.synced?'✓':'รอ'].join(',')); });
   document.getElementById('export-preview').textContent=rows.join('\n');
 }
-function dlCSV(content,name){ const b=new Blob(['\uFEFF'+content],{type:'text/csv;charset=utf-8'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u); }
-function buildCSV(arr){ const rows=['วันที่,เวลา,พนักงาน,ลูกค้า,รายละเอียด,GPS Lat,GPS Lng']; arr.forEach(l=>{ const d=new Date(l.ts||l.timestamp); rows.push([d.toLocaleDateString('th-TH'),d.toLocaleTimeString('th-TH'),'"'+(l.empName||l.employeeName||'')+'"','"'+(l.customer||'')+'"','"'+(l.desc||l.description||'')+'"',l.lat?parseFloat(l.lat).toFixed(6):'',l.lng?parseFloat(l.lng).toFixed(6):''].join(',')); }); return rows.join('\n'); }
+function dlCSV(c,n){ const b=new Blob(['\uFEFF'+c],{type:'text/csv;charset=utf-8'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download=n; a.click(); URL.revokeObjectURL(u); }
+function buildCSV(arr){ const rows=['วันที่,เวลา,ผู้ใช้,ลูกค้า,รายละเอียด,GPS Lat,GPS Lng']; arr.forEach(function(l){ const d=new Date(l.ts||l.timestamp); rows.push([d.toLocaleDateString('th-TH'),d.toLocaleTimeString('th-TH'),'"'+(l.empName||l.employeeName||'')+'"','"'+(l.customer||'')+'"','"'+(l.desc||l.description||'')+'"',l.lat?parseFloat(l.lat).toFixed(6):'',l.lng?parseFloat(l.lng).toFixed(6):''].join(',')); }); return rows.join('\n'); }
 function exportDownload(){ dlCSV(buildCSV(getFiltered()),'time_log_'+document.getElementById('month-select').value+'.csv'); }
 function exportEmail(){
   const f=getFiltered(); if(!f.length){ alert('ไม่มีข้อมูล'); return; }
   const k=document.getElementById('month-select').value; const [y,m]=k.split('-');
   const ml=new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'});
-  const days=new Set(f.map(l=>new Date(l.ts).toDateString())).size;
-  let body=`รายงานบันทึกเวลาทำงาน เดือน${ml}\nพนักงาน: ${currentUser}\nจำนวน: ${f.length} รายการ | วันทำงาน: ${days} วัน\n\n`;
-  f.forEach((l,i)=>{ const d=new Date(l.ts); body+=`${i+1}. ${d.toLocaleDateString('th-TH')} ${d.toLocaleTimeString('th-TH')}\n`; if(l.customer) body+=`   ลูกค้า: ${l.customer}\n`; if(l.desc) body+=`   รายละเอียด: ${l.desc}\n`; if(l.lat) body+=`   GPS: ${l.lat.toFixed(5)}, ${l.lng.toFixed(5)}\n`; if(l.photoUrl) body+=`   รูปภาพ: ${l.photoUrl}\n`; body+='\n'; });
-  window.location.href=`mailto:?subject=${encodeURIComponent('รายงาน '+ml+' - '+currentUser)}&body=${encodeURIComponent(body)}`;
+  const days=new Set(f.map(function(l){ return new Date(l.ts).toDateString(); })).size;
+  let body='รายงานบันทึกเวลาทำงาน เดือน'+ml+'\nผู้ใช้: '+currentUser+'\nจำนวน: '+f.length+' รายการ | วันทำงาน: '+days+' วัน\n\n';
+  f.forEach(function(l,i){ const d=new Date(l.ts); body+=(i+1)+'. '+d.toLocaleDateString('th-TH')+' '+d.toLocaleTimeString('th-TH')+'\n'; if(l.customer) body+='   ลูกค้า: '+l.customer+'\n'; if(l.desc) body+='   รายละเอียด: '+l.desc+'\n'; if(l.lat) body+='   GPS: '+l.lat.toFixed(5)+', '+l.lng.toFixed(5)+'\n'; if(l.photoUrl) body+='   รูปภาพ: '+l.photoUrl+'\n'; body+='\n'; });
+  window.location.href='mailto:?subject='+encodeURIComponent('รายงาน '+ml+' - '+currentUser)+'&body='+encodeURIComponent(body);
 }
 
 // ═══════════════════════════════════════
-// ADMIN
+// ADMIN - LOGS VIEW
 // ═══════════════════════════════════════
+function switchAdminView(view){
+  const viewLogs=document.getElementById('admin-view-logs');
+  const viewUsers=document.getElementById('admin-view-users');
+  const tabLogs=document.getElementById('admin-tab-logs');
+  const tabUsers=document.getElementById('admin-tab-users');
+  if(view==='users'){
+    viewLogs.style.display='none';
+    viewUsers.style.display='block';
+    tabLogs.classList.remove('active');
+    tabUsers.classList.add('active');
+    if(!window._userListLoaded) adminLoadUsers();
+  } else {
+    viewLogs.style.display='block';
+    viewUsers.style.display='none';
+    tabLogs.classList.add('active');
+    tabUsers.classList.remove('active');
+  }
+}
+
 async function adminLoadData(){
   showLoading('กำลังดึงข้อมูลจาก Google Sheets...');
   try{
-    // doGet ใช้ GET ปกติ ไม่มีปัญหา CORS
-    const res=await fetch(WEBAPP_URL+'?action=get&t='+Date.now());
+    const res=await fetch(WEBAPP_URL+'?action=getLogs&t='+Date.now());
     const json=await res.json();
     hideLoading();
     if(json.status==='ok'){
       adminAllData=json.data||[];
       populateAdminFilters(); renderAdminLogs();
-      showToast(`✓ โหลดสำเร็จ ${adminAllData.length} รายการ`);
-    } else { showToast('❌ โหลดไม่สำเร็จ: '+json.msg); }
-  }catch(e){ hideLoading(); showToast('❌ เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง'); }
+      showToast('✓ โหลดสำเร็จ '+adminAllData.length+' รายการ');
+    } else { showToast('❌ โหลดไม่สำเร็จ'); }
+  }catch(e){ hideLoading(); showToast('❌ เชื่อมต่อไม่ได้'); }
 }
 function populateAdminFilters(){
-  const months=[...new Set(adminAllData.map(r=>{ try{ const d=new Date(r.timestamp); return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'); }catch(e){ return ''; } }).filter(Boolean))].sort().reverse();
-  const emps=[...new Set(adminAllData.map(r=>r.employeeName).filter(Boolean))].sort();
+  const months=[...new Set(adminAllData.map(function(r){ try{ const d=new Date(r.timestamp); return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'); }catch(e){ return ''; } }).filter(Boolean))].sort().reverse();
+  const emps=[...new Set(adminAllData.map(function(r){ return r.employeeName; }).filter(Boolean))].sort();
   const ms=document.getElementById('admin-month-filter');
   const es=document.getElementById('admin-emp-filter');
-  ms.innerHTML='<option value="">— ทุกเดือน —</option>'+months.map(k=>{ const [y,m]=k.split('-'); return `<option value="${k}">${new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'})}</option>`; }).join('');
-  es.innerHTML='<option value="">— พนักงานทุกคน —</option>'+emps.map(e=>`<option value="${e}">${e}</option>`).join('');
+  ms.innerHTML='<option value="">— ทุกเดือน —</option>'+months.map(function(k){ const [y,m]=k.split('-'); return '<option value="'+k+'">'+new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'})+'</option>'; }).join('');
+  es.innerHTML='<option value="">— พนักงานทุกคน —</option>'+emps.map(function(e){ return '<option value="'+e+'">'+e+'</option>'; }).join('');
   ms.onchange=renderAdminLogs; es.onchange=renderAdminLogs;
 }
 function getAdminFiltered(){
   let d=[...adminAllData];
   const mf=document.getElementById('admin-month-filter').value;
   const ef=document.getElementById('admin-emp-filter').value;
-  if(mf) d=d.filter(r=>{ try{ const dt=new Date(r.timestamp); return dt.getFullYear()+'-'+(dt.getMonth()+1).toString().padStart(2,'0')===mf; }catch(e){ return false; } });
-  if(ef) d=d.filter(r=>r.employeeName===ef);
-  return d.sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+  if(mf) d=d.filter(function(r){ try{ const dt=new Date(r.timestamp); return dt.getFullYear()+'-'+(dt.getMonth()+1).toString().padStart(2,'0')===mf; }catch(e){ return false; } });
+  if(ef) d=d.filter(function(r){ return r.employeeName===ef; });
+  return d.sort(function(a,b){ return new Date(b.timestamp)-new Date(a.timestamp); });
 }
 function renderAdminLogs(){
   const f=getAdminFiltered();
-  const emps=new Set(f.map(r=>r.employeeName).filter(Boolean));
+  const emps=new Set(f.map(function(r){ return r.employeeName; }).filter(Boolean));
   document.getElementById('admin-stat-count').textContent=f.length;
   document.getElementById('admin-stat-emp').textContent=emps.size;
   const container=document.getElementById('admin-log-container');
   if(!f.length){ container.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>ไม่มีข้อมูลที่ตรงกับตัวกรอง</p></div>'; return; }
-  container.innerHTML=f.map((r,i)=>{
+  container.innerHTML=f.map(function(r,i){
     const d=new Date(r.timestamp);
     const dateStr=d.toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'});
     const timeStr=d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-    const gps=r.lat?`📍 ${parseFloat(r.lat).toFixed(5)}, ${parseFloat(r.lng).toFixed(5)}`:'';
+    const gps=r.lat?'📍 '+parseFloat(r.lat).toFixed(5)+', '+parseFloat(r.lng).toFixed(5):'';
     const fixedUrl=fixPhotoUrl(r.photoUrl);
-    const photoHtml=fixedUrl?`<img class="admin-photo" data-src="${fixedUrl}" onclick="viewPhoto('${fixedUrl}')" alt="รูปภาพ" referrerpolicy="no-referrer">`:'' ;
-    return `<div class="admin-log-item" onclick="toggleAdminPhoto(${i})">
-      <div class="admin-log-top">
-        <span class="admin-log-name">👤 ${r.employeeName||'-'}</span>
-        <span class="admin-log-time">${dateStr} ${timeStr}</span>
-      </div>
-      <div class="admin-log-detail">${[r.customer,r.description].filter(Boolean).join(' — ')||'(ไม่มีรายละเอียด)'}</div>
-      ${gps?`<div class="admin-log-gps">${gps}</div>`:''}
-      ${photoHtml}
-    </div>`;
+    const photoHtml=fixedUrl?'<img class="admin-photo" data-src="'+fixedUrl+'" onclick="viewPhoto(\''+fixedUrl+'\')" alt="" referrerpolicy="no-referrer">':'';
+    return '<div class="admin-log-item" onclick="toggleAdminPhoto('+i+')"><div class="admin-log-top"><span class="admin-log-name">👤 '+(r.employeeName||'-')+'</span><span class="admin-log-time">'+dateStr+' '+timeStr+'</span></div><div class="admin-log-detail">'+([r.customer,r.description].filter(Boolean).join(' — ')||'(ไม่มีรายละเอียด)')+'</div>'+(gps?'<div class="admin-log-gps">'+gps+'</div>':'')+photoHtml+'</div>';
   }).join('');
 }
 function toggleAdminPhoto(i){
   const items=document.querySelectorAll('.admin-log-item');
-  const img=items[i]?.querySelector('.admin-photo');
+  const img=items[i]?items[i].querySelector('.admin-photo'):null;
   if(!img) return;
   if(!img.classList.contains('loaded')){
     img.src=img.dataset.src;
-    img.onload=()=>img.classList.add('loaded');
-    img.onerror=()=>img.remove();
-  } else {
-    img.classList.toggle('loaded');
-  }
+    img.onload=function(){ img.classList.add('loaded'); };
+    img.onerror=function(){ img.remove(); };
+  } else { img.classList.toggle('loaded'); }
 }
-// แปลง URL รูป Google Drive ให้เป็น direct URL ที่แสดงได้ใน <img>
-function fixPhotoUrl(url){
-  if(!url) return '';
-  // ถ้าเป็น format เก่า uc?export=view&id=XXX → แปลงเป็น lh3.googleusercontent.com
-  var match = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if(match) return 'https://lh3.googleusercontent.com/d/' + match[1];
-  // ถ้าเป็น drive.google.com/file/d/XXX/view → แปลงเหมือนกัน
-  var match2 = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if(match2) return 'https://lh3.googleusercontent.com/d/' + match2[1];
-  // ถ้าเป็น format ใหม่อยู่แล้ว return ตามเดิม
-  return url;
-}
-
 function showGallery(){
   const f=getAdminFiltered();
-  const withPhoto=f.filter(r=>r.photoUrl);
+  const withPhoto=f.filter(function(r){ return r.photoUrl; });
   if(!f.length){ showToast('ไม่มีข้อมูล กรุณาโหลดข้อมูลก่อน'); return; }
   if(!withPhoto.length){ showToast('ไม่มีรูปภาพในช่วงที่เลือก'); return; }
   const container=document.getElementById('admin-log-container');
@@ -785,54 +720,109 @@ function showGallery(){
   let title='📸 Gallery: ทุกเดือน / ทุกคน';
   if(mf){ const [y,m]=mf.split('-'); title='📸 Gallery: '+new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'}); }
   if(ef) title+=' — '+ef;
-
-  container.innerHTML=`
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <div style="font-size:13px;font-weight:600;color:#1f2937">${title}</div>
-      <button style="background:none;border:0.5px solid #d1d5db;border-radius:8px;padding:5px 10px;font-size:12px;color:#6b7280;cursor:pointer" onclick="renderAdminLogs()">← กลับ</button>
-    </div>
-    <div style="font-size:11px;color:#9ca3af;margin-bottom:8px">${withPhoto.length} รูป จาก ${f.length} รายการ</div>
-    <div class="gallery-grid" id="gallery-grid"></div>
-  `;
+  container.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:13px;font-weight:600;color:#1f2937">'+title+'</div><button style="background:none;border:0.5px solid #d1d5db;border-radius:8px;padding:5px 10px;font-size:12px;color:#6b7280;cursor:pointer" onclick="renderAdminLogs()">← กลับ</button></div><div style="font-size:11px;color:#9ca3af;margin-bottom:8px">'+withPhoto.length+' รูป จาก '+f.length+' รายการ</div><div class="gallery-grid" id="gallery-grid"></div>';
   const grid=document.getElementById('gallery-grid');
-  withPhoto.forEach((r,i)=>{
+  withPhoto.forEach(function(r){
     const d=new Date(r.timestamp);
     const dateStr=d.toLocaleDateString('th-TH',{month:'short',day:'numeric'});
     const timeStr=d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
     const fixedUrl=fixPhotoUrl(r.photoUrl);
     const item=document.createElement('div');
     item.className='gallery-item';
-    item.innerHTML=`
-      <div class="gallery-spinner">⏳</div>
-      <img data-src="${fixedUrl}" alt="" style="display:none" referrerpolicy="no-referrer">
-      <div class="gallery-label"><b>${r.employeeName||'-'}</b>${dateStr} ${timeStr}</div>
-    `;
-    item.onclick=()=>viewPhoto(fixedUrl);
+    item.innerHTML='<div class="gallery-spinner">⏳</div><img data-src="'+fixedUrl+'" alt="" style="display:none" referrerpolicy="no-referrer"><div class="gallery-label"><b>'+(r.employeeName||'-')+'</b>'+dateStr+' '+timeStr+'</div>';
+    item.onclick=function(){ viewPhoto(fixedUrl); };
     grid.appendChild(item);
   });
-  // Lazy-load ทีละรูปเพื่อไม่ให้ค้าง
   const imgs=grid.querySelectorAll('img');
   let idx=0;
   function loadNext(){
     if(idx>=imgs.length) return;
     const img=imgs[idx++];
-    img.onload=()=>{ img.style.display='block'; img.previousElementSibling?.remove&&img.parentElement.querySelector('.gallery-spinner')?.remove(); loadNext(); };
-    img.onerror=()=>{ img.parentElement.querySelector('.gallery-spinner').textContent='❌'; loadNext(); };
+    img.onload=function(){
+      img.style.display='block';
+      const sp=img.parentElement.querySelector('.gallery-spinner'); if(sp) sp.remove();
+      loadNext();
+    };
+    img.onerror=function(){
+      const sp=img.parentElement.querySelector('.gallery-spinner'); if(sp) sp.textContent='❌';
+      loadNext();
+    };
     img.src=img.dataset.src;
   }
-  // โหลดพร้อมกัน 4 รูปแรก แล้วค่อย chain
   for(let k=0;k<Math.min(4,imgs.length);k++) loadNext();
 }
-
 function adminExportCSV(){
+  const f=getAdminFiltered();
+  if(!f.length){ showToast('ไม่มีข้อมูล'); return; }
   const mf=document.getElementById('admin-month-filter').value;
   const ef=document.getElementById('admin-emp-filter').value;
-  // เพิ่ม column photoUrl
-  const rows=['\uFEFFวันที่,เวลา,พนักงาน,ลูกค้า,รายละเอียด,GPS Lat,GPS Lng,รูปภาพ URL'];
-  f.forEach(r=>{ const d=new Date(r.timestamp); rows.push([d.toLocaleDateString('th-TH'),d.toLocaleTimeString('th-TH'),'"'+(r.employeeName||'')+'"','"'+(r.customer||'')+'"','"'+(r.description||'')+'"',r.lat?parseFloat(r.lat).toFixed(6):'',r.lng?parseFloat(r.lng).toFixed(6):'','"'+(r.photoUrl||'')+'"'].join(',')); });
+  const rows=['\uFEFFวันที่,เวลา,ผู้ใช้,ลูกค้า,รายละเอียด,GPS Lat,GPS Lng,รูปภาพ URL'];
+  f.forEach(function(r){ const d=new Date(r.timestamp); rows.push([d.toLocaleDateString('th-TH'),d.toLocaleTimeString('th-TH'),'"'+(r.employeeName||'')+'"','"'+(r.customer||'')+'"','"'+(r.description||'')+'"',r.lat?parseFloat(r.lat).toFixed(6):'',r.lng?parseFloat(r.lng).toFixed(6):'','"'+(r.photoUrl||'')+'"'].join(',')); });
   const b=new Blob([rows.join('\n')],{type:'text/csv;charset=utf-8'});
   const u=URL.createObjectURL(b); const a=document.createElement('a');
   a.href=u; a.download='admin_export'+(mf?'_'+mf:'')+(ef?'_'+ef:'')+'.csv'; a.click(); URL.revokeObjectURL(u);
+}
+
+// ═══════════════════════════════════════
+// ADMIN - USERS VIEW
+// ═══════════════════════════════════════
+async function adminLoadUsers(){
+  showLoading('กำลังดึงรายชื่อผู้ใช้...');
+  try{
+    const data=await apiPost({action:'getUsers'});
+    hideLoading();
+    if(data.status==='ok'){
+      window._userListLoaded=true;
+      renderUserList(data.users||[]);
+    } else { showToast('❌ '+(data.msg||'โหลดไม่สำเร็จ')); }
+  }catch(e){ hideLoading(); showToast('❌ เชื่อมต่อไม่ได้'); }
+}
+function renderUserList(users){
+  const pending=users.filter(function(u){ return u.status==='pending'; });
+  const approved=users.filter(function(u){ return u.status==='approved'; });
+  document.getElementById('user-stat-pending').textContent=pending.length;
+  document.getElementById('user-stat-approved').textContent=approved.length;
+
+  const badge=document.getElementById('pending-badge');
+  if(pending.length){ badge.style.display='inline-block'; badge.textContent=pending.length; }
+  else { badge.style.display='none'; }
+
+  const container=document.getElementById('user-list-container');
+  if(!users.length){ container.innerHTML='<div class="empty-state"><div class="icon">👥</div><p>ยังไม่มีผู้ใช้สมัครสมาชิก</p></div>'; return; }
+
+  const sortOrder={pending:0,approved:1,rejected:2};
+  const sorted=[...users].sort(function(a,b){ return (sortOrder[a.status]||9)-(sortOrder[b.status]||9); });
+
+  container.innerHTML=sorted.map(function(u){
+    const statusPill=u.status==='pending'?'<span class="pill pill-amber">⏳ รออนุมัติ</span>':u.status==='approved'?'<span class="pill pill-green">✓ อนุมัติแล้ว</span>':'<span class="pill" style="background:#fee2e2;color:#991b1b">✗ ปฏิเสธ</span>';
+    const created=u.createdAt?new Date(u.createdAt).toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'}):'-';
+    const actions=u.status==='pending'
+      ? '<div class="user-actions"><button class="btn-approve" onclick="userAction(\'approve\',\''+u.username+'\')">✓ อนุมัติ</button><button class="btn-reject" onclick="userAction(\'reject\',\''+u.username+'\')">✗ ปฏิเสธ</button></div>'
+      : '<button class="btn-delete-user" onclick="userAction(\'delete\',\''+u.username+'\')">🗑️ ลบบัญชี</button>';
+    return '<div class="user-item"><div class="admin-log-top"><span class="admin-log-name">👤 '+u.username+'</span>'+statusPill+'</div><div class="admin-log-gps">สมัครเมื่อ '+created+'</div>'+actions+'</div>';
+  }).join('');
+}
+async function userAction(action,username){
+  const actionName={approve:'อนุมัติ',reject:'ปฏิเสธ',delete:'ลบ'}[action];
+  if(action==='delete'&&!confirm('ต้องการลบบัญชี "'+username+'" ใช่หรือไม่?')) return;
+  showLoading('กำลัง'+actionName+'...');
+  try{
+    const actionMap={approve:'approve',reject:'reject',delete:'deleteUser'};
+    const data=await apiPost({action:actionMap[action],username:username});
+    hideLoading();
+    if(data.status==='ok'){ showToast('✓ '+data.msg); adminLoadUsers(); }
+    else { showToast('❌ '+(data.msg||'ไม่สำเร็จ')); }
+  }catch(e){ hideLoading(); showToast('❌ เชื่อมต่อไม่ได้'); }
+}
+async function checkPendingUsersOnLoad(){
+  try{
+    const data=await apiPost({action:'getUsers'});
+    if(data.status==='ok'){
+      const pending=(data.users||[]).filter(function(u){ return u.status==='pending'; });
+      const badge=document.getElementById('pending-badge');
+      if(pending.length){ badge.style.display='inline-block'; badge.textContent=pending.length; }
+    }
+  }catch(e){}
 }
 
 // ═══════════════════════════════════════
@@ -843,7 +833,19 @@ function viewPhoto(src){
   document.getElementById('preview-img').src=src;
   document.getElementById('photo-preview').classList.add('show');
 }
-document.getElementById('photo-preview').addEventListener('click',function(e){ if(e.target===this||e.target===document.getElementById('preview-img')) this.classList.remove('show'); });
+document.getElementById('photo-preview').addEventListener('click',function(e){
+  if(e.target===this||e.target===document.getElementById('preview-img')) this.classList.remove('show');
+});
+
+// ═══════════════════════════════════════
+// INIT - restore session
+// ═══════════════════════════════════════
+(function(){
+  try{
+    const s=JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null');
+    if(s){ currentUser=s.name; isAdmin=s.admin; showAfterLogin(); }
+  }catch(e){}
+})();
 </script>
 </body>
 </html>
