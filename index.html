@@ -390,6 +390,11 @@ const DB_KEY      = 'time_logs_v3';
 const SESSION_KEY = 'tl_session_v2';
 const REMEMBER_KEY= 'tl_remember_v1';
 
+// ฟังก์ชันดึง Secret Key โดยซ่อนไว้ในรูปแบบ Character Array ป้องกันการค้นหาตรงๆ
+function _gsk() {
+  return String.fromCharCode.apply(null, [105, 45, 108, 111, 118, 101, 45, 108, 111, 108, 105, 45, 109, 97, 107, 45, 109, 97, 107, 45, 120, 111, 120, 111]);
+}
+
 // ═══════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════
@@ -415,6 +420,7 @@ function showToast(msg,dur){
 function go(id){ document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); }); document.getElementById(id).classList.add('active'); }
 
 function apiPost(payload){
+  payload.secretKey = _gsk(); // แทรก Secret Key ในทุกๆ request อัตโนมัติ
   return fetch(WEBAPP_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -733,7 +739,7 @@ function capturePhoto(){
 // SYNC
 // ═══════════════════════════════════════
 function postToSheet(log){
-  const payload={ timestamp:log.ts, employeeName:log.empName, customer:log.customer||'', description:log.desc||'', lat:log.lat||'', lng:log.lng||'', accuracy:log.acc||'', deviceId:log.id, photoBase64:log.photo||'' };
+  const payload={ timestamp:log.ts, employeeName:log.empName, customer:log.customer||'', description:log.desc||'', lat:log.lat||'', lng:log.lng||'', accuracy:log.acc||'', deviceId:log.id, photoBase64:log.photo||'', secretKey: _gsk() };
   return fetch(WEBAPP_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload), redirect:'follow' })
     .then(function(res){ return res.text(); })
     .then(function(txt){
@@ -834,7 +840,7 @@ function switchAdminView(view){
 async function adminLoadData(){
   showLoading('กำลังดึงข้อมูลจาก Google Sheets...');
   try{
-    const res=await fetch(WEBAPP_URL+'?action=getLogs&t='+Date.now());
+    const res=await fetch(WEBAPP_URL+'?action=getLogs&secretKey='+_gsk()+'&t='+Date.now());
     const json=await res.json();
     hideLoading();
     if(json.status==='ok'){
