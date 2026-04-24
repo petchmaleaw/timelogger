@@ -228,6 +228,32 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
   <button class="fab" onclick="goCamera()">⏱️ บันทึกเวลา</button>
   <div class="nav-bar">
     <button class="nav-btn active" onclick="showHome()"><span class="nav-icon">🏠</span>หน้าหลัก</button>
+    <button class="nav-btn" onclick="showHistory()"><span class="nav-icon">📜</span>ประวัติ</button>
+    <button class="nav-btn" onclick="goExport()"><span class="nav-icon">📤</span>Export</button>
+  </div>
+</div>
+
+<!-- HISTORY (NEW SCREEN) -->
+<div class="screen" id="history-screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="showHome()">←</button>
+    <h1>ประวัติของฉัน</h1>
+  </div>
+  <div class="content">
+    <div class="card">
+      <button class="btn-action btn-blue" style="margin:0 0 12px;padding:11px;font-size:13px" onclick="userLoadHistory()">🔄 โหลดข้อมูลจากเซิร์ฟเวอร์</button>
+      <select class="filter-select" id="user-month-filter"><option value="">— ทุกเดือน —</option></select>
+      <div class="stat-row" style="grid-template-columns: 1fr;">
+        <div class="stat-box"><div class="num" id="user-history-count">-</div><div class="lbl">รายการทั้งหมดที่แสดง</div></div>
+      </div>
+    </div>
+    <div class="card" id="user-history-container">
+      <div class="empty-state"><div class="icon">☁️</div><p>กด "โหลดข้อมูลจากเซิร์ฟเวอร์" เพื่อดูประวัติย้อนหลัง</p></div>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <button class="nav-btn" onclick="showHome()"><span class="nav-icon">🏠</span>หน้าหลัก</button>
+    <button class="nav-btn active"><span class="nav-icon">📜</span>ประวัติ</button>
     <button class="nav-btn" onclick="goExport()"><span class="nav-icon">📤</span>Export</button>
   </div>
 </div>
@@ -314,6 +340,7 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
   </div>
   <div class="nav-bar">
     <button class="nav-btn" onclick="showHome()"><span class="nav-icon">🏠</span>หน้าหลัก</button>
+    <button class="nav-btn" onclick="showHistory()"><span class="nav-icon">📜</span>ประวัติ</button>
     <button class="nav-btn active"><span class="nav-icon">📤</span>Export</button>
   </div>
 </div>
@@ -400,7 +427,9 @@ function _gsk() {
 // ═══════════════════════════════════════
 let logs=[], stream=null, gpsCoords=null, gpsWatcher=null;
 let adminAllData=[], adminCurrentPage=1;
+let userHistoryData=[], userHistoryPage=1; // เพิ่มตัวแปรสำหรับประวัติ User
 const ADMIN_PAGE_SIZE=40;
+const USER_HISTORY_PAGE_SIZE=40;
 
 function loadLogs(){ try{ logs=JSON.parse(localStorage.getItem(DB_KEY)||'[]'); }catch(e){ logs=[]; } }
 function saveLogs(){ localStorage.setItem(DB_KEY,JSON.stringify(logs)); }
@@ -813,6 +842,109 @@ function exportEmail(){
   let body='รายงานบันทึกเวลาทำงาน เดือน'+ml+'\nผู้ใช้: '+currentUser+'\nจำนวน: '+f.length+' รายการ | วันทำงาน: '+days+' วัน\n\n';
   f.forEach(function(l,i){ const d=new Date(l.ts); body+=(i+1)+'. '+d.toLocaleDateString('th-TH')+' '+d.toLocaleTimeString('th-TH')+'\n'; if(l.customer) body+='   ลูกค้า: '+l.customer+'\n'; if(l.desc) body+='   รายละเอียด: '+l.desc+'\n'; if(l.lat) body+='   GPS: '+l.lat.toFixed(5)+', '+l.lng.toFixed(5)+'\n'; if(l.photoUrl) body+='   รูปภาพ: '+l.photoUrl+'\n'; body+='\n'; });
   window.location.href='mailto:?subject='+encodeURIComponent('รายงาน '+ml+' - '+currentUser)+'&body='+encodeURIComponent(body);
+}
+
+// ═══════════════════════════════════════
+// USER HISTORY (ประวัติของฉัน)
+// ═══════════════════════════════════════
+function showHistory(){
+  go('history-screen');
+  if(userHistoryData.length === 0){
+    userLoadHistory();
+  }
+}
+
+async function userLoadHistory(){
+  showLoading('กำลังดึงประวัติของคุณ...');
+  try{
+    const res=await fetch(WEBAPP_URL+'?action=getLogs&secretKey='+_gsk()+'&t='+Date.now());
+    const json=await res.json();
+    hideLoading();
+    if(json.status==='ok'){
+      // กรองเอาเฉพาะข้อมูลของ User ที่ Login อยู่ปัจจุบัน
+      userHistoryData=(json.data||[]).filter(function(r){ return r.employeeName === currentUser; });
+      userHistoryPage=1;
+      populateUserHistoryFilters(); 
+      renderUserHistory();
+      showToast('✓ โหลดประวัติสำเร็จ '+userHistoryData.length+' รายการ');
+    } else { showToast('❌ โหลดไม่สำเร็จ'); }
+  }catch(e){ hideLoading(); showToast('❌ เชื่อมต่อไม่ได้'); }
+}
+
+function populateUserHistoryFilters(){
+  const months=[...new Set(userHistoryData.map(function(r){ try{ const d=new Date(r.timestamp); return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'); }catch(e){ return ''; } }).filter(Boolean))].sort().reverse();
+  const ms=document.getElementById('user-month-filter');
+  ms.innerHTML='<option value="">— ทุกเดือน —</option>'+months.map(function(k){ const [y,m]=k.split('-'); return '<option value="'+k+'">'+new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'})+'</option>'; }).join('');
+  ms.onchange=function(){ userHistoryPage=1; renderUserHistory(); };
+}
+
+function renderUserHistory(){
+  let d=[...userHistoryData];
+  const mf=document.getElementById('user-month-filter').value;
+  
+  if(mf) d=d.filter(function(r){ try{ const dt=new Date(r.timestamp); return dt.getFullYear()+'-'+(dt.getMonth()+1).toString().padStart(2,'0')===mf; }catch(e){ return false; } });
+  d=d.sort(function(a,b){ return new Date(b.timestamp)-new Date(a.timestamp); });
+  
+  document.getElementById('user-history-count').textContent=d.length;
+  const container=document.getElementById('user-history-container');
+  
+  if(!d.length){
+    container.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>ไม่มีประวัติในช่วงเวลานี้</p></div>';
+    return;
+  }
+
+  // Pagination
+  const totalPages=Math.max(1, Math.ceil(d.length/USER_HISTORY_PAGE_SIZE));
+  if(userHistoryPage>totalPages) userHistoryPage=1;
+  const startIdx=(userHistoryPage-1)*USER_HISTORY_PAGE_SIZE;
+  const endIdx=Math.min(startIdx+USER_HISTORY_PAGE_SIZE, d.length);
+  const pageData=d.slice(startIdx, endIdx);
+
+  const rowsHtml=pageData.map(function(r){
+    const dt=new Date(r.timestamp);
+    const dateStr=dt.toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'});
+    const timeStr=dt.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    const gps=r.lat?'📍 '+parseFloat(r.lat).toFixed(5)+', '+parseFloat(r.lng).toFixed(5):'';
+    const fixedUrl=fixPhotoUrl(r.photoUrl);
+    
+    const photoHtml=fixedUrl
+      ? '<img class="admin-photo loading" src="'+fixedUrl+'" onclick="event.stopPropagation();viewPhoto(\''+fixedUrl+'\')" onload="this.classList.remove(\'loading\')" onerror="this.style.display=\'none\'" alt="" referrerpolicy="no-referrer" loading="lazy">'
+      : '';
+      
+    return '<div class="admin-log-item">' +
+             '<div class="admin-log-top">' +
+               '<span class="admin-log-name" style="color:#059669">📅 '+dateStr+' '+timeStr+'</span>' +
+             '</div>' +
+             '<div class="admin-log-detail">'+([r.customer,r.description].filter(Boolean).join(' — ')||'(ไม่มีรายละเอียด)')+'</div>' +
+             (gps?'<div class="admin-log-gps">'+gps+'</div>':'') +
+             photoHtml +
+           '</div>';
+  }).join('');
+
+  // Pagination controls
+  let pagHtml='';
+  if(totalPages>1){
+    const startPage=Math.max(1, userHistoryPage-2);
+    const endPage=Math.min(totalPages, startPage+4);
+    pagHtml='<div class="pagination">';
+    pagHtml+='<button type="button" class="page-btn" onclick="userGoPage(1)" '+(userHistoryPage===1?'disabled':'')+'>«</button>';
+    pagHtml+='<button type="button" class="page-btn" onclick="userGoPage('+(userHistoryPage-1)+')" '+(userHistoryPage===1?'disabled':'')+'>‹</button>';
+    for(let p=startPage; p<=endPage; p++){
+      pagHtml+='<button type="button" class="page-btn '+(p===userHistoryPage?'active':'')+'" onclick="userGoPage('+p+')">'+p+'</button>';
+    }
+    pagHtml+='<button type="button" class="page-btn" onclick="userGoPage('+(userHistoryPage+1)+')" '+(userHistoryPage===totalPages?'disabled':'')+'>›</button>';
+    pagHtml+='<button type="button" class="page-btn" onclick="userGoPage('+totalPages+')" '+(userHistoryPage===totalPages?'disabled':'')+'>»</button>';
+    pagHtml+='</div>';
+    pagHtml+='<div class="page-info" style="text-align:center">แสดง '+(startIdx+1)+'-'+endIdx+' จาก '+d.length+' รายการ (หน้า '+userHistoryPage+'/'+totalPages+')</div>';
+  }
+
+  container.innerHTML=rowsHtml+pagHtml;
+}
+
+function userGoPage(p){
+  userHistoryPage=p;
+  renderUserHistory();
+  document.getElementById('user-history-container').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 // ═══════════════════════════════════════
