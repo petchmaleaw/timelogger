@@ -458,6 +458,7 @@ let userHistoryData=[], userHistoryPage=1;
 const ADMIN_PAGE_SIZE=40;
 const USER_HISTORY_PAGE_SIZE=40;
 let currentFname='';
+let userProfile={}; // เพิ่มตัวแปรเก็บข้อมูลโปรไฟล์
 window.userMap={};
 
 function loadLogs(){ try{ logs=JSON.parse(localStorage.getItem(DB_KEY)||'[]'); }catch(e){ logs=[]; } }
@@ -573,7 +574,11 @@ async function doLogin(){
     if(data.status==='ok'){
       currentUser=data.user.username; isAdmin=false; 
       currentFname=data.user.fname ? `${data.user.fname} ${data.user.lname||''}`.trim() : data.user.username;
-      sessionStorage.setItem(SESSION_KEY,JSON.stringify({name:currentUser,admin:isAdmin,fname:currentFname}));
+      
+      // บันทึก Profile ผู้ใช้งาน
+      userProfile = { fname: data.user.fname||'', lname: data.user.lname||'', position: data.user.position||'', zone: data.user.zone||'' };
+      
+      sessionStorage.setItem(SESSION_KEY,JSON.stringify({name:currentUser,admin:isAdmin,fname:currentFname,profile:userProfile}));
       // บันทึก credentials ถ้าติ๊ก "จดจำฉัน"
       if(remember){
         localStorage.setItem(REMEMBER_KEY, JSON.stringify({username:name, password:pass}));
@@ -602,7 +607,7 @@ document.getElementById('login-pass').addEventListener('keydown',function(e){ if
 
 function doLogout(){
   sessionStorage.removeItem(SESSION_KEY);
-  currentUser=null; isAdmin=false; currentFname='';
+  currentUser=null; isAdmin=false; currentFname=''; userProfile={};
   document.getElementById('login-name').value='';
   document.getElementById('login-pass').value='';
   document.getElementById('login-err').textContent='';
@@ -803,7 +808,12 @@ function capturePhoto(){
     } else { finalBase64=cvs.toDataURL('image/jpeg',0.7); }
   }
 
-  const log={ id:'lg_'+Date.now(), ts:now.toISOString(), empName:currentUser, customer:customer, desc:desc, photo:finalBase64, lat:gpsCoords?gpsCoords.lat:null, lng:gpsCoords?gpsCoords.lng:null, acc:gpsCoords?gpsCoords.acc:null, synced:false, photoUrl:'' };
+  // เพิ่มข้อมูล Profile เข้าไปใน Log ด้วย
+  const log={ 
+    id:'lg_'+Date.now(), ts:now.toISOString(), empName:currentUser, customer:customer, desc:desc, 
+    photo:finalBase64, lat:gpsCoords?gpsCoords.lat:null, lng:gpsCoords?gpsCoords.lng:null, acc:gpsCoords?gpsCoords.acc:null, 
+    synced:false, photoUrl:'', fname:userProfile.fname, lname:userProfile.lname, position:userProfile.position, zone:userProfile.zone 
+  };
   logs.push(log); saveLogs();
   document.getElementById('customer-name').value='';
   document.getElementById('desc-input').value='';
@@ -816,7 +826,12 @@ function capturePhoto(){
 // SYNC
 // ═══════════════════════════════════════
 function postToSheet(log){
-  const payload={ timestamp:log.ts, employeeName:log.empName, customer:log.customer||'', description:log.desc||'', lat:log.lat||'', lng:log.lng||'', accuracy:log.acc||'', deviceId:log.id, photoBase64:log.photo||'', secretKey: _gsk() };
+  // แนบข้อมูล Profile ไปยังเซิร์ฟเวอร์
+  const payload={ 
+    timestamp:log.ts, employeeName:log.empName, customer:log.customer||'', description:log.desc||'', 
+    lat:log.lat||'', lng:log.lng||'', accuracy:log.acc||'', deviceId:log.id, photoBase64:log.photo||'', 
+    secretKey: _gsk(), fname:log.fname||'', lname:log.lname||'', position:log.position||'', zone:log.zone||''
+  };
   return fetch(WEBAPP_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload), redirect:'follow' })
     .then(function(res){ return res.text(); })
     .then(function(txt){
@@ -1158,11 +1173,16 @@ function adminExportCSV(){
   if(!f.length){ showToast('ไม่มีข้อมูล'); return; }
   const mf=document.getElementById('admin-month-filter').value;
   const ef=document.getElementById('admin-emp-filter').value;
-  const rows=['\uFEFFวันที่,เวลา,ผู้ใช้,ลูกค้า,รายละเอียด,GPS Lat,GPS Lng,รูปภาพ URL'];
+  // เพิ่มหัวข้อใหม่ใน CSV สำหรับ Admin Export
+  const rows=['\uFEFFวันที่,เวลา,username,ชื่อ,สกุล,ตำแหน่ง,เขต,ลูกค้า,รายละเอียด,GPS Lat,GPS Lng,รูปภาพ URL'];
   f.forEach(function(r){ 
     const d=new Date(r.timestamp); 
     const dName = window.userMap[r.employeeName] || r.employeeName || '';
-    rows.push([d.toLocaleDateString('th-TH'),d.toLocaleTimeString('th-TH'),'"'+dName+'"','"'+(r.customer||'')+'"','"'+(r.description||'')+'"',r.lat?parseFloat(r.lat).toFixed(6):'',r.lng?parseFloat(r.lng).toFixed(6):'','"'+(r.photoUrl||'')+'"'].join(',')); 
+    rows.push([
+      d.toLocaleDateString('th-TH'),d.toLocaleTimeString('th-TH'),
+      '"'+(r.employeeName||'')+'"','"'+(r.fname||'')+'"','"'+(r.lname||'')+'"','"'+(r.position||'')+'"','"'+(r.zone||'')+'"',
+      '"'+(r.customer||'')+'"','"'+(r.description||'')+'"',r.lat?parseFloat(r.lat).toFixed(6):'',r.lng?parseFloat(r.lng).toFixed(6):'','"'+(r.photoUrl||'')+'"'
+    ].join(',')); 
   });
   const b=new Blob([rows.join('\n')],{type:'text/csv;charset=utf-8'});
   const u=URL.createObjectURL(b); const a=document.createElement('a');
@@ -1250,7 +1270,7 @@ document.getElementById('photo-preview').addEventListener('click',function(e){
 (function(){
   try{
     const s=JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null');
-    if(s){ currentUser=s.name; isAdmin=s.admin; currentFname=s.fname||s.name; showAfterLogin(); }
+    if(s){ currentUser=s.name; isAdmin=s.admin; currentFname=s.fname||s.name; userProfile=s.profile||{}; showAfterLogin(); }
   }catch(e){}
 })();
 </script>
