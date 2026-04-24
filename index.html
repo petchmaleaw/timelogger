@@ -64,7 +64,9 @@ body{background:#f3f4f6;color:#1a1a1a;min-height:100vh;overscroll-behavior:none}
 .video-wrap{position:relative;background:#000;flex-shrink:0;max-width:320px;margin:0 auto;width:100%}
 video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000}
 #overlay{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
-.cam-controls{overflow:visible;padding:14px 14px 100px;background:#fff}
+.install-tip{background:linear-gradient(135deg,#dbeafe,#eff6ff);border:0.5px solid #bfdbfe;border-radius:12px;padding:12px 14px;margin:12px 14px 0;font-size:12px;color:#1e40af;line-height:1.6;display:flex;gap:10px;align-items:flex-start}
+.install-tip .close{background:none;border:none;color:#6b7280;cursor:pointer;font-size:16px;padding:0;line-height:1;margin-left:auto;flex-shrink:0}
+.install-tip b{color:#1d4ed8}
 
 .sticky-capture{position:fixed;bottom:0;left:0;right:0;padding:12px 14px calc(env(safe-area-inset-bottom,0px) + 12px);background:#fff;border-top:0.5px solid #e5e7eb;box-shadow:0 -2px 10px rgba(0,0,0,0.08);z-index:50}
 .sticky-capture .btn-capture{margin:0}
@@ -206,6 +208,15 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
       <div class="emp-sub">User</div>
     </div>
     <span class="sync-badge sync-ok" id="sync-status">✓ ซิงค์แล้ว</span>
+  </div>
+  <div id="install-tip-box" class="install-tip" style="display:none">
+    <div style="font-size:20px">💡</div>
+    <div style="flex:1">
+      <b>ติดตั้งเป็นแอปบนมือถือ</b> เพื่อไม่ต้องขออนุญาตกล้อง/GPS ทุกครั้ง<br>
+      <b>iPhone:</b> กด Share → Add to Home Screen<br>
+      <b>Android:</b> เมนู ⋮ → Add to Home screen
+    </div>
+    <button class="close" onclick="dismissInstallTip()">✕</button>
   </div>
   <div class="content" id="log-list">
     <div class="empty-state" id="empty-msg">
@@ -522,8 +533,33 @@ function updateEmpUI(){
   document.getElementById('emp-avatar').textContent=gi(currentUser);
   const er=document.getElementById('emp-readonly'); if(er) er.value=currentUser||'';
 }
-function showHome(){ updateEmpUI(); renderLogs(); go('home-screen'); }
-function goCamera(){ updateEmpUI(); go('cam-screen'); startCamera(); startGPS(); }
+function showHome(){ updateEmpUI(); renderLogs(); go('home-screen'); checkInstallTip(); }
+
+function checkInstallTip(){
+  // ซ่อน tip ถ้า: (1) ถูก dismiss แล้ว (2) ติดตั้งเป็น PWA แล้ว (3) เป็น desktop
+  const dismissed = localStorage.getItem('install_tip_dismissed')==='1';
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const tipBox = document.getElementById('install-tip-box');
+  if(!tipBox) return;
+  if(dismissed || isStandalone || !isMobile){
+    tipBox.style.display='none';
+  } else {
+    tipBox.style.display='flex';
+  }
+}
+function dismissInstallTip(){
+  localStorage.setItem('install_tip_dismissed','1');
+  const t=document.getElementById('install-tip-box');
+  if(t) t.style.display='none';
+}
+async function goCamera(){
+  updateEmpUI();
+  go('cam-screen');
+  // ขอ permission ครั้งแรก (browser จะจำไว้ให้ถ้าผู้ใช้เลือก Allow)
+  startCamera();
+  startGPS();
+}
 function goExport(){ go('export-screen'); populateMonths(); }
 
 function myLogs(){ return logs.filter(function(l){ return l.empName===currentUser; }); }
