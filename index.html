@@ -100,7 +100,7 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
 .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;border:none;background:none;cursor:pointer;color:#9ca3af;font-size:10px;gap:3px;min-height:56px}
 .nav-btn.active{color:#2563eb}
 .nav-icon{font-size:22px;line-height:1}
-.fab{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 72px);right:20px;width:58px;height:58px;border-radius:50%;background:#2563eb;color:#fff;border:none;font-size:28px;cursor:pointer;box-shadow:0 4px 16px rgba(37,99,235,.45);display:flex;align-items:center;justify-content:center;z-index:100}
+.fab{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 72px);right:20px;padding:0 22px;height:56px;border-radius:28px;background:#2563eb;color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(37,99,235,.45);display:flex;align-items:center;justify-content:center;z-index:100;gap:6px;white-space:nowrap}
 
 .month-select,.filter-select{width:100%;border:0.5px solid #d1d5db;border-radius:10px;padding:11px 12px;font-size:14px;color:#1a1a1a;background:#fff;margin-bottom:12px;-webkit-appearance:none}
 .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
@@ -222,10 +222,10 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
   <div class="content" id="log-list">
     <div class="empty-state" id="empty-msg">
       <div class="icon">📷</div>
-      <p>ยังไม่มีการบันทึก<br>กดปุ่ม <b>+</b> เพื่อเริ่มบันทึกเวลา</p>
+      <p>ยังไม่มีการบันทึก<br>กดปุ่ม <b>⏱️ บันทึกเวลา</b> เพื่อเริ่ม</p>
     </div>
   </div>
-  <button class="fab" onclick="goCamera()">+</button>
+  <button class="fab" onclick="goCamera()">⏱️ บันทึกเวลา</button>
   <div class="nav-bar">
     <button class="nav-btn active" onclick="showHome()"><span class="nav-icon">🏠</span>หน้าหลัก</button>
     <button class="nav-btn" onclick="goExport()"><span class="nav-icon">📤</span>Export</button>
