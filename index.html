@@ -19,7 +19,9 @@ body{background:#f3f4f6;color:#1a1a1a;min-height:100vh;overscroll-behavior:none}
 .topbar h1{font-size:16px;font-weight:500;flex:1}
 .icon-btn{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:6px 8px;border-radius:8px;min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center}
 .back-btn{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:2px 6px;min-width:36px;display:flex;align-items:center;justify-content:center}
-.content{flex:1;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch}
+.text-btn{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;font-size:13px;font-weight:500;padding:6px 12px;border-radius:8px;cursor:pointer;transition:background 0.2s;white-space:nowrap}
+.text-btn:active{background:rgba(255,255,255,0.25)}
+.content{flex:1;overflow-y:auto;padding:14px;padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 14px);-webkit-overflow-scrolling:touch}
 .card{background:#fff;border-radius:14px;border:0.5px solid #e2e2e2;padding:14px;margin-bottom:12px}
 
 #login-screen{background:#eff6ff;justify-content:center;align-items:center}
@@ -96,12 +98,6 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
 .task-chip.active{background:#eff6ff;border-color:#2563eb;color:#1d4ed8}
 .task-chip:active{opacity:.8}
 
-.nav-bar{display:flex;background:#fff;border-top:0.5px solid #e2e2e2;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,0px)}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;border:none;background:none;cursor:pointer;color:#9ca3af;font-size:10px;gap:3px;min-height:56px}
-.nav-btn.active{color:#2563eb}
-.nav-icon{font-size:22px;line-height:1}
-.fab{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 72px);right:20px;padding:0 22px;height:56px;border-radius:28px;background:#2563eb;color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(37,99,235,.45);display:flex;align-items:center;justify-content:center;z-index:100;gap:6px;white-space:nowrap}
-
 .month-select,.filter-select{width:100%;border:0.5px solid #d1d5db;border-radius:10px;padding:11px 12px;font-size:14px;color:#1a1a1a;background:#fff;margin-bottom:12px;-webkit-appearance:none}
 .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .stat-box{background:#eff6ff;border-radius:12px;padding:14px;text-align:center}
@@ -163,6 +159,17 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
 .btn-approve{background:#059669;color:#fff;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:500;cursor:pointer}
 .btn-reject{background:#fff;color:#dc2626;border:1px solid #dc2626;border-radius:8px;padding:8px;font-size:12px;font-weight:500;cursor:pointer}
 .btn-delete-user{background:#fff;color:#6b7280;border:0.5px solid #d1d5db;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-top:8px}
+
+/* MENU STYLES */
+.menu-grid { display: flex; flex-direction: column; gap: 14px; padding-top: 8px; }
+.menu-card { background: #fff; border-radius: 16px; border: 0.5px solid #e2e2e2; padding: 20px; display: flex; align-items: center; gap: 18px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: all 0.15s; }
+.menu-card:active { transform: scale(0.97); box-shadow: 0 1px 4px rgba(0,0,0,0.05); background: #f9fafb; }
+.menu-icon { width: 60px; height: 60px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 30px; flex-shrink: 0; }
+.menu-icon.bg-blue { background: #eff6ff; color: #2563eb; }
+.menu-icon.bg-green { background: #ecfdf5; color: #059669; }
+.menu-icon.bg-amber { background: #fffbeb; color: #d97706; }
+.menu-text h3 { font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 4px; }
+.menu-text p { font-size: 13px; color: #6b7280; }
 </style>
 </head>
 <body>
@@ -185,6 +192,24 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
     </div>
     <input class="login-input" type="text" id="login-name" placeholder="username" autocomplete="off">
     <input class="login-input" type="password" id="login-pass" placeholder="รหัสผ่าน" autocomplete="new-password">
+    
+    <div id="reg-fields" style="display:none; flex-direction:column; gap:10px; margin-bottom:10px;">
+      <input class="login-input" style="margin-bottom:0;" type="text" id="reg-fname" placeholder="ชื่อ (จำเป็น)" autocomplete="off">
+      <input class="login-input" style="margin-bottom:0;" type="text" id="reg-lname" placeholder="สกุล (จำเป็น)" autocomplete="off">
+      <select class="login-input" style="margin-bottom:0;" id="reg-position">
+        <option value="">-- เลือกตำแหน่ง (จำเป็น) --</option>
+        <option value="ผู้แทนขาย">ผู้แทนขาย</option>
+        <option value="ธุรการ">ธุรการ</option>
+        <option value="จัดส่ง">จัดส่ง</option>
+        <option value="คลังสินค้า">คลังสินค้า</option>
+        <option value="ควบคุมคุณภาพ">ควบคุมคุณภาพ</option>
+        <option value="ต่างประเทศ">ต่างประเทศ</option>
+        <option value="บัญชี">บัญชี</option>
+        <option value="อื่นๆ">อื่นๆ</option>
+      </select>
+      <input class="login-input" style="margin-bottom:0;" type="text" id="reg-zone" placeholder="เขต (ถ้ามี)" autocomplete="off">
+    </div>
+
     <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;cursor:pointer;font-size:13px;color:#374151;user-select:none" id="remember-wrap">
       <input type="checkbox" id="remember-me" style="width:16px;height:16px;accent-color:#2563eb;cursor:pointer">
       <span>💾 จดจำ username และรหัสผ่าน</span>
@@ -198,9 +223,8 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
 <div class="screen" id="home-screen">
   <div class="topbar">
     <img src="logo.png" alt="Logo" style="width:32px;height:32px;object-fit:contain;background:#fff;border-radius:8px;padding:2px" onerror="this.style.display='none'">
-    <h1>บันทึกเวลาทำงาน</h1>
-    <button class="icon-btn" onclick="goExport()">📤</button>
-    <button class="icon-btn" onclick="doLogout()">🚪</button>
+    <h1>ระบบบันทึกเวลา</h1>
+    <button class="text-btn" onclick="doLogout()">ออกจากระบบ</button>
   </div>
   <div class="emp-banner">
     <div class="emp-avatar" id="emp-avatar">?</div>
@@ -219,17 +243,30 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
     </div>
     <button class="close" onclick="dismissInstallTip()">✕</button>
   </div>
-  <div class="content" id="log-list">
-    <div class="empty-state" id="empty-msg">
-      <div class="icon">📷</div>
-      <p>ยังไม่มีการบันทึก<br>กดปุ่ม <b>⏱️ บันทึกเวลา</b> เพื่อเริ่ม</p>
+  <div class="content">
+    <div class="menu-grid">
+      <div class="menu-card" onclick="goCamera()">
+        <div class="menu-icon bg-blue">⏱️</div>
+        <div class="menu-text">
+          <h3>บันทึกเวลาทำงาน</h3>
+          <p>เช็คอินและถ่ายรูปสถานที่</p>
+        </div>
+      </div>
+      <div class="menu-card" onclick="showHistory()">
+        <div class="menu-icon bg-green">📜</div>
+        <div class="menu-text">
+          <h3>ประวัติการลงเวลา</h3>
+          <p>ดูข้อมูลย้อนหลังของคุณ</p>
+        </div>
+      </div>
+      <div class="menu-card" onclick="goExport()">
+        <div class="menu-icon bg-amber">📤</div>
+        <div class="menu-text">
+          <h3>Export รายงาน</h3>
+          <p>สรุปยอดและส่งออกข้อมูล</p>
+        </div>
+      </div>
     </div>
-  </div>
-  <button class="fab" onclick="goCamera()">⏱️ บันทึกเวลา</button>
-  <div class="nav-bar">
-    <button class="nav-btn active" onclick="showHome()"><span class="nav-icon">🏠</span>หน้าหลัก</button>
-    <button class="nav-btn" onclick="showHistory()"><span class="nav-icon">📜</span>ประวัติ</button>
-    <button class="nav-btn" onclick="goExport()"><span class="nav-icon">📤</span>Export</button>
   </div>
 </div>
 
@@ -250,11 +287,6 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
     <div class="card" id="user-history-container">
       <div class="empty-state"><div class="icon">☁️</div><p>กด "โหลดข้อมูลจากเซิร์ฟเวอร์" เพื่อดูประวัติย้อนหลัง</p></div>
     </div>
-  </div>
-  <div class="nav-bar">
-    <button class="nav-btn" onclick="showHome()"><span class="nav-icon">🏠</span>หน้าหลัก</button>
-    <button class="nav-btn active"><span class="nav-icon">📜</span>ประวัติ</button>
-    <button class="nav-btn" onclick="goExport()"><span class="nav-icon">📤</span>Export</button>
   </div>
 </div>
 
@@ -338,18 +370,13 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
       <div class="export-log" id="export-preview">เลือกเดือนเพื่อดูตัวอย่าง</div>
     </div>
   </div>
-  <div class="nav-bar">
-    <button class="nav-btn" onclick="showHome()"><span class="nav-icon">🏠</span>หน้าหลัก</button>
-    <button class="nav-btn" onclick="showHistory()"><span class="nav-icon">📜</span>ประวัติ</button>
-    <button class="nav-btn active"><span class="nav-icon">📤</span>Export</button>
-  </div>
 </div>
 
 <!-- ADMIN -->
 <div class="screen" id="admin-screen">
   <div class="topbar">
     <h1>👑 Admin Dashboard</h1>
-    <button class="icon-btn" onclick="doLogout()">🚪</button>
+    <button class="text-btn" onclick="doLogout()">ออกจากระบบ</button>
   </div>
   <div class="admin-tabs">
     <button type="button" class="admin-tab-btn active" id="admin-tab-logs" onclick="switchAdminView('logs')">📊 ข้อมูลเวลา</button>
@@ -412,7 +439,7 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
 // CONFIG
 // ═══════════════════════════════════════
 const WEBAPP_URL  = 'https://script.google.com/macros/s/AKfycbyOaQHXeHqS2eEoLR2FGRxDfV8WbW2P9vaPbBUiX6FJtQuCLAIrjGogk4bmIMoG0dc/exec';
-const ADMIN_PASS  = 'admin1234';
+const ADMIN_PASS  = 'admin888';
 const DB_KEY      = 'time_logs_v3';
 const SESSION_KEY = 'tl_session_v2';
 const REMEMBER_KEY= 'tl_remember_v1';
@@ -427,9 +454,11 @@ function _gsk() {
 // ═══════════════════════════════════════
 let logs=[], stream=null, gpsCoords=null, gpsWatcher=null;
 let adminAllData=[], adminCurrentPage=1;
-let userHistoryData=[], userHistoryPage=1; // เพิ่มตัวแปรสำหรับประวัติ User
+let userHistoryData=[], userHistoryPage=1;
 const ADMIN_PAGE_SIZE=40;
 const USER_HISTORY_PAGE_SIZE=40;
+let currentFname='';
+window.userMap={};
 
 function loadLogs(){ try{ logs=JSON.parse(localStorage.getItem(DB_KEY)||'[]'); }catch(e){ logs=[]; } }
 function saveLogs(){ localStorage.setItem(DB_KEY,JSON.stringify(logs)); }
@@ -479,9 +508,12 @@ function switchTab(m){
   const nameEl=document.getElementById('login-name');
   const btnEl=document.getElementById('login-btn');
   const rememberWrap=document.getElementById('remember-wrap');
+  const regFields=document.getElementById('reg-fields');
   document.getElementById('login-err').textContent='';
-  // แสดง checkbox จดจำฉัน เฉพาะตอน user login
+  
   rememberWrap.style.display=(m==='sales')?'flex':'none';
+  regFields.style.display=(m==='register')?'flex':'none';
+  
   if(m==='admin'){ nameEl.placeholder='admin username'; btnEl.textContent='เข้าสู่ระบบ'; }
   else if(m==='register'){ nameEl.placeholder='username (ขั้นต่ำ 3 ตัวอักษร)'; btnEl.textContent='📝 สมัครสมาชิก'; }
   else { nameEl.placeholder='username'; btnEl.textContent='เข้าสู่ระบบ'; }
@@ -497,14 +529,31 @@ async function doLogin(){
   if(!pass){ err.textContent='กรุณากรอกรหัสผ่าน'; return; }
 
   if(loginMode==='register'){
+    const fname = document.getElementById('reg-fname').value.trim();
+    const lname = document.getElementById('reg-lname').value.trim();
+    const position = document.getElementById('reg-position').value;
+    const zone = document.getElementById('reg-zone').value.trim();
+    
+    if(!fname || !lname || !position){ 
+      err.textContent='กรุณากรอก ชื่อ สกุล และตำแหน่ง ให้ครบถ้วน'; 
+      return; 
+    }
+
     showLoading('กำลังสมัครสมาชิก...');
     try{
-      const data=await apiPost({action:'register',username:name,password:pass});
+      const data=await apiPost({
+        action:'register', username:name, password:pass, 
+        fname:fname, lname:lname, position:position, zone:zone
+      });
       hideLoading();
       if(data.status==='ok'){
         showToast('✓ '+data.msg, 4000);
         switchTab('sales');
         document.getElementById('login-pass').value='';
+        document.getElementById('reg-fname').value='';
+        document.getElementById('reg-lname').value='';
+        document.getElementById('reg-position').value='';
+        document.getElementById('reg-zone').value='';
       } else { err.textContent=data.msg||'สมัครไม่สำเร็จ'; }
     }catch(e){ hideLoading(); err.textContent='เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง'; }
     return;
@@ -512,8 +561,8 @@ async function doLogin(){
 
   if(loginMode==='admin'){
     if(name!=='admin'||pass!==ADMIN_PASS){ err.textContent='ชื่อหรือรหัสผ่านไม่ถูกต้อง'; return; }
-    currentUser='Admin'; isAdmin=true;
-    sessionStorage.setItem(SESSION_KEY,JSON.stringify({name:currentUser,admin:isAdmin}));
+    currentUser='Admin'; isAdmin=true; currentFname='Admin';
+    sessionStorage.setItem(SESSION_KEY,JSON.stringify({name:currentUser,admin:isAdmin,fname:currentFname}));
     showAfterLogin(); return;
   }
 
@@ -522,8 +571,9 @@ async function doLogin(){
     const data=await apiPost({action:'login',username:name,password:pass});
     hideLoading();
     if(data.status==='ok'){
-      currentUser=data.user.username; isAdmin=false;
-      sessionStorage.setItem(SESSION_KEY,JSON.stringify({name:currentUser,admin:isAdmin}));
+      currentUser=data.user.username; isAdmin=false; 
+      currentFname=data.user.fname ? `${data.user.fname} ${data.user.lname||''}`.trim() : data.user.username;
+      sessionStorage.setItem(SESSION_KEY,JSON.stringify({name:currentUser,admin:isAdmin,fname:currentFname}));
       // บันทึก credentials ถ้าติ๊ก "จดจำฉัน"
       if(remember){
         localStorage.setItem(REMEMBER_KEY, JSON.stringify({username:name, password:pass}));
@@ -552,26 +602,39 @@ document.getElementById('login-pass').addEventListener('keydown',function(e){ if
 
 function doLogout(){
   sessionStorage.removeItem(SESSION_KEY);
-  currentUser=null; isAdmin=false;
+  currentUser=null; isAdmin=false; currentFname='';
   document.getElementById('login-name').value='';
   document.getElementById('login-pass').value='';
   document.getElementById('login-err').textContent='';
   go('login-screen');
 }
 function showAfterLogin(){
-  if(isAdmin){ go('admin-screen'); switchAdminView('logs'); checkPendingUsersOnLoad(); }
-  else { updateEmpUI(); renderLogs(); go('home-screen'); checkPendingSync(); }
+  if(isAdmin){ go('admin-screen'); switchAdminView('logs'); buildUserMap(); checkPendingUsersOnLoad(); }
+  else { updateEmpUI(); go('home-screen'); checkPendingSync(); }
+}
+
+async function buildUserMap() {
+    try {
+        const data = await apiPost({action:'getUsers'});
+        if(data.status==='ok') {
+            window.userMap = {};
+            (data.users || []).forEach(u => {
+                window.userMap[u.username] = u.fname ? `${u.fname} ${u.lname||''}`.trim() : u.username;
+            });
+            if(adminAllData.length > 0) renderAdminLogs();
+        }
+    } catch(e) {}
 }
 
 // ═══════════════════════════════════════
 // EMPLOYEE UI + NAV
 // ═══════════════════════════════════════
 function updateEmpUI(){
-  document.getElementById('emp-display').textContent=currentUser||'-';
-  document.getElementById('emp-avatar').textContent=gi(currentUser);
-  const er=document.getElementById('emp-readonly'); if(er) er.value=currentUser||'';
+  document.getElementById('emp-display').textContent=currentFname||'-';
+  document.getElementById('emp-avatar').textContent=gi(currentFname);
+  const er=document.getElementById('emp-readonly'); if(er) er.value=currentFname||'';
 }
-function showHome(){ updateEmpUI(); renderLogs(); go('home-screen'); checkInstallTip(); }
+function showHome(){ updateEmpUI(); go('home-screen'); checkInstallTip(); }
 
 function checkInstallTip(){
   // ซ่อน tip ถ้า: (1) ถูก dismiss แล้ว (2) ติดตั้งเป็น PWA แล้ว (3) เป็น desktop
@@ -601,21 +664,6 @@ async function goCamera(){
 function goExport(){ go('export-screen'); populateMonths(); }
 
 function myLogs(){ return logs.filter(function(l){ return l.empName===currentUser; }); }
-function renderLogs(){
-  const list=document.getElementById('log-list');
-  const mine=myLogs();
-  document.getElementById('empty-msg').style.display=mine.length?'none':'block';
-  list.querySelectorAll('.card').forEach(function(c){ c.remove(); });
-  [...mine].reverse().forEach(function(log){
-    const card=document.createElement('div'); card.className='card';
-    const d=new Date(log.ts);
-    const dateStr=d.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
-    const timeStr=d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-    const syncPill=log.synced?'<span class="pill pill-green">☁️ ซิงค์แล้ว</span>':'<span class="pill pill-amber">⏳ รอซิงค์</span>';
-    card.innerHTML='<div class="log-item"><div class="log-thumb" onclick="viewPhoto(\''+(log.photo||'')+'\')">'+(log.photo?'<img src="'+log.photo+'" alt="">':'📷')+'</div><div class="log-info"><div class="date">'+dateStr+'</div><div class="time">'+timeStr+'</div><div>'+syncPill+'</div><div class="desc">'+([log.customer,log.desc].filter(Boolean).join(' — ')||'(ไม่มีรายละเอียด)')+'</div><div class="gps">'+(log.lat?'📍 '+log.lat.toFixed(5)+', '+log.lng.toFixed(5):'ไม่มีข้อมูล GPS')+'</div></div></div>';
-    list.appendChild(card);
-  });
-}
 
 // ═══════════════════════════════════════
 // CAMERA
@@ -692,7 +740,7 @@ function drawOverlay(){
     ctx.fillStyle='#fff'; ctx.font='bold '+fs+'px sans-serif';
     ctx.fillText(now.toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'})+' '+now.toLocaleTimeString('th-TH'),10,cvs.height-barH+fs+4);
     ctx.fillStyle='#93c5fd'; ctx.font=Math.round(fs*.82)+'px sans-serif';
-    ctx.fillText('👤 '+(currentUser||''),10,cvs.height-barH+fs*2+4);
+    ctx.fillText('👤 '+(currentFname||''),10,cvs.height-barH+fs*2+4);
     if(gpsCoords){ ctx.fillStyle='rgba(255,255,255,.6)'; ctx.font=Math.round(fs*.68)+'px sans-serif'; ctx.fillText('GPS: '+gpsCoords.lat.toFixed(5)+', '+gpsCoords.lng.toFixed(5),10,cvs.height-8); }
     requestAnimationFrame(tick);
   }
@@ -732,7 +780,7 @@ function capturePhoto(){
     const fs=Math.max(14,Math.round(cvs.height*0.028));
     const lines=[
       now.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'})+'  '+now.toLocaleTimeString('th-TH'),
-      '👤 '+(currentUser||''),
+      '👤 '+(currentFname||''),
       customer?'🏢 '+customer:'',
       tasks.length?'⚡ '+tasks.join(', '):'',
       extraDesc?'📝 '+extraDesc.substring(0,60):'',
@@ -782,7 +830,7 @@ async function syncSingleLog(log){
   try{
     await postToSheet(log);
     log.synced=true; saveLogs();
-    setSyncBadge('ok'); showToast('✓ บันทึกและซิงค์สำเร็จ'); renderLogs();
+    setSyncBadge('ok'); showToast('✓ บันทึกและซิงค์สำเร็จ');
   }catch(e){ setSyncBadge('err'); showToast('📶 Sync ไม่สำเร็จ — บันทึกไว้แล้ว จะซิงค์ใหม่ภายหลัง'); }
 }
 async function syncNow(){
@@ -794,7 +842,6 @@ async function syncNow(){
   saveLogs(); hideLoading();
   showToast('☁️ Sync สำเร็จ '+ok+'/'+pending.length+' รายการ');
   setSyncBadge(ok===pending.length?'ok':'err');
-  renderLogs();
 }
 function checkPendingSync(){
   const p=logs.filter(function(l){ return l.empName===currentUser&&!l.synced; });
@@ -839,9 +886,9 @@ function exportEmail(){
   const k=document.getElementById('month-select').value; const [y,m]=k.split('-');
   const ml=new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'});
   const days=new Set(f.map(function(l){ return new Date(l.ts).toDateString(); })).size;
-  let body='รายงานบันทึกเวลาทำงาน เดือน'+ml+'\nผู้ใช้: '+currentUser+'\nจำนวน: '+f.length+' รายการ | วันทำงาน: '+days+' วัน\n\n';
+  let body='รายงานบันทึกเวลาทำงาน เดือน'+ml+'\nผู้ใช้: '+currentFname+'\nจำนวน: '+f.length+' รายการ | วันทำงาน: '+days+' วัน\n\n';
   f.forEach(function(l,i){ const d=new Date(l.ts); body+=(i+1)+'. '+d.toLocaleDateString('th-TH')+' '+d.toLocaleTimeString('th-TH')+'\n'; if(l.customer) body+='   ลูกค้า: '+l.customer+'\n'; if(l.desc) body+='   รายละเอียด: '+l.desc+'\n'; if(l.lat) body+='   GPS: '+l.lat.toFixed(5)+', '+l.lng.toFixed(5)+'\n'; if(l.photoUrl) body+='   รูปภาพ: '+l.photoUrl+'\n'; body+='\n'; });
-  window.location.href='mailto:?subject='+encodeURIComponent('รายงาน '+ml+' - '+currentUser)+'&body='+encodeURIComponent(body);
+  window.location.href='mailto:?subject='+encodeURIComponent('รายงาน '+ml+' - '+currentFname)+'&body='+encodeURIComponent(body);
 }
 
 // ═══════════════════════════════════════
@@ -989,7 +1036,10 @@ function populateAdminFilters(){
   const ms=document.getElementById('admin-month-filter');
   const es=document.getElementById('admin-emp-filter');
   ms.innerHTML='<option value="">— ทุกเดือน —</option>'+months.map(function(k){ const [y,m]=k.split('-'); return '<option value="'+k+'">'+new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'})+'</option>'; }).join('');
-  es.innerHTML='<option value="">— พนักงานทุกคน —</option>'+emps.map(function(e){ return '<option value="'+e+'">'+e+'</option>'; }).join('');
+  es.innerHTML='<option value="">— พนักงานทุกคน —</option>'+emps.map(function(e){ 
+    const dName = window.userMap[e] || e;
+    return '<option value="'+e+'">'+dName+'</option>'; 
+  }).join('');
   ms.onchange=function(){ adminCurrentPage=1; renderAdminLogs(); };
   es.onchange=function(){ adminCurrentPage=1; renderAdminLogs(); };
 }
@@ -1026,11 +1076,12 @@ function renderAdminLogs(){
     const timeStr=d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
     const gps=r.lat?'📍 '+parseFloat(r.lat).toFixed(5)+', '+parseFloat(r.lng).toFixed(5):'';
     const fixedUrl=fixPhotoUrl(r.photoUrl);
+    const displayName = window.userMap[r.employeeName] || r.employeeName || '-';
     // โหลดรูปทันที (ไม่ใช่ lazy load ด้วยการกด)
     const photoHtml=fixedUrl
       ? '<img class="admin-photo loading" src="'+fixedUrl+'" onclick="event.stopPropagation();viewPhoto(\''+fixedUrl+'\')" onload="this.classList.remove(\'loading\')" onerror="this.style.display=\'none\'" alt="" referrerpolicy="no-referrer" loading="lazy">'
       : '';
-    return '<div class="admin-log-item"><div class="admin-log-top"><span class="admin-log-name">👤 '+(r.employeeName||'-')+'</span><span class="admin-log-time">'+dateStr+' '+timeStr+'</span></div><div class="admin-log-detail">'+([r.customer,r.description].filter(Boolean).join(' — ')||'(ไม่มีรายละเอียด)')+'</div>'+(gps?'<div class="admin-log-gps">'+gps+'</div>':'')+photoHtml+'</div>';
+    return '<div class="admin-log-item"><div class="admin-log-top"><span class="admin-log-name">👤 '+displayName+'</span><span class="admin-log-time">'+dateStr+' '+timeStr+'</span></div><div class="admin-log-detail">'+([r.customer,r.description].filter(Boolean).join(' — ')||'(ไม่มีรายละเอียด)')+'</div>'+(gps?'<div class="admin-log-gps">'+gps+'</div>':'')+photoHtml+'</div>';
   }).join('');
 
   // Pagination controls
@@ -1077,9 +1128,10 @@ function showGallery(){
     const dateStr=d.toLocaleDateString('th-TH',{month:'short',day:'numeric'});
     const timeStr=d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
     const fixedUrl=fixPhotoUrl(r.photoUrl);
+    const displayName = window.userMap[r.employeeName] || r.employeeName || '-';
     const item=document.createElement('div');
     item.className='gallery-item';
-    item.innerHTML='<div class="gallery-spinner">⏳</div><img data-src="'+fixedUrl+'" alt="" style="display:none" referrerpolicy="no-referrer"><div class="gallery-label"><b>'+(r.employeeName||'-')+'</b>'+dateStr+' '+timeStr+'</div>';
+    item.innerHTML='<div class="gallery-spinner">⏳</div><img data-src="'+fixedUrl+'" alt="" style="display:none" referrerpolicy="no-referrer"><div class="gallery-label"><b>'+displayName+'</b>'+dateStr+' '+timeStr+'</div>';
     item.onclick=function(){ viewPhoto(fixedUrl); };
     grid.appendChild(item);
   });
@@ -1107,7 +1159,11 @@ function adminExportCSV(){
   const mf=document.getElementById('admin-month-filter').value;
   const ef=document.getElementById('admin-emp-filter').value;
   const rows=['\uFEFFวันที่,เวลา,ผู้ใช้,ลูกค้า,รายละเอียด,GPS Lat,GPS Lng,รูปภาพ URL'];
-  f.forEach(function(r){ const d=new Date(r.timestamp); rows.push([d.toLocaleDateString('th-TH'),d.toLocaleTimeString('th-TH'),'"'+(r.employeeName||'')+'"','"'+(r.customer||'')+'"','"'+(r.description||'')+'"',r.lat?parseFloat(r.lat).toFixed(6):'',r.lng?parseFloat(r.lng).toFixed(6):'','"'+(r.photoUrl||'')+'"'].join(',')); });
+  f.forEach(function(r){ 
+    const d=new Date(r.timestamp); 
+    const dName = window.userMap[r.employeeName] || r.employeeName || '';
+    rows.push([d.toLocaleDateString('th-TH'),d.toLocaleTimeString('th-TH'),'"'+dName+'"','"'+(r.customer||'')+'"','"'+(r.description||'')+'"',r.lat?parseFloat(r.lat).toFixed(6):'',r.lng?parseFloat(r.lng).toFixed(6):'','"'+(r.photoUrl||'')+'"'].join(',')); 
+  });
   const b=new Blob([rows.join('\n')],{type:'text/csv;charset=utf-8'});
   const u=URL.createObjectURL(b); const a=document.createElement('a');
   a.href=u; a.download='admin_export'+(mf?'_'+mf:'')+(ef?'_'+ef:'')+'.csv'; a.click(); URL.revokeObjectURL(u);
@@ -1149,7 +1205,8 @@ function renderUserList(users){
     const actions=u.status==='pending'
       ? '<div class="user-actions"><button class="btn-approve" onclick="userAction(\'approve\',\''+u.username+'\')">✓ อนุมัติ</button><button class="btn-reject" onclick="userAction(\'reject\',\''+u.username+'\')">✗ ปฏิเสธ</button></div>'
       : '<button class="btn-delete-user" onclick="userAction(\'delete\',\''+u.username+'\')">🗑️ ลบบัญชี</button>';
-    return '<div class="user-item"><div class="admin-log-top"><span class="admin-log-name">👤 '+u.username+'</span>'+statusPill+'</div><div class="admin-log-gps">สมัครเมื่อ '+created+'</div>'+actions+'</div>';
+    const dName = u.fname ? `${u.fname} ${u.lname||''}`.trim() + ` (${u.position||'-'})` : u.username;
+    return '<div class="user-item"><div class="admin-log-top"><span class="admin-log-name">👤 '+dName+'</span>'+statusPill+'</div><div class="admin-log-gps">สมัครเมื่อ '+created+'</div>'+actions+'</div>';
   }).join('');
 }
 async function userAction(action,username){
@@ -1193,7 +1250,7 @@ document.getElementById('photo-preview').addEventListener('click',function(e){
 (function(){
   try{
     const s=JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null');
-    if(s){ currentUser=s.name; isAdmin=s.admin; showAfterLogin(); }
+    if(s){ currentUser=s.name; isAdmin=s.admin; currentFname=s.fname||s.name; showAfterLogin(); }
   }catch(e){}
 })();
 </script>
