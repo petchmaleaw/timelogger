@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#2563eb">
 <link rel="icon" type="image/png" href="logo.png">
 <link rel="apple-touch-icon" href="logo.png">
-<title>Time Logger</title>
+<title>LABMASTER ADVANCE</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 body{background:#f3f4f6;color:#1a1a1a;min-height:100vh;overscroll-behavior:none}
@@ -172,7 +172,7 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
 .menu-text h3 { font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 4px; }
 .menu-text p { font-size: 13px; color: #6b7280; }
 
-/* ═══ MILEAGE STYLES ═══ */
+/* ═══ MILEAGE & FUEL STYLES ═══ */
 .mi-car-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
 .mi-car-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 14px 16px; cursor: pointer; transition: all .15s; position: relative; }
 .mi-car-card:active { transform: scale(0.97); }
@@ -182,6 +182,10 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
 .mi-car-odo { font-size: 12px; color: #7c3aed; margin-top: 4px; font-weight: 500; }
 .mi-car-check { position: absolute; top: 14px; right: 14px; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #d1d5db; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; }
 .mi-car-card.selected .mi-car-check { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+
+.mi-mode-tabs { display: flex; background: #f3f4f6; border-radius: 10px; padding: 4px; margin-bottom: 14px; gap: 4px; }
+.mi-mode-btn { flex: 1; padding: 12px 6px; border: none; background: transparent; border-radius: 8px; font-size: 14px; font-weight: 600; color: #6b7280; cursor: pointer; transition: 0.2s; }
+.mi-mode-btn.active { background: #fff; color: #7c3aed; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
 
 .mi-photo-wrap { background: #f3f4f6; border-radius: 12px; overflow: hidden; margin-bottom: 12px; min-height: 180px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; border: 1px dashed #d1d5db; }
 .mi-photo-wrap img { width: 100%; max-height: 260px; object-fit: cover; display: block; border-radius: 12px; }
@@ -239,7 +243,7 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
       <span style="color:#000">L</span><span style="color:#dc2626">A</span><span style="color:#000">BMASTER</span>
       <span style="color:#9ca3af;font-weight:500"> ADVANCE</span>
     </h2>
-    <p class="sub">ระบบบันทึกเวลาทำงานนอกสถานที่</p>
+    <p class="sub">ระบบบันทึกเวลาทำงานและจัดการ Fleet</p>
     <div class="login-tab">
       <button class="active" id="tab-sales" onclick="switchTab('sales')">👤 User</button>
       <button id="tab-register" onclick="switchTab('register')">📝 สมัคร</button>
@@ -278,7 +282,7 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
 <div class="screen" id="home-screen">
   <div class="topbar">
     <img src="logo.png" alt="Logo" style="width:32px;height:32px;object-fit:contain;background:#fff;border-radius:8px;padding:2px" onerror="this.style.display='none'">
-    <h1>ระบบบันทึกเวลา</h1>
+    <h1>ระบบจัดการเวลา & รถ</h1>
     <button class="text-btn" onclick="doLogout()">ออกจากระบบ</button>
   </div>
   <div class="emp-banner">
@@ -317,15 +321,15 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
       <div class="menu-card" onclick="goExport()">
         <div class="menu-icon bg-amber">📤</div>
         <div class="menu-text">
-          <h3>Export รายงาน</h3>
+          <h3>Export รายงานเวลา</h3>
           <p>สรุปยอดและส่งออกข้อมูล</p>
         </div>
       </div>
       <div class="menu-card" onclick="goMileage()">
         <div class="menu-icon bg-purple">🚗</div>
         <div class="menu-text">
-          <h3>บันทึกเลขไมล์</h3>
-          <p>ถ่ายรูปหน้าปัด — AI อ่านเลขให้</p>
+          <h3>บันทึกรถ (ไมล์/น้ำมัน)</h3>
+          <p>ถ่ายรูปหน้าปัด หรือบิลเติมน้ำมัน</p>
         </div>
       </div>
     </div>
@@ -413,7 +417,7 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
 <div class="screen" id="export-screen">
   <div class="topbar">
     <button class="back-btn" onclick="showHome()">←</button>
-    <h1>Export รายงาน</h1>
+    <h1>Export รายงานเวลา</h1>
   </div>
   <div class="content">
     <div class="card">
@@ -488,7 +492,7 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
 <div class="screen" id="mileage-screen">
   <div class="topbar" style="background:#7c3aed">
     <button class="back-btn" onclick="showHome()">←</button>
-    <h1>บันทึกเลขไมล์</h1>
+    <h1>บันทึกรถ (ไมล์/น้ำมัน)</h1>
     <button class="text-btn" onclick="goMileageHistory()">ประวัติ</button>
   </div>
   <div class="content">
@@ -498,11 +502,11 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
       <div class="card">
         <p style="font-size:13px;font-weight:600;color:#7c3aed;margin-bottom:10px">1️⃣ เลือกรถที่จะบันทึก</p>
         <div class="mi-car-list" id="mi-car-list">
-          <div class="empty-state"><div class="icon">🔄</div><p>กำลังโหลดรายการรถ...</p></div>
+          <div class="empty-state"><div class="icon">🔄</div><p>กำลังโหลดรายการรถจากเซิร์ฟเวอร์...</p></div>
         </div>
         <button class="btn-action btn-action" id="mi-step1-next"
           style="background:#7c3aed;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:500;cursor:pointer;width:100%;margin-top:4px"
-          onclick="miGoStep2()">ถัดไป → ถ่ายรูปหน้าปัด</button>
+          onclick="miGoStep2()">ถัดไป → ถ่ายรูป</button>
       </div>
     </div>
 
@@ -510,14 +514,20 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
     <div id="mi-step2" style="display:none">
       <div class="card" id="mi-selected-car-info" style="background:#f5f3ff;border-color:#c4b5fd;margin-bottom:10px"></div>
 
+      <!-- TABS เลือกระหว่าง ไมล์ หรือ น้ำมัน -->
+      <div class="mi-mode-tabs">
+        <button type="button" class="mi-mode-btn active" id="btn-mode-odo" onclick="miSetMode('odo')">🔢 บันทึกเลขไมล์</button>
+        <button type="button" class="mi-mode-btn" id="btn-mode-fuel" onclick="miSetMode('fuel')">⛽ บันทึกเติมน้ำมัน</button>
+      </div>
+
       <div class="card">
-        <p style="font-size:13px;font-weight:600;color:#7c3aed;margin-bottom:10px">2️⃣ ถ่ายหรือเลือกรูปหน้าปัดไมล์</p>
+        <p style="font-size:13px;font-weight:600;color:#7c3aed;margin-bottom:10px" id="mi-step2-title">2️⃣ ถ่ายรูปหน้าปัดไมล์</p>
 
         <!-- Photo area -->
         <div class="mi-photo-wrap" id="mi-photo-wrap" onclick="miTriggerCamera()">
           <div class="mi-photo-placeholder" id="mi-photo-placeholder">
             <div class="icon">📷</div>
-            <p>แตะเพื่อถ่ายรูป / เลือกจากคลัง</p>
+            <p id="mi-photo-hint">แตะเพื่อถ่ายรูปหน้าปัดไมล์</p>
           </div>
           <img id="mi-photo-preview" src="" alt="" style="display:none">
         </div>
@@ -526,40 +536,42 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
         <!-- OCR loading -->
         <div class="mi-processing" id="mi-ocr-loading" style="display:none">
           <div class="spin">🔍</div>
-          <p style="font-size:13px;color:#6b7280;margin-top:8px">AI กำลังอ่านเลขไมล์...</p>
+          <p style="font-size:13px;color:#6b7280;margin-top:8px" id="mi-ocr-loading-text">AI กำลังอ่านตัวเลข...</p>
         </div>
 
         <!-- OCR success -->
         <div class="mi-ocr-result" id="mi-ocr-result">
-          <div style="font-size:12px;color:#166534;margin-bottom:4px">เลขไมล์ที่อ่านได้</div>
+          <div style="font-size:12px;color:#166534;margin-bottom:4px" id="mi-ocr-success-lbl">ตัวเลขที่อ่านได้</div>
           <div class="mi-ocr-num" id="mi-ocr-num">-</div>
           <div class="mi-ocr-conf" id="mi-ocr-conf"></div>
         </div>
 
         <!-- OCR error -->
         <div class="mi-ocr-error" id="mi-ocr-error">
-          <b>อ่านเลขไม่ได้อัตโนมัติ</b> — กรุณากรอกเลขด้วยตัวเอง
+          <b id="mi-ocr-error-txt">อ่านเลขไม่ได้อัตโนมัติ</b><br>กรุณากรอกตัวเลขด้วยตัวเอง
         </div>
 
-        <!-- Manual input -->
-        <div class="input-group">
-          <label>เลขไมล์ (กม.) — ตรวจสอบหรือแก้ไขได้</label>
-          <input type="number" id="mi-odometer-input" placeholder="เช่น 45382" inputmode="numeric"
-            style="font-size:22px;font-weight:700;text-align:center;color:#7c3aed">
+        <!-- Section: ODOMETER INPUT -->
+        <div id="mi-odo-section">
+          <div class="input-group">
+            <label>เลขไมล์ (กม.) — ตรวจสอบหรือแก้ไขได้</label>
+            <input type="number" id="mi-odometer-input" placeholder="เช่น 45382" inputmode="numeric"
+              style="font-size:22px;font-weight:700;text-align:center;color:#7c3aed">
+          </div>
+          <div id="mi-prev-info" style="font-size:12px;color:#6b7280;background:#f9fafb;border-radius:8px;padding:10px;margin-bottom:12px;display:none">
+            <span id="mi-prev-text"></span>
+          </div>
         </div>
 
-        <!-- Previous odo info -->
-        <div id="mi-prev-info" style="font-size:12px;color:#6b7280;background:#f9fafb;border-radius:8px;padding:10px;margin-bottom:12px;display:none">
-          <span id="mi-prev-text"></span>
-        </div>
-
-        <!-- Fuel cost -->
-        <div class="input-group">
-          <label>💰 ค่าน้ำมันที่เติมวันนี้ (บาท) — ถ้าไม่เติมใส่ 0</label>
-          <div class="mi-fuel-input">
-            <input type="number" id="mi-fuel-input" value="0" inputmode="decimal" placeholder="0"
-              style="text-align:center">
-            <span class="mi-fuel-unit">บาท</span>
+        <!-- Section: FUEL INPUT -->
+        <div id="mi-fuel-section" style="display:none">
+          <div class="input-group">
+            <label>💰 ค่าน้ำมันที่เติม (บาท) — ตรวจสอบให้ถูกต้อง</label>
+            <div class="mi-fuel-input">
+              <input type="number" id="mi-fuel-input" value="" inputmode="decimal" placeholder="0"
+                style="font-size:22px;font-weight:700;text-align:center;color:#059669">
+              <span class="mi-fuel-unit">บาท</span>
+            </div>
           </div>
         </div>
 
@@ -581,16 +593,16 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
         <div class="stat-row" style="grid-template-columns:1fr 1fr;text-align:left">
           <div class="stat-box" style="background:#f5f3ff">
             <div class="num" style="color:#7c3aed" id="mi-result-dist">-</div>
-            <div class="lbl" style="color:#6d28d9">วิ่งวันนี้ (กม.)</div>
+            <div class="lbl" style="color:#6d28d9" id="mi-result-lbl1">วิ่งวันนี้ (กม.)</div>
           </div>
           <div class="stat-box" style="background:#f5f3ff">
             <div class="num" style="color:#7c3aed;font-size:20px" id="mi-result-cpk">-</div>
-            <div class="lbl" style="color:#6d28d9">บาท/กม.</div>
+            <div class="lbl" style="color:#6d28d9" id="mi-result-lbl2">บาท/กม.</div>
           </div>
         </div>
         <div style="font-size:12px;color:#9ca3af;margin:10px 0 20px" id="mi-result-detail"></div>
         <button class="btn-action" style="background:#7c3aed;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:500;cursor:pointer;width:100%;margin-bottom:10px"
-          onclick="miGoStep1()">+ บันทึกรถคันต่อไป</button>
+          onclick="miGoStep1()">+ บันทึกเพิ่มอีกคัน</button>
         <button class="btn-action btn-outline" style="border-color:#7c3aed;color:#7c3aed;margin:0;width:100%"
           onclick="showHome()">กลับหน้าหลัก</button>
       </div>
@@ -602,7 +614,7 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
 <div class="screen" id="mileage-history-screen">
   <div class="topbar" style="background:#7c3aed">
     <button class="back-btn" onclick="go('mileage-screen')">←</button>
-    <h1>ประวัติไมล์ของฉัน</h1>
+    <h1>ประวัติรถของฉัน</h1>
   </div>
   <div class="content">
     <div class="card">
@@ -629,7 +641,7 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
 <div class="screen" id="mileage-admin-screen">
   <div class="topbar" style="background:#7c3aed">
     <button class="back-btn" onclick="go('admin-screen')">←</button>
-    <h1>รายงานไมล์รถ</h1>
+    <h1>รายงานไมล์ & น้ำมันรถ</h1>
   </div>
   <div class="mi-admin-tabs">
     <button class="mi-admin-tab-btn active" id="mi-tab-report" onclick="miAdminSwitch('report')">📊 Report รายเดือน</button>
@@ -712,7 +724,7 @@ let userHistoryData=[], userHistoryPage=1;
 const ADMIN_PAGE_SIZE=40;
 const USER_HISTORY_PAGE_SIZE=40;
 let currentFname='';
-let userProfile={}; // เพิ่มตัวแปรเก็บข้อมูลโปรไฟล์
+let userProfile={}; 
 window.userMap={};
 
 function loadLogs(){ try{ logs=JSON.parse(localStorage.getItem(DB_KEY)||'[]'); }catch(e){ logs=[]; } }
@@ -733,7 +745,7 @@ function showToast(msg,dur){
 function go(id){ document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); }); document.getElementById(id).classList.add('active'); }
 
 function apiPost(payload){
-  payload.secretKey = _gsk(); // แทรก Secret Key ในทุกๆ request อัตโนมัติ
+  payload.secretKey = _gsk();
   return fetch(WEBAPP_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -828,12 +840,9 @@ async function doLogin(){
     if(data.status==='ok'){
       currentUser=data.user.username; isAdmin=false; 
       currentFname=data.user.fname ? `${data.user.fname} ${data.user.lname||''}`.trim() : data.user.username;
-      
-      // บันทึก Profile ผู้ใช้งาน
       userProfile = { fname: data.user.fname||'', lname: data.user.lname||'', position: data.user.position||'', zone: data.user.zone||'' };
       
       sessionStorage.setItem(SESSION_KEY,JSON.stringify({name:currentUser,admin:isAdmin,fname:currentFname,profile:userProfile}));
-      // บันทึก credentials ถ้าติ๊ก "จดจำฉัน"
       if(remember){
         localStorage.setItem(REMEMBER_KEY, JSON.stringify({username:name, password:pass}));
       } else {
@@ -844,7 +853,6 @@ async function doLogin(){
   }catch(e){ hideLoading(); err.textContent='เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง'; }
 }
 
-// โหลด saved credentials ตอนเปิดหน้า
 function loadSavedCredentials(){
   try{
     const saved=JSON.parse(localStorage.getItem(REMEMBER_KEY)||'null');
@@ -896,7 +904,6 @@ function updateEmpUI(){
 function showHome(){ updateEmpUI(); go('home-screen'); checkInstallTip(); }
 
 function checkInstallTip(){
-  // ซ่อน tip ถ้า: (1) ถูก dismiss แล้ว (2) ติดตั้งเป็น PWA แล้ว (3) เป็น desktop
   const dismissed = localStorage.getItem('install_tip_dismissed')==='1';
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -916,7 +923,6 @@ function dismissInstallTip(){
 async function goCamera(){
   updateEmpUI();
   go('cam-screen');
-  // ขอ permission ครั้งแรก (browser จะจำไว้ให้ถ้าผู้ใช้เลือก Allow)
   startCamera();
   startGPS();
 }
@@ -927,7 +933,7 @@ function myLogs(){ return logs.filter(function(l){ return l.empName===currentUse
 // ═══════════════════════════════════════
 // CAMERA
 // ═══════════════════════════════════════
-let currentFacingMode='environment';  // 'environment' = หลัง, 'user' = หน้า
+let currentFacingMode='environment'; 
 let cameraEnabled=true;
 
 function toggleCamera(){
@@ -937,22 +943,17 @@ function toggleCamera(){
   const off=document.getElementById('cam-off');
   const btn=document.getElementById('capture-btn');
   if(cameraEnabled){
-    wrap.style.display='block';
-    off.style.display='none';
-    btn.textContent='📷 ถ่ายภาพและบันทึก';
-    startCamera();
+    wrap.style.display='block'; off.style.display='none';
+    btn.textContent='📷 ถ่ายภาพและบันทึก'; startCamera();
   } else {
-    wrap.style.display='none';
-    off.style.display='flex';
-    btn.textContent='✓ บันทึกเวลา (ไม่ถ่ายรูป)';
-    stopCameraStream();
+    wrap.style.display='none'; off.style.display='flex';
+    btn.textContent='✓ บันทึกเวลา (ไม่ถ่ายรูป)'; stopCameraStream();
   }
 }
 
 function switchCamera(){
   currentFacingMode = currentFacingMode==='environment' ? 'user' : 'environment';
-  stopCameraStream();
-  startCamera();
+  stopCameraStream(); startCamera();
   showToast(currentFacingMode==='environment'?'🔄 กล้องหลัง':'🔄 กล้องหน้า', 1500);
 }
 
@@ -964,7 +965,6 @@ function startCamera(){
   if(!cameraEnabled) return;
   const vid=document.getElementById('video');
   stopCameraStream();
-  // ขอกล้องแนวตั้ง 720x960 (3:4)
   navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:currentFacingMode},width:{ideal:720},height:{ideal:960}},audio:false})
     .then(function(s){ stream=s; vid.srcObject=s; vid.play(); drawOverlay(); })
     .catch(function(){ alert('ไม่สามารถเข้าถึงกล้องได้'); showHome(); });
@@ -1026,7 +1026,6 @@ function capturePhoto(){
   const customer=document.getElementById('customer-name').value.trim();
   const extraDesc=document.getElementById('desc-input').value.trim();
   const tasks=getSelectedTasks();
-  // รวม tasks + extraDesc เข้าด้วยกัน
   const desc=[tasks.join(', '), extraDesc].filter(Boolean).join(' | ');
   let finalBase64='';
 
@@ -1062,7 +1061,6 @@ function capturePhoto(){
     } else { finalBase64=cvs.toDataURL('image/jpeg',0.7); }
   }
 
-  // เพิ่มข้อมูล Profile เข้าไปใน Log ด้วย
   const log={ 
     id:'lg_'+Date.now(), ts:now.toISOString(), empName:currentUser, customer:customer, desc:desc, 
     photo:finalBase64, lat:gpsCoords?gpsCoords.lat:null, lng:gpsCoords?gpsCoords.lng:null, acc:gpsCoords?gpsCoords.acc:null, 
@@ -1080,8 +1078,8 @@ function capturePhoto(){
 // SYNC
 // ═══════════════════════════════════════
 function postToSheet(log){
-  // แนบข้อมูล Profile ไปยังเซิร์ฟเวอร์
   const payload={ 
+    action: 'log',
     timestamp:log.ts, employeeName:log.empName, customer:log.customer||'', description:log.desc||'', 
     lat:log.lat||'', lng:log.lng||'', accuracy:log.acc||'', deviceId:log.id, photoBase64:log.photo||'', 
     secretKey: _gsk(), fname:log.fname||'', lname:log.lname||'', position:log.position||'', zone:log.zone||''
@@ -1161,7 +1159,7 @@ function exportEmail(){
 }
 
 // ═══════════════════════════════════════
-// USER HISTORY (ประวัติของฉัน)
+// USER HISTORY
 // ═══════════════════════════════════════
 function showHistory(){
   go('history-screen');
@@ -1177,7 +1175,6 @@ async function userLoadHistory(){
     const json=await res.json();
     hideLoading();
     if(json.status==='ok'){
-      // กรองเอาเฉพาะข้อมูลของ User ที่ Login อยู่ปัจจุบัน
       userHistoryData=(json.data||[]).filter(function(r){ return r.employeeName === currentUser; });
       userHistoryPage=1;
       populateUserHistoryFilters(); 
@@ -1209,7 +1206,6 @@ function renderUserHistory(){
     return;
   }
 
-  // Pagination
   const totalPages=Math.max(1, Math.ceil(d.length/USER_HISTORY_PAGE_SIZE));
   if(userHistoryPage>totalPages) userHistoryPage=1;
   const startIdx=(userHistoryPage-1)*USER_HISTORY_PAGE_SIZE;
@@ -1222,11 +1218,9 @@ function renderUserHistory(){
     const timeStr=dt.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
     const gps=r.lat?'📍 '+parseFloat(r.lat).toFixed(5)+', '+parseFloat(r.lng).toFixed(5):'';
     const fixedUrl=fixPhotoUrl(r.photoUrl);
-    
     const photoHtml=fixedUrl
       ? '<img class="admin-photo loading" src="'+fixedUrl+'" onclick="event.stopPropagation();viewPhoto(\''+fixedUrl+'\')" onload="this.classList.remove(\'loading\')" onerror="this.style.display=\'none\'" alt="" referrerpolicy="no-referrer" loading="lazy">'
       : '';
-      
     return '<div class="admin-log-item">' +
              '<div class="admin-log-top">' +
                '<span class="admin-log-name" style="color:#059669">📅 '+dateStr+' '+timeStr+'</span>' +
@@ -1237,7 +1231,6 @@ function renderUserHistory(){
            '</div>';
   }).join('');
 
-  // Pagination controls
   let pagHtml='';
   if(totalPages>1){
     const startPage=Math.max(1, userHistoryPage-2);
@@ -1253,13 +1246,11 @@ function renderUserHistory(){
     pagHtml+='</div>';
     pagHtml+='<div class="page-info" style="text-align:center">แสดง '+(startIdx+1)+'-'+endIdx+' จาก '+d.length+' รายการ (หน้า '+userHistoryPage+'/'+totalPages+')</div>';
   }
-
   container.innerHTML=rowsHtml+pagHtml;
 }
 
 function userGoPage(p){
-  userHistoryPage=p;
-  renderUserHistory();
+  userHistoryPage=p; renderUserHistory();
   document.getElementById('user-history-container').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
@@ -1335,7 +1326,6 @@ function renderAdminLogs(){
     return;
   }
 
-  // Pagination
   const totalPages=Math.max(1, Math.ceil(f.length/ADMIN_PAGE_SIZE));
   if(adminCurrentPage>totalPages) adminCurrentPage=1;
   const startIdx=(adminCurrentPage-1)*ADMIN_PAGE_SIZE;
@@ -1350,14 +1340,12 @@ function renderAdminLogs(){
     const gps=r.lat?'📍 '+parseFloat(r.lat).toFixed(5)+', '+parseFloat(r.lng).toFixed(5):'';
     const fixedUrl=fixPhotoUrl(r.photoUrl);
     const displayName = window.userMap[r.employeeName] || r.employeeName || '-';
-    // โหลดรูปทันที (ไม่ใช่ lazy load ด้วยการกด)
     const photoHtml=fixedUrl
       ? '<img class="admin-photo loading" src="'+fixedUrl+'" onclick="event.stopPropagation();viewPhoto(\''+fixedUrl+'\')" onload="this.classList.remove(\'loading\')" onerror="this.style.display=\'none\'" alt="" referrerpolicy="no-referrer" loading="lazy">'
       : '';
     return '<div class="admin-log-item"><div class="admin-log-top"><span class="admin-log-name">👤 '+displayName+'</span><span class="admin-log-time">'+dateStr+' '+timeStr+'</span></div><div class="admin-log-detail">'+([r.customer,r.description].filter(Boolean).join(' — ')||'(ไม่มีรายละเอียด)')+'</div>'+(gps?'<div class="admin-log-gps">'+gps+'</div>':'')+photoHtml+'</div>';
   }).join('');
 
-  // Pagination controls
   let pagHtml='';
   if(totalPages>1){
     const startPage=Math.max(1, adminCurrentPage-2);
@@ -1378,9 +1366,7 @@ function renderAdminLogs(){
 }
 
 function adminGoPage(p){
-  adminCurrentPage=p;
-  renderAdminLogs();
-  // scroll กลับขึ้นบน
+  adminCurrentPage=p; renderAdminLogs();
   document.getElementById('admin-log-container').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function showGallery(){
@@ -1413,15 +1399,8 @@ function showGallery(){
   function loadNext(){
     if(idx>=imgs.length) return;
     const img=imgs[idx++];
-    img.onload=function(){
-      img.style.display='block';
-      const sp=img.parentElement.querySelector('.gallery-spinner'); if(sp) sp.remove();
-      loadNext();
-    };
-    img.onerror=function(){
-      const sp=img.parentElement.querySelector('.gallery-spinner'); if(sp) sp.textContent='❌';
-      loadNext();
-    };
+    img.onload=function(){ img.style.display='block'; const sp=img.parentElement.querySelector('.gallery-spinner'); if(sp) sp.remove(); loadNext(); };
+    img.onerror=function(){ const sp=img.parentElement.querySelector('.gallery-spinner'); if(sp) sp.textContent='❌'; loadNext(); };
     img.src=img.dataset.src;
   }
   for(let k=0;k<Math.min(4,imgs.length);k++) loadNext();
@@ -1431,7 +1410,6 @@ function adminExportCSV(){
   if(!f.length){ showToast('ไม่มีข้อมูล'); return; }
   const mf=document.getElementById('admin-month-filter').value;
   const ef=document.getElementById('admin-emp-filter').value;
-  // เพิ่มหัวข้อใหม่ใน CSV สำหรับ Admin Export และจัดเรียงให้ตรงกับ Google Sheet
   const rows=['\uFEFFวันที่,เวลา,username,ชื่อ,สกุล,ลูกค้า,รายละเอียด,ตำแหน่ง,เขต,GPS Lat,GPS Lng,รูปภาพ URL'];
   f.forEach(function(r){ 
     const d=new Date(r.timestamp); 
@@ -1538,9 +1516,7 @@ document.getElementById('photo-preview').addEventListener('click',function(e){
 // ════════════════════════════════════════════════════════
 
 // ── CONFIG: Google Vision API Key (ใส่ key ของคุณตรงนี้) ──
-// สมัครฟรีที่ https://console.cloud.google.com → Enable Vision API → Create Key
-// Free tier: 1,000 รูป/เดือน ฟรี — เกินคิด ~0.50$/1000
-const VISION_API_KEY = 'AIzaSyBvZXUcoeQx_oe94MdD6O4R-owBpiptK4g';
+const VISION_API_KEY = 'YOUR_GOOGLE_VISION_API_KEY';
 
 // ── STATE ──
 let miSelectedPlate = '';
@@ -1549,6 +1525,7 @@ let miVehicles = [];
 let miPhotoBase64 = '';
 let miOdometerFromOCR = 0;
 let miPrevOdometer = 0;
+let miRecordMode = 'odo'; // 'odo' or 'fuel'
 
 // ── NAVIGATION ──
 function goMileage(){
@@ -1571,6 +1548,24 @@ function miShowStep(n){
   document.getElementById('mi-step3').style.display = n===3?'block':'none';
 }
 
+function miSetMode(mode) {
+  miRecordMode = mode;
+  document.getElementById('btn-mode-odo').classList.toggle('active', mode === 'odo');
+  document.getElementById('btn-mode-fuel').classList.toggle('active', mode === 'fuel');
+
+  document.getElementById('mi-odo-section').style.display = (mode === 'odo') ? 'block' : 'none';
+  document.getElementById('mi-fuel-section').style.display = (mode === 'fuel') ? 'block' : 'none';
+
+  document.getElementById('mi-step2-title').innerHTML = (mode === 'odo') ? '2️⃣ ถ่ายรูปหน้าปัดไมล์' : '2️⃣ ถ่ายรูปบิลหรือหน้าจอตัวเลขตู้จ่าย';
+  document.getElementById('mi-photo-hint').textContent = (mode === 'odo') ? 'แตะเพื่อถ่ายรูปหน้าปัดไมล์' : 'แตะเพื่อถ่ายรูปบิล หรือหน้าจอตัวเลขตู้จ่ายน้ำมัน';
+
+  miPhotoBase64 = '';
+  document.getElementById('mi-ocr-result').classList.remove('show');
+  document.getElementById('mi-ocr-error').classList.remove('show');
+  document.getElementById('mi-photo-preview').style.display = 'none';
+  document.getElementById('mi-photo-placeholder').style.display = 'flex';
+}
+
 // ── STEP 1: โหลดรายการรถ ──
 async function miLoadVehicles(){
   try{
@@ -1587,7 +1582,7 @@ async function miLoadVehicles(){
 
 function renderMiCarList(){
   const list = document.getElementById('mi-car-list');
-  if(!miVehicles.length){ list.innerHTML='<div class="empty-state"><p>ยังไม่มีรายการรถ กรุณาแก้ไข VEHICLES ใน apps_script.js</p></div>'; return; }
+  if(!miVehicles.length){ list.innerHTML='<div class="empty-state"><p>ยังไม่มีรายการรถ กรุณาแก้ไข VEHICLES ในเซิร์ฟเวอร์</p></div>'; return; }
   list.innerHTML = miVehicles.map(function(v){
     const isSelected = v.plate === miSelectedPlate;
     const lastOdo = v.lastOdometer ? Number(v.lastOdometer).toLocaleString('th-TH')+' กม.' : 'ยังไม่เคยบันทึก';
@@ -1602,43 +1597,33 @@ function renderMiCarList(){
 }
 
 function miSelectCar(plate, name){
-  miSelectedPlate = plate;
-  miSelectedCarName = name;
-  renderMiCarList();
+  miSelectedPlate = plate; miSelectedCarName = name; renderMiCarList();
 }
 
 async function miGoStep2(){
   if(!miSelectedPlate){ showToast('⚠️ กรุณาเลือกรถก่อน'); return; }
-  // โหลดไมล์ล่าสุดของรถนี้
   miPrevOdometer = 0;
   try{
     const res = await apiPost({action:'getLatestOdo', licensePlate: miSelectedPlate});
     if(res.status==='ok') miPrevOdometer = parseFloat(res.odometer)||0;
   } catch(e){}
 
-  // แสดง info
   document.getElementById('mi-selected-car-info').innerHTML =
     '<div style="display:flex;align-items:center;gap:10px">'
     +'<div style="width:40px;height:40px;border-radius:12px;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🚗</div>'
     +'<div><div style="font-size:16px;font-weight:700;color:#1f2937">'+miSelectedPlate+'</div>'
     +'<div style="font-size:12px;color:#6b7280">'+miSelectedCarName+'</div></div></div>';
 
-  // reset
-  document.getElementById('mi-photo-preview').style.display='none';
-  document.getElementById('mi-photo-placeholder').style.display='flex';
-  document.getElementById('mi-ocr-result').classList.remove('show');
-  document.getElementById('mi-ocr-error').classList.remove('show');
+  miSetMode('odo');
   document.getElementById('mi-odometer-input').value='';
-  document.getElementById('mi-fuel-input').value='0';
+  document.getElementById('mi-fuel-input').value='';
   miPhotoBase64=''; miOdometerFromOCR=0;
 
   const prevEl = document.getElementById('mi-prev-info');
   if(miPrevOdometer > 0){
     document.getElementById('mi-prev-text').textContent = 'ไมล์ครั้งก่อน: '+miPrevOdometer.toLocaleString('th-TH')+' กม.';
     prevEl.style.display='block';
-  } else {
-    prevEl.style.display='none';
-  }
+  } else { prevEl.style.display='none'; }
 
   miShowStep(2);
 }
@@ -1652,7 +1637,6 @@ async function miHandlePhoto(event){
   const file = event.target.files[0];
   if(!file) return;
 
-  // แสดง preview
   const reader = new FileReader();
   reader.onload = async function(e){
     const base64Full = e.target.result;
@@ -1664,22 +1648,22 @@ async function miHandlePhoto(event){
     document.getElementById('mi-ocr-result').classList.remove('show');
     document.getElementById('mi-ocr-error').classList.remove('show');
 
-    // เริ่ม OCR
     await miRunOCR(base64Full);
   };
   reader.readAsDataURL(file);
-  event.target.value=''; // reset เพื่อให้ถ่ายซ้ำได้
+  event.target.value=''; 
 }
 
 async function miRunOCR(base64Full){
-  // ถ้าไม่มี API Key ใช้ manual input
   if(!VISION_API_KEY || VISION_API_KEY==='YOUR_GOOGLE_VISION_API_KEY'){
     document.getElementById('mi-ocr-error').classList.add('show');
-    document.getElementById('mi-ocr-error').innerHTML = '<b>⚠️ ยังไม่ได้ตั้ง Vision API Key</b><br>กรุณากรอกเลขไมล์ด้านล่างด้วยตัวเอง<br><small>ตั้งค่า VISION_API_KEY ในโค้ด HTML เพื่อให้ AI อ่านให้อัตโนมัติ</small>';
+    document.getElementById('mi-ocr-error-txt').innerHTML = '<b>⚠️ ยังไม่ได้ตั้ง Vision API Key</b>';
     return;
   }
 
   document.getElementById('mi-ocr-loading').style.display='block';
+  document.getElementById('mi-ocr-loading-text').textContent = (miRecordMode === 'odo') ? 'AI กำลังค้นหาเลขไมล์...' : 'AI กำลังค้นหายอดเงินรวม...';
+
   try{
     const base64Data = base64Full.replace(/^data:image\/\w+;base64,/, '');
     const body = {
@@ -1697,55 +1681,83 @@ async function miRunOCR(base64Full){
     const text = data.responses && data.responses[0] && data.responses[0].fullTextAnnotation
       ? data.responses[0].fullTextAnnotation.text : '';
 
-    const odo = miExtractOdometer(text);
-    if(odo > 0){
-      miOdometerFromOCR = odo;
-      document.getElementById('mi-ocr-num').textContent = odo.toLocaleString('th-TH');
-      document.getElementById('mi-ocr-conf').textContent = 'จากข้อความ: '+text.replace(/\n/g,' ').substring(0,80);
-      document.getElementById('mi-ocr-result').classList.add('show');
-      document.getElementById('mi-odometer-input').value = odo;
+    if (miRecordMode === 'odo') {
+      const odo = miExtractOdometer(text);
+      if(odo > 0){
+        miOdometerFromOCR = odo;
+        document.getElementById('mi-ocr-success-lbl').textContent = 'เลขไมล์ที่อ่านได้';
+        document.getElementById('mi-ocr-num').textContent = odo.toLocaleString('th-TH');
+        document.getElementById('mi-ocr-conf').textContent = 'จากข้อความ: '+text.replace(/\n/g,' ').substring(0,80);
+        document.getElementById('mi-ocr-result').classList.add('show');
+        document.getElementById('mi-odometer-input').value = odo;
+      } else {
+        document.getElementById('mi-ocr-error').classList.add('show');
+        document.getElementById('mi-ocr-error-txt').textContent = 'อ่านเลขไมล์อัตโนมัติไม่สำเร็จ';
+      }
     } else {
-      document.getElementById('mi-ocr-error').classList.add('show');
+      const fuel = miExtractFuelCost(text);
+      if(fuel > 0){
+        document.getElementById('mi-ocr-success-lbl').textContent = 'ยอดเงินที่อ่านได้';
+        document.getElementById('mi-ocr-num').textContent = fuel.toLocaleString('th-TH') + ' บาท';
+        document.getElementById('mi-ocr-conf').textContent = 'ตรวจสอบบิล: '+text.replace(/\n/g,' ').substring(0,80);
+        document.getElementById('mi-ocr-result').classList.add('show');
+        document.getElementById('mi-fuel-input').value = fuel;
+      } else {
+        document.getElementById('mi-ocr-error').classList.add('show');
+        document.getElementById('mi-ocr-error-txt').textContent = 'ค้นหายอดเงินไม่พบ';
+      }
     }
   } catch(err){
     document.getElementById('mi-ocr-loading').style.display='none';
     document.getElementById('mi-ocr-error').classList.add('show');
-    document.getElementById('mi-ocr-error').textContent = 'OCR ผิดพลาด: '+err.message+' — กรุณากรอกเองด้านล่าง';
+    document.getElementById('mi-ocr-error-txt').textContent = 'AI ขัดข้อง: '+err.message;
   }
 }
 
-// แยกเลขไมล์ออกจาก text ที่ OCR ได้ — หา pattern เลข 5-6 หลักที่น่าจะเป็นไมล์
 function miExtractOdometer(text){
   if(!text) return 0;
-  // หาตัวเลขทุกชุดในข้อความ
   const nums = text.match(/\d[\d,. ]{3,8}\d/g) || [];
   const cleaned = nums.map(function(n){ return parseInt(n.replace(/[^0-9]/g,'')); })
     .filter(function(n){ return n >= 1000 && n <= 9999999; });
   if(!cleaned.length) return 0;
-  // เลือกตัวเลขที่น่าจะเป็นไมล์: ถ้ามีหลายตัวให้เลือกใกล้กับไมล์ก่อนหน้า
   if(miPrevOdometer > 0){
     const reasonable = cleaned.filter(function(n){ return n >= miPrevOdometer && n <= miPrevOdometer+5000; });
     if(reasonable.length) return reasonable[0];
   }
-  // เลือกตัวที่มีหลักมากสุด (น่าจะเป็นไมล์สะสม)
   return cleaned.sort(function(a,b){ return b-a; })[0];
+}
+
+function miExtractFuelCost(text){
+  if(!text) return 0;
+  let cleanText = text.replace(/,/g, '');
+  let matches = cleanText.match(/\d+\.\d{2}|\d+/g) || [];
+  let amounts = matches.map(m => parseFloat(m)).filter(n => n >= 50 && n <= 10000);
+  if(!amounts.length) return 0;
+  return Math.max(...amounts);
 }
 
 // ── SUBMIT ──
 async function miSubmit(){
-  const odoInput = parseFloat(document.getElementById('mi-odometer-input').value);
-  const fuel = parseFloat(document.getElementById('mi-fuel-input').value)||0;
-  const today = new Date().toISOString().split('T')[0];
-
-  if(!odoInput || odoInput < 1){ showToast('⚠️ กรุณากรอกเลขไมล์ให้ถูกต้อง'); return; }
-  if(miPrevOdometer > 0 && odoInput < miPrevOdometer){ 
-    if(!confirm('เลขไมล์ '+odoInput.toLocaleString()+' น้อยกว่าครั้งก่อน ('+miPrevOdometer.toLocaleString()+') ต้องการบันทึกต่อไหม?')) return;
+  let odoInput = 0, fuel = 0;
+  
+  if (miRecordMode === 'odo') {
+    odoInput = parseFloat(document.getElementById('mi-odometer-input').value);
+    if(!odoInput || odoInput < 1){ showToast('⚠️ กรุณากรอกเลขไมล์ให้ถูกต้อง'); return; }
+    if(miPrevOdometer > 0 && odoInput < miPrevOdometer){ 
+      if(!confirm('เลขไมล์ '+odoInput.toLocaleString()+' น้อยกว่าครั้งก่อน ('+miPrevOdometer.toLocaleString()+') ต้องการบันทึกต่อไหม?')) return;
+    }
+  } else {
+    fuel = parseFloat(document.getElementById('mi-fuel-input').value);
+    if(!fuel || fuel <= 0){ showToast('⚠️ กรุณากรอกจำนวนเงินให้ถูกต้อง'); return; }
   }
 
-  showLoading('กำลังบันทึกเลขไมล์...');
+  const today = new Date().toISOString().split('T')[0];
+  showLoading(miRecordMode === 'odo' ? 'กำลังบันทึกเลขไมล์...' : 'กำลังบันทึกค่าน้ำมัน...');
+  
   try{
     const payload = {
       action:'logMileage',
+      mode: miRecordMode,
       licensePlate: miSelectedPlate,
       odometer: odoInput,
       fuelCost: fuel,
@@ -1756,13 +1768,21 @@ async function miSubmit(){
     const data = await apiPost(payload);
     hideLoading();
     if(data.status==='ok'){
-      // แสดง Step 3
-      const dist = data.distance || 0;
-      const cpk = data.costPerKm || 0;
-      document.getElementById('mi-result-dist').textContent = dist.toLocaleString('th-TH');
-      document.getElementById('mi-result-cpk').textContent = cpk > 0 ? cpk.toFixed(2) : '-';
-      document.getElementById('mi-result-detail').textContent =
-        miSelectedPlate+' | ไมล์ '+odoInput.toLocaleString('th-TH')+' กม.'+(fuel>0?' | น้ำมัน '+fuel.toLocaleString('th-TH')+' บาท':'');
+      if(miRecordMode === 'odo') {
+        const dist = data.distance || 0;
+        document.getElementById('mi-result-lbl1').textContent = 'ระยะทางวิ่ง (กม.)';
+        document.getElementById('mi-result-dist').textContent = dist.toLocaleString('th-TH');
+        document.getElementById('mi-result-lbl2').textContent = 'ไมล์ล่าสุด';
+        document.getElementById('mi-result-cpk').textContent = odoInput.toLocaleString('th-TH');
+        document.getElementById('mi-result-detail').textContent = miSelectedPlate+' | บันทึกไมล์เรียบร้อย';
+      } else {
+        document.getElementById('mi-result-lbl1').textContent = 'เติมน้ำมัน (บาท)';
+        document.getElementById('mi-result-dist').textContent = fuel.toLocaleString('th-TH');
+        document.getElementById('mi-result-lbl2').textContent = 'ผลการบันทึก';
+        document.getElementById('mi-result-cpk').textContent = 'สำเร็จ';
+        document.getElementById('mi-result-detail').textContent = miSelectedPlate+' | บันทึกค่าน้ำมันเรียบร้อย';
+      }
+      
       miShowStep(3);
       showToast('✓ บันทึกสำเร็จ!');
     } else { showToast('❌ '+(data.msg||'บันทึกไม่สำเร็จ')); }
@@ -1785,7 +1805,7 @@ function miPopulateHistMonths(){
 
 async function miLoadHistory(){
   const month = document.getElementById('mi-hist-month').value;
-  showLoading('กำลังโหลดประวัติไมล์...');
+  showLoading('กำลังโหลดประวัติ...');
   try{
     const res = await fetch(WEBAPP_URL+'?action=getMileageLogs&secretKey='+_gsk()+'&employeeName='+encodeURIComponent(currentUser)+'&month='+month+'&t='+Date.now());
     const json = await res.json();
@@ -1803,7 +1823,6 @@ function renderMiHistory(data){
     container.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>ไม่มีข้อมูลในเดือนนี้</p></div>';
     summaryEl.style.display='none'; return;
   }
-  // summary
   const totalDist = data.reduce(function(s,r){ return s+(parseFloat(r.distance)||0); },0);
   const totalFuel = data.reduce(function(s,r){ return s+(parseFloat(r.fuelCost)||0); },0);
   const cpk = totalDist>0 && totalFuel>0 ? (totalFuel/totalDist).toFixed(2) : '-';
@@ -1818,12 +1837,27 @@ function renderMiHistory(data){
     const dist = parseFloat(r.distance)||0;
     const fuel = parseFloat(r.fuelCost)||0;
     const fixedUrl = r.photoUrl ? fixPhotoUrl(r.photoUrl) : '';
+    
+    let typeTag = '';
+    let detailHtml = '';
+    let valHtml = '';
+    
+    if(r.type === 'fuel'){
+      typeTag = '<span class="pill pill-amber">น้ำมัน</span>';
+      valHtml = fuel.toLocaleString('th-TH')+' <small style="font-size:13px;font-weight:400;color:#6b7280">บาท</small>';
+      detailHtml = 'เติมน้ำมัน: '+fuel.toLocaleString('th-TH')+' บาท';
+    } else {
+      typeTag = '<span class="pill pill-green">ไมล์</span>';
+      valHtml = dist>0 ? dist.toLocaleString('th-TH')+' <small style="font-size:13px;font-weight:400;color:#6b7280">กม.</small>' : '-';
+      detailHtml = 'ไมล์: '+Number(r.odometer).toLocaleString('th-TH')+' กม.';
+    }
+
     return '<div class="mi-log-item"><div style="display:flex;gap:10px;align-items:flex-start">'
       +(fixedUrl?'<img class="mi-thumb loading" src="'+fixedUrl+'" onclick="viewPhoto(\''+fixedUrl+'\')" onload="this.classList.remove(\'loading\')" onerror="this.style.display=\'none\'" referrerpolicy="no-referrer">':'')
       +'<div style="flex:1;min-width:0">'
       +'<div class="mi-log-top"><span class="mi-log-plate">'+r.licensePlate+'</span><span class="mi-log-date">'+dateStr+'</span></div>'
-      +'<div class="mi-log-dist">'+(dist>0?dist.toLocaleString('th-TH')+' <small style="font-size:13px;font-weight:400;color:#6b7280">กม.</small>':'-')+'</div>'
-      +'<div class="mi-log-detail">ไมล์: '+Number(r.odometer).toLocaleString('th-TH')+(fuel>0?' | น้ำมัน: '+fuel.toLocaleString('th-TH')+' บาท':'')+'</div>'
+      +'<div class="mi-log-dist">'+valHtml+'</div>'
+      +'<div class="mi-log-detail">'+typeTag+' '+detailHtml+'</div>'
       +'</div></div></div>';
   }).join('');
 }
@@ -1846,7 +1880,6 @@ function miAdminPopulateMonths(){
     const sel = document.getElementById(id);
     if(sel) sel.innerHTML = months.map(function(m){ return '<option value="'+m.key+'">'+m.label+'</option>'; }).join('');
   });
-  // populate plate filter
   if(miVehicles.length){
     const plateSel = document.getElementById('mi-admin-log-plate');
     if(plateSel) plateSel.innerHTML = '<option value="">— ทะเบียนทุกคัน —</option>'
@@ -1918,18 +1951,24 @@ async function miAdminLoadLogs(){
 function renderMiAdminLogs(data){
   const container = document.getElementById('mi-admin-logs-container');
   if(!data.length){ container.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>ไม่มีข้อมูล</p></div>'; return; }
+  
   container.innerHTML = data.map(function(r){
     const fixedUrl = r.photoUrl ? fixPhotoUrl(r.photoUrl) : '';
     const dName = r.fname ? (r.fname+' '+(r.lname||'')).trim() : r.employeeName;
     const dist = parseFloat(r.distance)||0;
     const fuel = parseFloat(r.fuelCost)||0;
-    const cpk = parseFloat(r.costPerKm)||0;
+    
+    let typeTag = r.type === 'fuel' ? '<span class="pill pill-amber">น้ำมัน</span>' : '<span class="pill pill-green">ไมล์</span>';
+    let desc = r.type === 'fuel' 
+      ? 'เติมน้ำมัน: '+fuel.toLocaleString('th-TH')+' บ.' 
+      : 'ไมล์: '+Number(r.odometer).toLocaleString('th-TH')+' กม.'+(dist>0?' | วิ่ง: '+dist.toLocaleString('th-TH')+' กม.':'');
+
     return '<div class="admin-log-item">'
       +'<div class="admin-log-top">'
-      +'<span class="admin-log-name" style="color:#7c3aed">'+r.licensePlate+'</span>'
+      +'<span class="admin-log-name" style="color:#7c3aed">'+r.licensePlate+' '+typeTag+'</span>'
       +'<span class="admin-log-time">'+new Date(r.date).toLocaleDateString('th-TH',{day:'numeric',month:'short'})+'</span>'
       +'</div>'
-      +'<div class="admin-log-detail">'+dName+' | ไมล์: '+Number(r.odometer).toLocaleString('th-TH')+' กม.'+(dist>0?' | วิ่ง: '+dist.toLocaleString('th-TH')+' กม.':'')+(fuel>0?' | น้ำมัน: '+fuel.toLocaleString('th-TH')+' บ.':'')+(cpk>0?' | '+cpk.toFixed(2)+' บ./กม.':'')+'</div>'
+      +'<div class="admin-log-detail">'+dName+' | '+desc+'</div>'
       +(fixedUrl?'<img class="admin-photo loading" src="'+fixedUrl+'" onclick="viewPhoto(\''+fixedUrl+'\')" onload="this.classList.remove(\'loading\')" onerror="this.style.display=\'none\'" referrerpolicy="no-referrer">':'')
       +'</div>';
   }).join('');
@@ -1938,7 +1977,7 @@ function renderMiAdminLogs(data){
 function miAdminExportCSV(){
   const d = window._miAdminReportData;
   if(!d || !d.report.length){ showToast('กรุณาโหลด Report ก่อน'); return; }
-  let csv = '\uFEFF'; // BOM UTF-8
+  let csv = '\uFEFF';
   csv += 'รายงานไมล์รถ เดือน '+d.month+'\n';
   csv += 'รวม: '+Math.round(d.summary.totalDistance||0)+' กม. | น้ำมัน: '+Math.round(d.summary.totalFuelCost||0)+' บาท | เฉลี่ย: '+(d.summary.avgCostPerKm||0)+' บาท/กม.\n\n';
   csv += 'ทะเบียน,ชื่อรถ,กม.รวม,น้ำมัน(บาท),บาท/กม.\n';
@@ -1948,9 +1987,6 @@ function miAdminExportCSV(){
   dlCSV(csv, 'mileage_report_'+d.month+'.csv');
   showToast('✓ Export CSV สำเร็จ');
 }
-// ════════════════════════════════════════════════════════
-// END MILEAGE SYSTEM
-// ════════════════════════════════════════════════════════
 </script>
 </body>
 </html>
