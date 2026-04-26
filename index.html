@@ -1531,6 +1531,8 @@ document.getElementById('photo-preview').addEventListener('click',function(e){
     const s=JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null');
     if(s){ currentUser=s.name; isAdmin=s.admin; currentFname=s.fname||s.name; userProfile=s.profile||{}; showAfterLogin(); }
   }catch(e){}
+})();
+
 // ════════════════════════════════════════════════════════
 // MILEAGE SYSTEM
 // ════════════════════════════════════════════════════════
@@ -1538,7 +1540,7 @@ document.getElementById('photo-preview').addEventListener('click',function(e){
 // ── CONFIG: Google Vision API Key (ใส่ key ของคุณตรงนี้) ──
 // สมัครฟรีที่ https://console.cloud.google.com → Enable Vision API → Create Key
 // Free tier: 1,000 รูป/เดือน ฟรี — เกินคิด ~0.50$/1000
-const VISION_API_KEY = 'YOUR_GOOGLE_VISION_API_KEY';
+const VISION_API_KEY = 'AIzaSyBvZXUcoeQx_oe94MdD6O4R-owBpiptK4g';
 
 // ── STATE ──
 let miSelectedPlate = '';
@@ -1949,8 +1951,6 @@ function miAdminExportCSV(){
 // ════════════════════════════════════════════════════════
 // END MILEAGE SYSTEM
 // ════════════════════════════════════════════════════════
-
-})();
 </script>
 </body>
 </html>
