@@ -168,8 +168,63 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
 .menu-icon.bg-blue { background: #eff6ff; color: #2563eb; }
 .menu-icon.bg-green { background: #ecfdf5; color: #059669; }
 .menu-icon.bg-amber { background: #fffbeb; color: #d97706; }
+.menu-icon.bg-purple { background: #f5f3ff; color: #7c3aed; }
 .menu-text h3 { font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 4px; }
 .menu-text p { font-size: 13px; color: #6b7280; }
+
+/* ═══ MILEAGE STYLES ═══ */
+.mi-car-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.mi-car-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 14px 16px; cursor: pointer; transition: all .15s; position: relative; }
+.mi-car-card:active { transform: scale(0.97); }
+.mi-car-card.selected { border-color: #7c3aed; background: #f5f3ff; }
+.mi-car-plate { font-size: 18px; font-weight: 700; color: #1f2937; letter-spacing: 1px; }
+.mi-car-name { font-size: 12px; color: #6b7280; margin-top: 2px; }
+.mi-car-odo { font-size: 12px; color: #7c3aed; margin-top: 4px; font-weight: 500; }
+.mi-car-check { position: absolute; top: 14px; right: 14px; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #d1d5db; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+.mi-car-card.selected .mi-car-check { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+
+.mi-photo-wrap { background: #f3f4f6; border-radius: 12px; overflow: hidden; margin-bottom: 12px; min-height: 180px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; border: 1px dashed #d1d5db; }
+.mi-photo-wrap img { width: 100%; max-height: 260px; object-fit: cover; display: block; border-radius: 12px; }
+.mi-photo-placeholder { text-align: center; color: #9ca3af; }
+.mi-photo-placeholder .icon { font-size: 40px; margin-bottom: 6px; }
+.mi-photo-placeholder p { font-size: 13px; }
+
+.mi-ocr-result { background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; padding: 14px; text-align: center; margin-bottom: 12px; display: none; }
+.mi-ocr-result.show { display: block; }
+.mi-ocr-num { font-size: 32px; font-weight: 700; color: #15803d; letter-spacing: 1px; }
+.mi-ocr-conf { font-size: 12px; color: #166534; margin-top: 2px; }
+.mi-ocr-error { background: #fff7ed; border: 1.5px solid #fdba74; border-radius: 12px; padding: 12px; text-align: center; margin-bottom: 12px; display: none; }
+.mi-ocr-error.show { display: block; color: #c2410c; font-size: 13px; }
+
+.mi-log-item { border-bottom: 0.5px solid #f3f4f6; padding: 12px 0; }
+.mi-log-item:last-child { border-bottom: none; }
+.mi-log-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 4px; }
+.mi-log-plate { font-size: 14px; font-weight: 700; color: #7c3aed; }
+.mi-log-date { font-size: 11px; color: #9ca3af; }
+.mi-log-dist { font-size: 20px; font-weight: 700; color: #1f2937; }
+.mi-log-detail { font-size: 12px; color: #6b7280; margin-top: 2px; }
+.mi-thumb { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; cursor: pointer; flex-shrink: 0; background: #e5e7eb; }
+
+.mi-report-card { background: #fff; border: 0.5px solid #e2e2e2; border-radius: 14px; padding: 14px; margin-bottom: 10px; }
+.mi-report-plate { font-size: 16px; font-weight: 700; color: #1f2937; }
+.mi-report-name { font-size: 12px; color: #6b7280; margin-bottom: 10px; }
+.mi-stat3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.mi-stat-box { background: #f9fafb; border-radius: 10px; padding: 10px 6px; text-align: center; }
+.mi-stat-num { font-size: 16px; font-weight: 700; color: #7c3aed; }
+.mi-stat-lbl { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+.mi-summary-bar { background: #7c3aed; border-radius: 14px; padding: 16px; color: #fff; margin-bottom: 14px; }
+.mi-summary-bar .big { font-size: 28px; font-weight: 700; }
+.mi-summary-bar .small { font-size: 12px; opacity: .8; }
+.mi-fuel-input { position: relative; }
+.mi-fuel-input input { padding-right: 36px; }
+.mi-fuel-unit { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 13px; color: #9ca3af; pointer-events: none; }
+.mi-processing { text-align: center; padding: 20px; }
+.mi-processing .spin { font-size: 32px; animation: spin .8s linear infinite; display: inline-block; }
+.mi-confirm-box { background: #fff; border: 1.5px solid #7c3aed; border-radius: 14px; padding: 16px; margin-bottom: 14px; display: none; }
+.mi-confirm-box.show { display: block; }
+.mi-admin-tabs { display: flex; background: #fff; border-bottom: 0.5px solid #e5e7eb; flex-shrink: 0; }
+.mi-admin-tab-btn { flex: 1; padding: 12px 6px; border: none; background: transparent; cursor: pointer; font-size: 13px; font-weight: 500; color: #9ca3af; border-bottom: 2px solid transparent; font-family: inherit; }
+.mi-admin-tab-btn.active { color: #7c3aed; border-bottom-color: #7c3aed; }
 </style>
 </head>
 <body>
@@ -264,6 +319,13 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
         <div class="menu-text">
           <h3>Export รายงาน</h3>
           <p>สรุปยอดและส่งออกข้อมูล</p>
+        </div>
+      </div>
+      <div class="menu-card" onclick="goMileage()">
+        <div class="menu-icon bg-purple">🚗</div>
+        <div class="menu-text">
+          <h3>บันทึกเลขไมล์</h3>
+          <p>ถ่ายรูปหน้าปัด — AI อ่านเลขให้</p>
         </div>
       </div>
     </div>
@@ -381,6 +443,7 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
   <div class="admin-tabs">
     <button type="button" class="admin-tab-btn active" id="admin-tab-logs" onclick="switchAdminView('logs')">📊 ข้อมูลเวลา</button>
     <button type="button" class="admin-tab-btn" id="admin-tab-users" onclick="switchAdminView('users')">👥 ผู้ใช้<span id="pending-badge" class="pending-badge">0</span></button>
+    <button type="button" class="admin-tab-btn" id="admin-tab-mileage" onclick="switchAdminView('mileage')">🚗 ไมล์รถ</button>
   </div>
   <div class="content">
     <!-- LOGS VIEW -->
@@ -414,6 +477,197 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
       </div>
       <div class="card" id="user-list-container">
         <div class="empty-state"><div class="icon">👥</div><p>กด "โหลดรายชื่อ" เพื่อดูข้อมูล</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- MILEAGE — หน้าหลัก: เลือกรถ + ถ่ายรูป  -->
+<!-- ══════════════════════════════════════════ -->
+<div class="screen" id="mileage-screen">
+  <div class="topbar" style="background:#7c3aed">
+    <button class="back-btn" onclick="showHome()">←</button>
+    <h1>บันทึกเลขไมล์</h1>
+    <button class="text-btn" onclick="goMileageHistory()">ประวัติ</button>
+  </div>
+  <div class="content">
+
+    <!-- Step 1: เลือกรถ -->
+    <div id="mi-step1">
+      <div class="card">
+        <p style="font-size:13px;font-weight:600;color:#7c3aed;margin-bottom:10px">1️⃣ เลือกรถที่จะบันทึก</p>
+        <div class="mi-car-list" id="mi-car-list">
+          <div class="empty-state"><div class="icon">🔄</div><p>กำลังโหลดรายการรถ...</p></div>
+        </div>
+        <button class="btn-action btn-action" id="mi-step1-next"
+          style="background:#7c3aed;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:500;cursor:pointer;width:100%;margin-top:4px"
+          onclick="miGoStep2()">ถัดไป → ถ่ายรูปหน้าปัด</button>
+      </div>
+    </div>
+
+    <!-- Step 2: ถ่ายรูป + OCR -->
+    <div id="mi-step2" style="display:none">
+      <div class="card" id="mi-selected-car-info" style="background:#f5f3ff;border-color:#c4b5fd;margin-bottom:10px"></div>
+
+      <div class="card">
+        <p style="font-size:13px;font-weight:600;color:#7c3aed;margin-bottom:10px">2️⃣ ถ่ายหรือเลือกรูปหน้าปัดไมล์</p>
+
+        <!-- Photo area -->
+        <div class="mi-photo-wrap" id="mi-photo-wrap" onclick="miTriggerCamera()">
+          <div class="mi-photo-placeholder" id="mi-photo-placeholder">
+            <div class="icon">📷</div>
+            <p>แตะเพื่อถ่ายรูป / เลือกจากคลัง</p>
+          </div>
+          <img id="mi-photo-preview" src="" alt="" style="display:none">
+        </div>
+        <input type="file" id="mi-file-input" accept="image/*" capture="environment" style="display:none" onchange="miHandlePhoto(event)">
+
+        <!-- OCR loading -->
+        <div class="mi-processing" id="mi-ocr-loading" style="display:none">
+          <div class="spin">🔍</div>
+          <p style="font-size:13px;color:#6b7280;margin-top:8px">AI กำลังอ่านเลขไมล์...</p>
+        </div>
+
+        <!-- OCR success -->
+        <div class="mi-ocr-result" id="mi-ocr-result">
+          <div style="font-size:12px;color:#166534;margin-bottom:4px">เลขไมล์ที่อ่านได้</div>
+          <div class="mi-ocr-num" id="mi-ocr-num">-</div>
+          <div class="mi-ocr-conf" id="mi-ocr-conf"></div>
+        </div>
+
+        <!-- OCR error -->
+        <div class="mi-ocr-error" id="mi-ocr-error">
+          <b>อ่านเลขไม่ได้อัตโนมัติ</b> — กรุณากรอกเลขด้วยตัวเอง
+        </div>
+
+        <!-- Manual input -->
+        <div class="input-group">
+          <label>เลขไมล์ (กม.) — ตรวจสอบหรือแก้ไขได้</label>
+          <input type="number" id="mi-odometer-input" placeholder="เช่น 45382" inputmode="numeric"
+            style="font-size:22px;font-weight:700;text-align:center;color:#7c3aed">
+        </div>
+
+        <!-- Previous odo info -->
+        <div id="mi-prev-info" style="font-size:12px;color:#6b7280;background:#f9fafb;border-radius:8px;padding:10px;margin-bottom:12px;display:none">
+          <span id="mi-prev-text"></span>
+        </div>
+
+        <!-- Fuel cost -->
+        <div class="input-group">
+          <label>💰 ค่าน้ำมันที่เติมวันนี้ (บาท) — ถ้าไม่เติมใส่ 0</label>
+          <div class="mi-fuel-input">
+            <input type="number" id="mi-fuel-input" value="0" inputmode="decimal" placeholder="0"
+              style="text-align:center">
+            <span class="mi-fuel-unit">บาท</span>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button class="btn-action btn-outline" style="margin:0;border-color:#7c3aed;color:#7c3aed"
+            onclick="miGoStep1()">← เปลี่ยนรถ</button>
+          <button class="btn-action" style="margin:0;background:#7c3aed;color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:500;cursor:pointer"
+            onclick="miSubmit()">✓ บันทึก</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Success -->
+    <div id="mi-step3" style="display:none">
+      <div class="card" style="text-align:center;padding:30px 20px">
+        <div style="width:64px;height:64px;border-radius:50%;background:#ede9fe;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:32px">✓</div>
+        <p style="font-size:18px;font-weight:700;color:#7c3aed;margin-bottom:4px">บันทึกสำเร็จ!</p>
+        <p style="font-size:13px;color:#6b7280;margin-bottom:20px">ข้อมูลเข้า Google Sheets แล้ว</p>
+        <div class="stat-row" style="grid-template-columns:1fr 1fr;text-align:left">
+          <div class="stat-box" style="background:#f5f3ff">
+            <div class="num" style="color:#7c3aed" id="mi-result-dist">-</div>
+            <div class="lbl" style="color:#6d28d9">วิ่งวันนี้ (กม.)</div>
+          </div>
+          <div class="stat-box" style="background:#f5f3ff">
+            <div class="num" style="color:#7c3aed;font-size:20px" id="mi-result-cpk">-</div>
+            <div class="lbl" style="color:#6d28d9">บาท/กม.</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:#9ca3af;margin:10px 0 20px" id="mi-result-detail"></div>
+        <button class="btn-action" style="background:#7c3aed;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:500;cursor:pointer;width:100%;margin-bottom:10px"
+          onclick="miGoStep1()">+ บันทึกรถคันต่อไป</button>
+        <button class="btn-action btn-outline" style="border-color:#7c3aed;color:#7c3aed;margin:0;width:100%"
+          onclick="showHome()">กลับหน้าหลัก</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MILEAGE — ประวัติและ Report (User) -->
+<div class="screen" id="mileage-history-screen">
+  <div class="topbar" style="background:#7c3aed">
+    <button class="back-btn" onclick="go('mileage-screen')">←</button>
+    <h1>ประวัติไมล์ของฉัน</h1>
+  </div>
+  <div class="content">
+    <div class="card">
+      <select class="month-select" id="mi-hist-month" style="margin-bottom:10px"></select>
+      <button class="btn-action" style="background:#7c3aed;color:#fff;border:none;border-radius:12px;padding:11px;font-size:13px;font-weight:500;cursor:pointer;width:100%;margin-bottom:0"
+        onclick="miLoadHistory()">🔄 โหลดประวัติ</button>
+    </div>
+    <!-- summary bar -->
+    <div class="mi-summary-bar" id="mi-hist-summary" style="display:none">
+      <div style="font-size:12px;opacity:.8;margin-bottom:4px">รวมเดือนนี้</div>
+      <div style="display:flex;gap:20px;flex-wrap:wrap">
+        <div><div class="big" id="mi-hist-total-dist">-</div><div class="small">กม. รวม</div></div>
+        <div><div class="big" id="mi-hist-total-fuel">-</div><div class="small">บาท น้ำมัน</div></div>
+        <div><div class="big" id="mi-hist-cpk">-</div><div class="small">บาท/กม.</div></div>
+      </div>
+    </div>
+    <div class="card" id="mi-hist-container">
+      <div class="empty-state"><div class="icon">📊</div><p>เลือกเดือนแล้วกด "โหลดประวัติ"</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- MILEAGE — Admin Report -->
+<div class="screen" id="mileage-admin-screen">
+  <div class="topbar" style="background:#7c3aed">
+    <button class="back-btn" onclick="go('admin-screen')">←</button>
+    <h1>รายงานไมล์รถ</h1>
+  </div>
+  <div class="mi-admin-tabs">
+    <button class="mi-admin-tab-btn active" id="mi-tab-report" onclick="miAdminSwitch('report')">📊 Report รายเดือน</button>
+    <button class="mi-admin-tab-btn" id="mi-tab-logs" onclick="miAdminSwitch('logs')">📋 รายการทั้งหมด</button>
+  </div>
+  <div class="content">
+    <div id="mi-admin-view-report">
+      <div class="card">
+        <select class="month-select" id="mi-admin-month" style="margin-bottom:10px"></select>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button class="btn-action" style="margin:0;background:#7c3aed;color:#fff;border:none;border-radius:12px;padding:11px;font-size:13px;font-weight:500;cursor:pointer"
+            onclick="miAdminLoadReport()">🔄 โหลด Report</button>
+          <button class="btn-action btn-outline" style="margin:0;border-color:#7c3aed;color:#7c3aed;font-size:13px"
+            onclick="miAdminExportCSV()">💾 Export CSV</button>
+        </div>
+      </div>
+      <div class="mi-summary-bar" id="mi-admin-summary" style="display:none">
+        <div style="font-size:12px;opacity:.8;margin-bottom:6px">สรุปภาพรวม</div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap">
+          <div><div class="big" id="mi-admin-total-dist">-</div><div class="small">กม. รวมทุกคัน</div></div>
+          <div><div class="big" id="mi-admin-total-fuel">-</div><div class="small">บาท น้ำมันรวม</div></div>
+          <div><div class="big" id="mi-admin-avg-cpk">-</div><div class="small">บาท/กม. เฉลี่ย</div></div>
+        </div>
+      </div>
+      <div id="mi-admin-report-container">
+        <div class="empty-state"><div class="icon">📈</div><p>เลือกเดือนแล้วกด "โหลด Report"</p></div>
+      </div>
+    </div>
+
+    <div id="mi-admin-view-logs" style="display:none">
+      <div class="card">
+        <select class="filter-select" id="mi-admin-log-month" style="margin-bottom:8px"></select>
+        <select class="filter-select" id="mi-admin-log-plate"><option value="">— ทะเบียนทุกคัน —</option></select>
+        <button class="btn-action" style="margin:0;background:#7c3aed;color:#fff;border:none;border-radius:12px;padding:11px;font-size:13px;font-weight:500;cursor:pointer;width:100%"
+          onclick="miAdminLoadLogs()">🔄 โหลดรายการ</button>
+      </div>
+      <div class="card" id="mi-admin-logs-container">
+        <div class="empty-state"><div class="icon">📋</div><p>กด "โหลดรายการ"</p></div>
       </div>
     </div>
   </div>
@@ -1017,17 +1271,21 @@ function switchAdminView(view){
   const viewUsers=document.getElementById('admin-view-users');
   const tabLogs=document.getElementById('admin-tab-logs');
   const tabUsers=document.getElementById('admin-tab-users');
-  if(view==='users'){
-    viewLogs.style.display='none';
-    viewUsers.style.display='block';
-    tabLogs.classList.remove('active');
-    tabUsers.classList.add('active');
+  const tabMileage=document.getElementById('admin-tab-mileage');
+  if(view==='mileage'){
+    viewLogs.style.display='none'; viewUsers.style.display='none';
+    tabLogs.classList.remove('active'); tabUsers.classList.remove('active');
+    tabMileage && tabMileage.classList.add('active');
+    go('mileage-admin-screen'); miAdminInit();
+  } else if(view==='users'){
+    viewLogs.style.display='none'; viewUsers.style.display='block';
+    tabLogs.classList.remove('active'); tabUsers.classList.add('active');
+    tabMileage && tabMileage.classList.remove('active');
     if(!window._userListLoaded) adminLoadUsers();
   } else {
-    viewLogs.style.display='block';
-    viewUsers.style.display='none';
-    tabLogs.classList.add('active');
-    tabUsers.classList.remove('active');
+    viewLogs.style.display='block'; viewUsers.style.display='none';
+    tabLogs.classList.add('active'); tabUsers.classList.remove('active');
+    tabMileage && tabMileage.classList.remove('active');
   }
 }
 
@@ -1173,15 +1431,16 @@ function adminExportCSV(){
   if(!f.length){ showToast('ไม่มีข้อมูล'); return; }
   const mf=document.getElementById('admin-month-filter').value;
   const ef=document.getElementById('admin-emp-filter').value;
-  // เพิ่มหัวข้อใหม่ใน CSV สำหรับ Admin Export
-  const rows=['\uFEFFวันที่,เวลา,username,ชื่อ,สกุล,ตำแหน่ง,เขต,ลูกค้า,รายละเอียด,GPS Lat,GPS Lng,รูปภาพ URL'];
+  // เพิ่มหัวข้อใหม่ใน CSV สำหรับ Admin Export และจัดเรียงให้ตรงกับ Google Sheet
+  const rows=['\uFEFFวันที่,เวลา,username,ชื่อ,สกุล,ลูกค้า,รายละเอียด,ตำแหน่ง,เขต,GPS Lat,GPS Lng,รูปภาพ URL'];
   f.forEach(function(r){ 
     const d=new Date(r.timestamp); 
     const dName = window.userMap[r.employeeName] || r.employeeName || '';
     rows.push([
       d.toLocaleDateString('th-TH'),d.toLocaleTimeString('th-TH'),
-      '"'+(r.employeeName||'')+'"','"'+(r.fname||'')+'"','"'+(r.lname||'')+'"','"'+(r.position||'')+'"','"'+(r.zone||'')+'"',
-      '"'+(r.customer||'')+'"','"'+(r.description||'')+'"',r.lat?parseFloat(r.lat).toFixed(6):'',r.lng?parseFloat(r.lng).toFixed(6):'','"'+(r.photoUrl||'')+'"'
+      '"'+(r.employeeName||'')+'"','"'+(r.fname||'')+'"','"'+(r.lname||'')+'"',
+      '"'+(r.customer||'')+'"','"'+(r.description||'')+'"','"'+(r.position||'')+'"','"'+(r.zone||'')+'"',
+      r.lat?parseFloat(r.lat).toFixed(6):'',r.lng?parseFloat(r.lng).toFixed(6):'','"'+(r.photoUrl||'')+'"'
     ].join(',')); 
   });
   const b=new Blob([rows.join('\n')],{type:'text/csv;charset=utf-8'});
@@ -1272,6 +1531,425 @@ document.getElementById('photo-preview').addEventListener('click',function(e){
     const s=JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null');
     if(s){ currentUser=s.name; isAdmin=s.admin; currentFname=s.fname||s.name; userProfile=s.profile||{}; showAfterLogin(); }
   }catch(e){}
+// ════════════════════════════════════════════════════════
+// MILEAGE SYSTEM
+// ════════════════════════════════════════════════════════
+
+// ── CONFIG: Google Vision API Key (ใส่ key ของคุณตรงนี้) ──
+// สมัครฟรีที่ https://console.cloud.google.com → Enable Vision API → Create Key
+// Free tier: 1,000 รูป/เดือน ฟรี — เกินคิด ~0.50$/1000
+const VISION_API_KEY = 'YOUR_GOOGLE_VISION_API_KEY';
+
+// ── STATE ──
+let miSelectedPlate = '';
+let miSelectedCarName = '';
+let miVehicles = [];
+let miPhotoBase64 = '';
+let miOdometerFromOCR = 0;
+let miPrevOdometer = 0;
+
+// ── NAVIGATION ──
+function goMileage(){
+  miSelectedPlate = ''; miSelectedCarName = ''; miPhotoBase64 = '';
+  miOdometerFromOCR = 0;
+  go('mileage-screen');
+  miShowStep(1);
+  miLoadVehicles();
+  miPopulateHistMonths();
+}
+
+function goMileageHistory(){
+  miPopulateHistMonths();
+  go('mileage-history-screen');
+}
+
+function miShowStep(n){
+  document.getElementById('mi-step1').style.display = n===1?'block':'none';
+  document.getElementById('mi-step2').style.display = n===2?'block':'none';
+  document.getElementById('mi-step3').style.display = n===3?'block':'none';
+}
+
+// ── STEP 1: โหลดรายการรถ ──
+async function miLoadVehicles(){
+  try{
+    const res = await fetch(WEBAPP_URL+'?action=getVehicles&secretKey='+_gsk()+'&t='+Date.now());
+    const json = await res.json();
+    if(json.status==='ok'){
+      miVehicles = json.vehicles || [];
+      renderMiCarList();
+    }
+  } catch(e){
+    document.getElementById('mi-car-list').innerHTML='<div class="empty-state"><p>โหลดรายการรถไม่ได้ ตรวจสอบการเชื่อมต่อ</p></div>';
+  }
+}
+
+function renderMiCarList(){
+  const list = document.getElementById('mi-car-list');
+  if(!miVehicles.length){ list.innerHTML='<div class="empty-state"><p>ยังไม่มีรายการรถ กรุณาแก้ไข VEHICLES ใน apps_script.js</p></div>'; return; }
+  list.innerHTML = miVehicles.map(function(v){
+    const isSelected = v.plate === miSelectedPlate;
+    const lastOdo = v.lastOdometer ? Number(v.lastOdometer).toLocaleString('th-TH')+' กม.' : 'ยังไม่เคยบันทึก';
+    const lastDate = v.lastDate ? ' ('+new Date(v.lastDate).toLocaleDateString('th-TH',{day:'numeric',month:'short'})+')' : '';
+    return '<div class="mi-car-card '+(isSelected?'selected':'')+'" onclick="miSelectCar(\''+v.plate+'\',\''+v.name+'\')">'
+      +'<div class="mi-car-plate">'+v.plate+'</div>'
+      +'<div class="mi-car-name">'+v.name+'</div>'
+      +'<div class="mi-car-odo">ไมล์ล่าสุด: '+lastOdo+lastDate+'</div>'
+      +'<div class="mi-car-check">'+(isSelected?'✓':'')+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function miSelectCar(plate, name){
+  miSelectedPlate = plate;
+  miSelectedCarName = name;
+  renderMiCarList();
+}
+
+async function miGoStep2(){
+  if(!miSelectedPlate){ showToast('⚠️ กรุณาเลือกรถก่อน'); return; }
+  // โหลดไมล์ล่าสุดของรถนี้
+  miPrevOdometer = 0;
+  try{
+    const res = await apiPost({action:'getLatestOdo', licensePlate: miSelectedPlate});
+    if(res.status==='ok') miPrevOdometer = parseFloat(res.odometer)||0;
+  } catch(e){}
+
+  // แสดง info
+  document.getElementById('mi-selected-car-info').innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px">'
+    +'<div style="width:40px;height:40px;border-radius:12px;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🚗</div>'
+    +'<div><div style="font-size:16px;font-weight:700;color:#1f2937">'+miSelectedPlate+'</div>'
+    +'<div style="font-size:12px;color:#6b7280">'+miSelectedCarName+'</div></div></div>';
+
+  // reset
+  document.getElementById('mi-photo-preview').style.display='none';
+  document.getElementById('mi-photo-placeholder').style.display='flex';
+  document.getElementById('mi-ocr-result').classList.remove('show');
+  document.getElementById('mi-ocr-error').classList.remove('show');
+  document.getElementById('mi-odometer-input').value='';
+  document.getElementById('mi-fuel-input').value='0';
+  miPhotoBase64=''; miOdometerFromOCR=0;
+
+  const prevEl = document.getElementById('mi-prev-info');
+  if(miPrevOdometer > 0){
+    document.getElementById('mi-prev-text').textContent = 'ไมล์ครั้งก่อน: '+miPrevOdometer.toLocaleString('th-TH')+' กม.';
+    prevEl.style.display='block';
+  } else {
+    prevEl.style.display='none';
+  }
+
+  miShowStep(2);
+}
+
+function miGoStep1(){ miShowStep(1); }
+
+// ── STEP 2: ถ่ายรูป + OCR ──
+function miTriggerCamera(){ document.getElementById('mi-file-input').click(); }
+
+async function miHandlePhoto(event){
+  const file = event.target.files[0];
+  if(!file) return;
+
+  // แสดง preview
+  const reader = new FileReader();
+  reader.onload = async function(e){
+    const base64Full = e.target.result;
+    miPhotoBase64 = base64Full;
+    const img = document.getElementById('mi-photo-preview');
+    img.src = base64Full;
+    img.style.display='block';
+    document.getElementById('mi-photo-placeholder').style.display='none';
+    document.getElementById('mi-ocr-result').classList.remove('show');
+    document.getElementById('mi-ocr-error').classList.remove('show');
+
+    // เริ่ม OCR
+    await miRunOCR(base64Full);
+  };
+  reader.readAsDataURL(file);
+  event.target.value=''; // reset เพื่อให้ถ่ายซ้ำได้
+}
+
+async function miRunOCR(base64Full){
+  // ถ้าไม่มี API Key ใช้ manual input
+  if(!VISION_API_KEY || VISION_API_KEY==='YOUR_GOOGLE_VISION_API_KEY'){
+    document.getElementById('mi-ocr-error').classList.add('show');
+    document.getElementById('mi-ocr-error').innerHTML = '<b>⚠️ ยังไม่ได้ตั้ง Vision API Key</b><br>กรุณากรอกเลขไมล์ด้านล่างด้วยตัวเอง<br><small>ตั้งค่า VISION_API_KEY ในโค้ด HTML เพื่อให้ AI อ่านให้อัตโนมัติ</small>';
+    return;
+  }
+
+  document.getElementById('mi-ocr-loading').style.display='block';
+  try{
+    const base64Data = base64Full.replace(/^data:image\/\w+;base64,/, '');
+    const body = {
+      requests:[{
+        image:{ content: base64Data },
+        features:[{ type:'TEXT_DETECTION', maxResults:1 }]
+      }]
+    };
+    const res = await fetch('https://vision.googleapis.com/v1/images:annotate?key='+VISION_API_KEY, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
+    });
+    const data = await res.json();
+    document.getElementById('mi-ocr-loading').style.display='none';
+
+    const text = data.responses && data.responses[0] && data.responses[0].fullTextAnnotation
+      ? data.responses[0].fullTextAnnotation.text : '';
+
+    const odo = miExtractOdometer(text);
+    if(odo > 0){
+      miOdometerFromOCR = odo;
+      document.getElementById('mi-ocr-num').textContent = odo.toLocaleString('th-TH');
+      document.getElementById('mi-ocr-conf').textContent = 'จากข้อความ: '+text.replace(/\n/g,' ').substring(0,80);
+      document.getElementById('mi-ocr-result').classList.add('show');
+      document.getElementById('mi-odometer-input').value = odo;
+    } else {
+      document.getElementById('mi-ocr-error').classList.add('show');
+    }
+  } catch(err){
+    document.getElementById('mi-ocr-loading').style.display='none';
+    document.getElementById('mi-ocr-error').classList.add('show');
+    document.getElementById('mi-ocr-error').textContent = 'OCR ผิดพลาด: '+err.message+' — กรุณากรอกเองด้านล่าง';
+  }
+}
+
+// แยกเลขไมล์ออกจาก text ที่ OCR ได้ — หา pattern เลข 5-6 หลักที่น่าจะเป็นไมล์
+function miExtractOdometer(text){
+  if(!text) return 0;
+  // หาตัวเลขทุกชุดในข้อความ
+  const nums = text.match(/\d[\d,. ]{3,8}\d/g) || [];
+  const cleaned = nums.map(function(n){ return parseInt(n.replace(/[^0-9]/g,'')); })
+    .filter(function(n){ return n >= 1000 && n <= 9999999; });
+  if(!cleaned.length) return 0;
+  // เลือกตัวเลขที่น่าจะเป็นไมล์: ถ้ามีหลายตัวให้เลือกใกล้กับไมล์ก่อนหน้า
+  if(miPrevOdometer > 0){
+    const reasonable = cleaned.filter(function(n){ return n >= miPrevOdometer && n <= miPrevOdometer+5000; });
+    if(reasonable.length) return reasonable[0];
+  }
+  // เลือกตัวที่มีหลักมากสุด (น่าจะเป็นไมล์สะสม)
+  return cleaned.sort(function(a,b){ return b-a; })[0];
+}
+
+// ── SUBMIT ──
+async function miSubmit(){
+  const odoInput = parseFloat(document.getElementById('mi-odometer-input').value);
+  const fuel = parseFloat(document.getElementById('mi-fuel-input').value)||0;
+  const today = new Date().toISOString().split('T')[0];
+
+  if(!odoInput || odoInput < 1){ showToast('⚠️ กรุณากรอกเลขไมล์ให้ถูกต้อง'); return; }
+  if(miPrevOdometer > 0 && odoInput < miPrevOdometer){ 
+    if(!confirm('เลขไมล์ '+odoInput.toLocaleString()+' น้อยกว่าครั้งก่อน ('+miPrevOdometer.toLocaleString()+') ต้องการบันทึกต่อไหม?')) return;
+  }
+
+  showLoading('กำลังบันทึกเลขไมล์...');
+  try{
+    const payload = {
+      action:'logMileage',
+      licensePlate: miSelectedPlate,
+      odometer: odoInput,
+      fuelCost: fuel,
+      employeeName: currentUser,
+      date: today,
+      photoBase64: miPhotoBase64
+    };
+    const data = await apiPost(payload);
+    hideLoading();
+    if(data.status==='ok'){
+      // แสดง Step 3
+      const dist = data.distance || 0;
+      const cpk = data.costPerKm || 0;
+      document.getElementById('mi-result-dist').textContent = dist.toLocaleString('th-TH');
+      document.getElementById('mi-result-cpk').textContent = cpk > 0 ? cpk.toFixed(2) : '-';
+      document.getElementById('mi-result-detail').textContent =
+        miSelectedPlate+' | ไมล์ '+odoInput.toLocaleString('th-TH')+' กม.'+(fuel>0?' | น้ำมัน '+fuel.toLocaleString('th-TH')+' บาท':'');
+      miShowStep(3);
+      showToast('✓ บันทึกสำเร็จ!');
+    } else { showToast('❌ '+(data.msg||'บันทึกไม่สำเร็จ')); }
+  } catch(e){ hideLoading(); showToast('❌ เชื่อมต่อไม่ได้'); }
+}
+
+// ── HISTORY (User) ──
+function miPopulateHistMonths(){
+  const sel = document.getElementById('mi-hist-month');
+  if(!sel) return;
+  const months = [];
+  const now = new Date();
+  for(let i=0; i<12; i++){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const key = d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0');
+    months.push({key, label: d.toLocaleDateString('th-TH',{year:'numeric',month:'long'})});
+  }
+  sel.innerHTML = months.map(function(m){ return '<option value="'+m.key+'">'+m.label+'</option>'; }).join('');
+}
+
+async function miLoadHistory(){
+  const month = document.getElementById('mi-hist-month').value;
+  showLoading('กำลังโหลดประวัติไมล์...');
+  try{
+    const res = await fetch(WEBAPP_URL+'?action=getMileageLogs&secretKey='+_gsk()+'&employeeName='+encodeURIComponent(currentUser)+'&month='+month+'&t='+Date.now());
+    const json = await res.json();
+    hideLoading();
+    if(json.status==='ok'){
+      renderMiHistory(json.data||[]);
+    } else { showToast('❌ '+(json.msg||'โหลดไม่สำเร็จ')); }
+  } catch(e){ hideLoading(); showToast('❌ เชื่อมต่อไม่ได้'); }
+}
+
+function renderMiHistory(data){
+  const container = document.getElementById('mi-hist-container');
+  const summaryEl = document.getElementById('mi-hist-summary');
+  if(!data.length){
+    container.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>ไม่มีข้อมูลในเดือนนี้</p></div>';
+    summaryEl.style.display='none'; return;
+  }
+  // summary
+  const totalDist = data.reduce(function(s,r){ return s+(parseFloat(r.distance)||0); },0);
+  const totalFuel = data.reduce(function(s,r){ return s+(parseFloat(r.fuelCost)||0); },0);
+  const cpk = totalDist>0 && totalFuel>0 ? (totalFuel/totalDist).toFixed(2) : '-';
+  document.getElementById('mi-hist-total-dist').textContent = Math.round(totalDist).toLocaleString('th-TH');
+  document.getElementById('mi-hist-total-fuel').textContent = Math.round(totalFuel).toLocaleString('th-TH');
+  document.getElementById('mi-hist-cpk').textContent = cpk;
+  summaryEl.style.display='block';
+
+  container.innerHTML = data.map(function(r){
+    const d = new Date(r.date);
+    const dateStr = d.toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'});
+    const dist = parseFloat(r.distance)||0;
+    const fuel = parseFloat(r.fuelCost)||0;
+    const fixedUrl = r.photoUrl ? fixPhotoUrl(r.photoUrl) : '';
+    return '<div class="mi-log-item"><div style="display:flex;gap:10px;align-items:flex-start">'
+      +(fixedUrl?'<img class="mi-thumb loading" src="'+fixedUrl+'" onclick="viewPhoto(\''+fixedUrl+'\')" onload="this.classList.remove(\'loading\')" onerror="this.style.display=\'none\'" referrerpolicy="no-referrer">':'')
+      +'<div style="flex:1;min-width:0">'
+      +'<div class="mi-log-top"><span class="mi-log-plate">'+r.licensePlate+'</span><span class="mi-log-date">'+dateStr+'</span></div>'
+      +'<div class="mi-log-dist">'+(dist>0?dist.toLocaleString('th-TH')+' <small style="font-size:13px;font-weight:400;color:#6b7280">กม.</small>':'-')+'</div>'
+      +'<div class="mi-log-detail">ไมล์: '+Number(r.odometer).toLocaleString('th-TH')+(fuel>0?' | น้ำมัน: '+fuel.toLocaleString('th-TH')+' บาท':'')+'</div>'
+      +'</div></div></div>';
+  }).join('');
+}
+
+// ── ADMIN MILEAGE ──
+function miAdminInit(){
+  miAdminPopulateMonths();
+}
+
+function miAdminPopulateMonths(){
+  const months = [];
+  const now = new Date();
+  for(let i=0; i<12; i++){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const key = d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0');
+    const label = d.toLocaleDateString('th-TH',{year:'numeric',month:'long'});
+    months.push({key,label});
+  }
+  ['mi-admin-month','mi-admin-log-month'].forEach(function(id){
+    const sel = document.getElementById(id);
+    if(sel) sel.innerHTML = months.map(function(m){ return '<option value="'+m.key+'">'+m.label+'</option>'; }).join('');
+  });
+  // populate plate filter
+  if(miVehicles.length){
+    const plateSel = document.getElementById('mi-admin-log-plate');
+    if(plateSel) plateSel.innerHTML = '<option value="">— ทะเบียนทุกคัน —</option>'
+      + miVehicles.map(function(v){ return '<option value="'+v.plate+'">'+v.plate+' — '+v.name+'</option>'; }).join('');
+  }
+}
+
+function miAdminSwitch(view){
+  document.getElementById('mi-admin-view-report').style.display = view==='report'?'block':'none';
+  document.getElementById('mi-admin-view-logs').style.display = view==='logs'?'block':'none';
+  document.getElementById('mi-tab-report').classList.toggle('active', view==='report');
+  document.getElementById('mi-tab-logs').classList.toggle('active', view==='logs');
+}
+
+async function miAdminLoadReport(){
+  const month = document.getElementById('mi-admin-month').value;
+  showLoading('กำลังโหลด Report...');
+  try{
+    const res = await fetch(WEBAPP_URL+'?action=getMileageReport&secretKey='+_gsk()+'&month='+month+'&t='+Date.now());
+    const json = await res.json();
+    hideLoading();
+    if(json.status==='ok') renderMiAdminReport(json.report||[], json.summary||{}, month);
+    else showToast('❌ '+(json.msg||'โหลดไม่สำเร็จ'));
+  } catch(e){ hideLoading(); showToast('❌ เชื่อมต่อไม่ได้'); }
+}
+
+function renderMiAdminReport(report, summary, month){
+  const summaryEl = document.getElementById('mi-admin-summary');
+  const container = document.getElementById('mi-admin-report-container');
+  if(!report.length){
+    container.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>ไม่มีข้อมูลในเดือนนี้</p></div>';
+    summaryEl.style.display='none'; return;
+  }
+  document.getElementById('mi-admin-total-dist').textContent = Math.round(summary.totalDistance||0).toLocaleString('th-TH');
+  document.getElementById('mi-admin-total-fuel').textContent = Math.round(summary.totalFuelCost||0).toLocaleString('th-TH');
+  document.getElementById('mi-admin-avg-cpk').textContent = summary.avgCostPerKm||0;
+  summaryEl.style.display='block';
+
+  window._miAdminReportData = {report, summary, month};
+
+  container.innerHTML = report.map(function(r){
+    const cpk = r.costPerKm || 0;
+    return '<div class="mi-report-card">'
+      +'<div class="mi-report-plate">'+r.licensePlate+'</div>'
+      +'<div class="mi-report-name">'+r.carName+'</div>'
+      +'<div class="mi-stat3">'
+      +'<div class="mi-stat-box"><div class="mi-stat-num">'+Math.round(r.totalDistance||0).toLocaleString('th-TH')+'</div><div class="mi-stat-lbl">กม. รวม</div></div>'
+      +'<div class="mi-stat-box"><div class="mi-stat-num">'+Math.round(r.totalFuelCost||0).toLocaleString('th-TH')+'</div><div class="mi-stat-lbl">บาท น้ำมัน</div></div>'
+      +'<div class="mi-stat-box"><div class="mi-stat-num">'+(cpk>0?cpk.toFixed(2):'-')+'</div><div class="mi-stat-lbl">บาท/กม.</div></div>'
+      +'</div></div>';
+  }).join('');
+}
+
+async function miAdminLoadLogs(){
+  const month = document.getElementById('mi-admin-log-month').value;
+  const plate = document.getElementById('mi-admin-log-plate').value;
+  showLoading('กำลังโหลดรายการ...');
+  try{
+    let url = WEBAPP_URL+'?action=getMileageLogs&secretKey='+_gsk()+'&month='+month+'&t='+Date.now();
+    if(plate) url += '&licensePlate='+encodeURIComponent(plate);
+    const res = await fetch(url);
+    const json = await res.json();
+    hideLoading();
+    if(json.status==='ok') renderMiAdminLogs(json.data||[]);
+    else showToast('❌ '+(json.msg||'โหลดไม่สำเร็จ'));
+  } catch(e){ hideLoading(); showToast('❌ เชื่อมต่อไม่ได้'); }
+}
+
+function renderMiAdminLogs(data){
+  const container = document.getElementById('mi-admin-logs-container');
+  if(!data.length){ container.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>ไม่มีข้อมูล</p></div>'; return; }
+  container.innerHTML = data.map(function(r){
+    const fixedUrl = r.photoUrl ? fixPhotoUrl(r.photoUrl) : '';
+    const dName = r.fname ? (r.fname+' '+(r.lname||'')).trim() : r.employeeName;
+    const dist = parseFloat(r.distance)||0;
+    const fuel = parseFloat(r.fuelCost)||0;
+    const cpk = parseFloat(r.costPerKm)||0;
+    return '<div class="admin-log-item">'
+      +'<div class="admin-log-top">'
+      +'<span class="admin-log-name" style="color:#7c3aed">'+r.licensePlate+'</span>'
+      +'<span class="admin-log-time">'+new Date(r.date).toLocaleDateString('th-TH',{day:'numeric',month:'short'})+'</span>'
+      +'</div>'
+      +'<div class="admin-log-detail">'+dName+' | ไมล์: '+Number(r.odometer).toLocaleString('th-TH')+' กม.'+(dist>0?' | วิ่ง: '+dist.toLocaleString('th-TH')+' กม.':'')+(fuel>0?' | น้ำมัน: '+fuel.toLocaleString('th-TH')+' บ.':'')+(cpk>0?' | '+cpk.toFixed(2)+' บ./กม.':'')+'</div>'
+      +(fixedUrl?'<img class="admin-photo loading" src="'+fixedUrl+'" onclick="viewPhoto(\''+fixedUrl+'\')" onload="this.classList.remove(\'loading\')" onerror="this.style.display=\'none\'" referrerpolicy="no-referrer">':'')
+      +'</div>';
+  }).join('');
+}
+
+function miAdminExportCSV(){
+  const d = window._miAdminReportData;
+  if(!d || !d.report.length){ showToast('กรุณาโหลด Report ก่อน'); return; }
+  let csv = '\uFEFF'; // BOM UTF-8
+  csv += 'รายงานไมล์รถ เดือน '+d.month+'\n';
+  csv += 'รวม: '+Math.round(d.summary.totalDistance||0)+' กม. | น้ำมัน: '+Math.round(d.summary.totalFuelCost||0)+' บาท | เฉลี่ย: '+(d.summary.avgCostPerKm||0)+' บาท/กม.\n\n';
+  csv += 'ทะเบียน,ชื่อรถ,กม.รวม,น้ำมัน(บาท),บาท/กม.\n';
+  d.report.forEach(function(r){
+    csv += [r.licensePlate, r.carName, Math.round(r.totalDistance||0), Math.round(r.totalFuelCost||0), r.costPerKm||0].join(',') + '\n';
+  });
+  dlCSV(csv, 'mileage_report_'+d.month+'.csv');
+  showToast('✓ Export CSV สำเร็จ');
+}
+// ════════════════════════════════════════════════════════
+// END MILEAGE SYSTEM
+// ════════════════════════════════════════════════════════
+
 })();
 </script>
 </body>
