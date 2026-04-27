@@ -817,7 +817,7 @@ function updateEmpUI(){
   document.getElementById('emp-avatar').textContent=gi(currentFname);
   const er=document.getElementById('emp-readonly'); if(er) er.value=currentFname||'';
 }
-function showHome(){ updateEmpUI(); go('home-screen'); checkInstallTip(); }
+function showHome(){ updateEmpUI(); go('home-screen'); checkInstallTip(); checkPendingSync(); }
 
 function checkInstallTip(){
   const dismissed = localStorage.getItem('install_tip_dismissed')==='1';
@@ -986,7 +986,7 @@ function capturePhoto(){
   document.getElementById('desc-input').value='';
   clearTaskChips();
   stopCamera(); showHome();
-  setTimeout(function(){ syncSingleLog(log); },1000);
+  setTimeout(function(){ checkPendingSync(); },1000);
 }
 
 // ═══════════════════════════════════════
@@ -1007,29 +1007,45 @@ function postToSheet(log){
       throw new Error(data.msg||'Server error');
     });
 }
-async function syncSingleLog(log){
-  setSyncBadge('pending');
-  try{
-    await postToSheet(log);
-    log.synced=true; saveLogs();
-    setSyncBadge('ok'); showToast('✓ บันทึกและซิงค์สำเร็จ');
-  }catch(e){ setSyncBadge('err'); showToast('📶 Sync ไม่สำเร็จ — บันทึกไว้แล้ว จะซิงค์ใหม่ภายหลัง'); }
-}
-async function syncNow(){
+
+let isSyncing = false;
+let syncTimeout = null;
+
+async function syncNow(isManual = false){
+  if(isSyncing) return;
   const pending=logs.filter(function(l){ return l.empName===currentUser&&!l.synced; });
-  if(!pending.length){ showToast('✓ ข้อมูลซิงค์ทั้งหมดแล้ว'); return; }
-  showLoading('กำลัง Sync '+pending.length+' รายการ...');
+  if(!pending.length){
+    if(isManual) showToast('✓ ข้อมูลซิงค์ทั้งหมดแล้ว');
+    return;
+  }
+  isSyncing = true;
+  if(isManual) showLoading('กำลัง Sync '+pending.length+' รายการ...');
+  else setSyncBadge('pending');
+  
   let ok=0;
   for(const log of pending){ try{ await postToSheet(log); log.synced=true; ok++; }catch(e){} }
-  saveLogs(); hideLoading();
-  showToast('☁️ Sync สำเร็จ '+ok+'/'+pending.length+' รายการ');
+  saveLogs(); 
+  if(isManual) hideLoading();
+  
+  if(ok > 0) showToast('☁️ Sync สำเร็จ '+ok+'/'+pending.length+' รายการ');
+  else if(!isManual) showToast('📶 Sync ไม่สำเร็จ — จะลองใหม่ภายหลัง');
+  
   setSyncBadge(ok===pending.length?'ok':'err');
+  isSyncing = false;
 }
+
 function checkPendingSync(){
+  if(!currentUser) return;
   const p=logs.filter(function(l){ return l.empName===currentUser&&!l.synced; });
   setSyncBadge(p.length?'pending':'ok');
-  if(p.length) setTimeout(function(){ syncNow(); },2000);
+  if(p.length) {
+    clearTimeout(syncTimeout);
+    syncTimeout = setTimeout(function(){ syncNow(false); }, 2000);
+  }
 }
+
+window.addEventListener('online', checkPendingSync);
+
 function setSyncBadge(s){
   const el=document.getElementById('sync-status'); if(!el) return;
   el.className='sync-badge';
