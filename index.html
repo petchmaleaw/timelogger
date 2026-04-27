@@ -285,7 +285,6 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
       <div class="emp-name-text" id="emp-display">-</div>
       <div class="emp-sub">User</div>
     </div>
-    <span class="sync-badge sync-ok" id="sync-status">✓ ซิงค์แล้ว</span>
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
       <span class="sync-badge sync-ok" id="sync-status" onclick="syncNow(true)" style="cursor:pointer">✓ ซิงค์แล้ว</span>
       <button id="btn-emergency-backup" style="display:none;background:none;border:none;color:#d97706;font-size:11px;text-decoration:underline;cursor:pointer;padding:0" onclick="downloadPendingLogs()">📥 สำรองไฟล์ฉุกเฉิน</button>
@@ -1022,7 +1021,7 @@ function capturePhoto(){
   document.getElementById('desc-input').value='';
   clearTaskChips();
   stopCamera(); showHome();
-  setTimeout(function(){ checkPendingSync(); },1000);
+  setTimeout(function(){ checkPendingSync(); }, 100);
 }
 
 // ═══════════════════════════════════════
@@ -1035,26 +1034,40 @@ function postToSheet(log){
     lat:log.lat||'', lng:log.lng||'', accuracy:log.acc||'', deviceId:log.id, photoBase64:log.photo||'', 
     secretKey: _gsk(), fname:log.fname||'', lname:log.lname||'', position:log.position||'', zone:log.zone||''
   };
-  return fetch(WEBAPP_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload), redirect:'follow' })
-    .then(function(res){ return res.text(); })
+  const controller = window.AbortController ? new AbortController() : null;
+  const signal = controller ? controller.signal : undefined;
+  let timeoutId;
+  if(controller) timeoutId = setTimeout(function(){ controller.abort(); }, 25000);
+
+  return fetch(WEBAPP_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload), redirect:'follow', signal:signal })
+    .then(function(res){ if(timeoutId) clearTimeout(timeoutId); return res.text(); })
     .then(function(txt){
       let data; try{ data=JSON.parse(txt); }catch(e){ throw new Error('Invalid response'); }
       if(data.status==='ok'){ if(data.photoUrl) log.photoUrl=data.photoUrl; return data; }
       throw new Error(data.msg||'Server error');
+    })
+    .catch(function(err){
+      if(timeoutId) clearTimeout(timeoutId);
+      throw err;
     });
 }
 
 let isSyncing = false;
 let syncTimeout = null;
+let syncStartTime = 0;
 
 async function syncNow(isManual = false){
-  if(isSyncing) return;
+  if(isSyncing && (Date.now() - syncStartTime < 30000)){
+    if(isManual) showToast('⏳ กำลังซิงค์ข้อมูล กรุณารอสักครู่...');
+    return;
+  }
   const pending=logs.filter(function(l){ return l.empName===currentUser&&!l.synced; });
   if(!pending.length){
     if(isManual) showToast('✓ ข้อมูลซิงค์ทั้งหมดแล้ว');
     return;
   }
   isSyncing = true;
+  syncStartTime = Date.now();
   if(isManual) showLoading('กำลัง Sync '+pending.length+' รายการ...');
   else setSyncBadge('pending');
   
@@ -1082,7 +1095,7 @@ function checkPendingSync(){
   setSyncBadge(p.length?'pending':'ok');
   if(p.length) {
     clearTimeout(syncTimeout);
-    syncTimeout = setTimeout(function(){ syncNow(false); }, 2000);
+    syncTimeout = setTimeout(function(){ syncNow(false); }, 300);
   }
 }
 
