@@ -1606,13 +1606,33 @@ async function miHandlePhoto(event){
   if(!file) return;
 
   const reader = new FileReader();
-  reader.onload = async function(e){
-    const base64Full = e.target.result;
-    miPhotoBase64 = base64Full;
-    const img = document.getElementById('mi-photo-preview');
-    img.src = base64Full;
-    img.style.display='block';
-    document.getElementById('mi-photo-placeholder').style.display='none';
+  reader.onload = function(e){
+    const imgObj = new Image();
+    imgObj.onload = function() {
+      const canvas = document.createElement('canvas');
+      let width = imgObj.width;
+      let height = imgObj.height;
+      const MAX_WIDTH = 800;
+
+      if (width > MAX_WIDTH) {
+        height = Math.round(height * MAX_WIDTH / width);
+        width = MAX_WIDTH;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(imgObj, 0, 0, width, height);
+
+      const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+      miPhotoBase64 = compressedBase64;
+
+      const imgPreview = document.getElementById('mi-photo-preview');
+      imgPreview.src = compressedBase64;
+      imgPreview.style.display = 'block';
+      document.getElementById('mi-photo-placeholder').style.display = 'none';
+    };
+    imgObj.src = e.target.result;
   };
   reader.readAsDataURL(file);
   event.target.value=''; 
@@ -1826,7 +1846,10 @@ async function miAdminLoadLogs(){
   const plate = document.getElementById('mi-admin-log-plate').value;
   showLoading('กำลังโหลดรายการ...');
   try{
-    const json = await apiPost({action:'getMileageLogs', month:month, licensePlate:plate});
+    let url = WEBAPP_URL+'?action=getMileageLogs&secretKey='+_gsk()+'&month='+month+'&t='+Date.now();
+    if(plate) url += '&licensePlate='+encodeURIComponent(plate);
+    const res = await fetch(url);
+    const json = await res.json();
     hideLoading();
     if(json.status==='ok') renderMiAdminLogs(json.data||[]);
     else showToast('❌ '+(json.msg||'โหลดไม่สำเร็จ'));
