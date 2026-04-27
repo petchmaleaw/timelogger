@@ -1599,10 +1599,12 @@ function miSelectCar(plate){
 async function miGoStep2(){
   if(!miSelectedPlate){ showToast('⚠️ กรุณาเลือกรถก่อน'); return; }
   miPrevOdometer = 0;
+  showLoading('กำลังดึงข้อมูลล่าสุด...');
   try{
     const res = await apiPost({action:'getLatestOdo', licensePlate: miSelectedPlate});
     if(res.status==='ok') miPrevOdometer = parseFloat(res.odometer)||0;
   } catch(e){}
+  hideLoading();
 
   document.getElementById('mi-selected-car-info').innerHTML =
     '<div style="display:flex;align-items:center;gap:10px">'
