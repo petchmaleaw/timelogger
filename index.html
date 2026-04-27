@@ -286,6 +286,10 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
       <div class="emp-sub">User</div>
     </div>
     <span class="sync-badge sync-ok" id="sync-status">✓ ซิงค์แล้ว</span>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+      <span class="sync-badge sync-ok" id="sync-status" onclick="syncNow(true)" style="cursor:pointer">✓ ซิงค์แล้ว</span>
+      <button id="btn-emergency-backup" style="display:none;background:none;border:none;color:#d97706;font-size:11px;text-decoration:underline;cursor:pointer;padding:0" onclick="downloadPendingLogs()">📥 สำรองไฟล์ฉุกเฉิน</button>
+    </div>
   </div>
   <div id="install-tip-box" class="install-tip" style="display:none">
     <div style="font-size:20px">💡</div>
@@ -645,6 +649,18 @@ window.userMap={};
 
 function loadLogs(){ try{ logs=JSON.parse(localStorage.getItem(DB_KEY)||'[]'); }catch(e){ logs=[]; } }
 function saveLogs(){ localStorage.setItem(DB_KEY,JSON.stringify(logs)); }
+function saveLogs(){ 
+  try {
+    localStorage.setItem(DB_KEY,JSON.stringify(logs)); 
+  } catch(e) {
+    if(e.name === 'QuotaExceededError' || e.code === 22 || e.name === 'NS_ERROR_DOM_QUOTA_REACHED'){
+      alert('⚠️ พื้นที่เก็บข้อมูลมือถือ (Browser Storage) ใกล้เต็ม!\nระบบกำลังดาวน์โหลดไฟล์ข้อมูลที่รอคิวแบบฉุกเฉินให้ เพื่อป้องกันข้อมูลสูญหาย');
+      downloadPendingLogs();
+    } else {
+      console.error('Save error:', e);
+    }
+  }
+}
 loadLogs();
 
 // ═══════════════════════════════════════
@@ -659,6 +675,24 @@ function showToast(msg,dur){
   clearTimeout(toastTimer); toastTimer=setTimeout(function(){ t.classList.remove('show'); }, dur||2800);
 }
 function go(id){ document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); }); document.getElementById(id).classList.add('active'); }
+
+// ═══════════════════════════════════════
+// NOTIFICATION API
+// ═══════════════════════════════════════
+function reqNotifPerm() {
+  if ("Notification" in window && Notification.permission === "default") {
+    Notification.requestPermission();
+  }
+}
+function sendSysNotification(title, body) {
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  try {
+    new Notification(title, { body: body, icon: 'logo.png' });
+  } catch(e) {
+    // Fallback สำหรับ Android Chrome ที่บังคับใช้ Service Worker ในการแจ้งเตือน
+    if(navigator.serviceWorker) navigator.serviceWorker.ready.then(function(sw){ sw.showNotification(title, { body: body, icon: 'logo.png' }); });
+  }
+}
 
 function apiPost(payload){
   payload.secretKey = _gsk();
@@ -703,6 +737,7 @@ function switchTab(m){
 }
 
 async function doLogin(){
+  reqNotifPerm(); // ขออนุญาตแจ้งเตือนเมื่อกดปุ่มล็อกอิน
   const name=document.getElementById('login-name').value.trim();
   const pass=document.getElementById('login-pass').value;
   const remember=document.getElementById('remember-me').checked;
@@ -937,6 +972,7 @@ function clearTaskChips(){
 }
 
 function capturePhoto(){
+  reqNotifPerm(); // ขออนุญาตแจ้งเตือนเมื่อกดปุ่มบันทึก (กรณีที่ยังไม่เคยขอ)
   const now=new Date();
   const customer=document.getElementById('customer-name').value.trim();
   const extraDesc=document.getElementById('desc-input').value.trim();
@@ -1027,8 +1063,14 @@ async function syncNow(isManual = false){
   saveLogs(); 
   if(isManual) hideLoading();
   
-  if(ok > 0) showToast('☁️ Sync สำเร็จ '+ok+'/'+pending.length+' รายการ');
-  else if(!isManual) showToast('📶 Sync ไม่สำเร็จ — จะลองใหม่ภายหลัง');
+  if(ok > 0) {
+    showToast('☁️ Sync สำเร็จ '+ok+'/'+pending.length+' รายการ');
+    if(!isManual) sendSysNotification('✅ ซิงค์สำเร็จ', 'ส่งข้อมูลเวลาขึ้นระบบเรียบร้อย ('+ok+'/'+pending.length+' รายการ)');
+  }
+  else if(!isManual && pending.length > 0) {
+    showToast('📶 Sync ไม่สำเร็จ — จะลองใหม่ภายหลัง');
+    sendSysNotification('❌ ซิงค์ล้มเหลว', 'รออินเทอร์เน็ต มีข้อมูลค้างส่ง ('+pending.length+' รายการ)');
+  }
   
   setSyncBadge(ok===pending.length?'ok':'err');
   isSyncing = false;
@@ -1045,6 +1087,9 @@ function checkPendingSync(){
 }
 
 window.addEventListener('online', checkPendingSync);
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible') checkPendingSync();
+});
 
 function setSyncBadge(s){
   const el=document.getElementById('sync-status'); if(!el) return;
@@ -1052,6 +1097,16 @@ function setSyncBadge(s){
   if(s==='ok'){ el.classList.add('sync-ok'); el.textContent='✓ ซิงค์แล้ว'; }
   else if(s==='pending'){ el.classList.add('sync-pending'); el.textContent='⏳ รอซิงค์'; }
   else { el.classList.add('sync-err'); el.textContent='✗ Sync ล้มเหลว'; }
+}
+
+function downloadPendingLogs(){
+  const p=logs.filter(function(l){ return l.empName===currentUser&&!l.synced; });
+  if(!p.length){ showToast('ไม่มีข้อมูลตกค้าง'); return; }
+  const blob = new Blob([JSON.stringify(p, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'offline_logs_backup_' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
 }
 
 // ═══════════════════════════════════════
