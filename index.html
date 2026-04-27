@@ -1633,8 +1633,8 @@ async function miSubmit(){
   if (miRecordMode === 'odo') {
     odoInput = parseFloat(document.getElementById('mi-odometer-input').value);
     if(!odoInput || odoInput < 1){ showToast('⚠️ กรุณากรอกเลขไมล์ให้ถูกต้อง'); return; }
-    if(miPrevOdometer > 0 && odoInput < miPrevOdometer){ 
-      if(!confirm('เลขไมล์ '+odoInput.toLocaleString()+' น้อยกว่าครั้งก่อน ('+miPrevOdometer.toLocaleString()+') ต้องการบันทึกต่อไหม?')) return;
+    if(miPrevOdometer > 0 && odoInput < miPrevOdometer){
+      showToast('⚠️ เลขไมล์ต้องไม่น้อยกว่าครั้งก่อน ('+miPrevOdometer.toLocaleString()+')'); return;
     }
   } else {
     fuel = parseFloat(document.getElementById('mi-fuel-input').value);
