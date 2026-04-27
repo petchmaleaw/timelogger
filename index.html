@@ -1746,8 +1746,13 @@ function renderMiHistory(data){
 }
 
 // ── ADMIN MILEAGE ──
-function miAdminInit(){
+async function miAdminInit(){
   miAdminPopulateMonths();
+  try{
+    const res = await fetch(WEBAPP_URL+'?action=getVehicles&secretKey='+_gsk()+'&t='+Date.now());
+    const json = await res.json();
+    if(json.status==='ok'){ miVehicles = json.vehicles||[]; miAdminPopulateMonths(); }
+  } catch(e){}
 }
 
 function miAdminPopulateMonths(){
@@ -1781,12 +1786,13 @@ async function miAdminLoadReport(){
   const month = document.getElementById('mi-admin-month').value;
   showLoading('กำลังโหลด Report...');
   try{
-    const res = await fetch(WEBAPP_URL+'?action=getMileageReport&secretKey='+_gsk()+'&month='+month+'&t='+Date.now());
-    const json = await res.json();
+    const json = await apiPost({action:'getMileageReport', month:month});
     hideLoading();
-    if(json.status==='ok') renderMiAdminReport(json.report||[], json.summary||{}, month);
-    else showToast('❌ '+(json.msg||'โหลดไม่สำเร็จ'));
-  } catch(e){ hideLoading(); showToast('❌ เชื่อมต่อไม่ได้'); }
+    if(json.status==='ok'){
+      if(!Array.isArray(json.report)) return showToast('❌ GAS ยังไม่รองรับ — กรุณา Deploy GAS ใหม่');
+      renderMiAdminReport(json.report, json.summary||{}, month);
+    } else showToast('❌ '+(json.msg||'โหลดไม่สำเร็จ'));
+  } catch(e){ hideLoading(); showToast('❌ เชื่อมต่อไม่ได้: '+e.message); }
 }
 
 function renderMiAdminReport(report, summary, month){
@@ -1820,10 +1826,7 @@ async function miAdminLoadLogs(){
   const plate = document.getElementById('mi-admin-log-plate').value;
   showLoading('กำลังโหลดรายการ...');
   try{
-    let url = WEBAPP_URL+'?action=getMileageLogs&secretKey='+_gsk()+'&month='+month+'&t='+Date.now();
-    if(plate) url += '&licensePlate='+encodeURIComponent(plate);
-    const res = await fetch(url);
-    const json = await res.json();
+    const json = await apiPost({action:'getMileageLogs', month:month, licensePlate:plate});
     hideLoading();
     if(json.status==='ok') renderMiAdminLogs(json.data||[]);
     else showToast('❌ '+(json.msg||'โหลดไม่สำเร็จ'));
