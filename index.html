@@ -431,12 +431,9 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
         <label>รายละเอียดปัญหา / เรื่องที่ต้องการแจ้ง (จำเป็น)</label>
         <textarea id="repair-desc" placeholder="พิมพ์รายละเอียดอาการเสียที่นี่..."></textarea>
       </div>
-      <p style="font-size:12px;color:#6b7280;margin-bottom:5px;font-weight:500">📷 แนบรูปภาพประกอบ</p>
-      <div class="mi-photo-wrap" id="repair-photo-wrap" onclick="document.getElementById('repair-file-input').click()" style="margin-bottom:16px">
-        <div class="mi-photo-placeholder" id="repair-photo-placeholder"><div class="icon">📷</div><p>แตะเพื่อถ่ายรูป หรือ เลือกรูปภาพ</p></div>
-        <img id="repair-photo-preview" src="" alt="" style="display:none">
-      </div>
-      <input type="file" id="repair-file-input" accept="image/*" style="display:none" onchange="repairHandlePhoto(event)">
+      <p style="font-size:12px;color:#6b7280;margin-bottom:5px;font-weight:500">📷 แนบรูปภาพประกอบ (สูงสุด 4 รูป)</p>
+      <div id="repair-photos-container" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px"></div>
+      <input type="file" id="repair-file-input" accept="image/*" multiple style="display:none" onchange="repairHandlePhotos(event)">
       <button class="btn-action" style="background:#dc2626;color:#fff;border:none;margin-bottom:0" onclick="submitRepair()">📤 ส่งข้อมูลแจ้งซ่อม</button>
     </div>
   </div>
@@ -1852,40 +1849,111 @@ function miAdminExportCSV(){
 // ════════════════════════════════════════════════════════
 // REPAIR SYSTEM (ระบบแจ้งซ่อม)
 // ════════════════════════════════════════════════════════
-let repairPhotoBase64 = '';
+let repairPhotosBase64 = [];
 
 function goRepair() {
   document.getElementById('repair-user').value = currentFname;
   document.getElementById('repair-dept').value = ((userProfile.position||'') + ' ' + (userProfile.zone||'')).trim();
   document.getElementById('repair-desc').value = '';
-  repairPhotoBase64 = '';
-  document.getElementById('repair-photo-preview').style.display = 'none';
-  document.getElementById('repair-photo-placeholder').style.display = 'flex';
+  repairPhotosBase64 = [];
+  renderRepairPhotos();
   go('repair-screen');
 }
 
-function repairHandlePhoto(event) {
-  const file = event.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e){
-    const imgObj = new Image();
-    imgObj.onload = function() {
-      const canvas = document.createElement('canvas');
-      let width = imgObj.width; let height = imgObj.height;
-      const MAX_WIDTH = 800; // บีบอัดความกว้างให้ไม่เกิน 800px จะได้ส่งไวๆ
-      if (width > MAX_WIDTH) { height = Math.round(height * MAX_WIDTH / width); width = MAX_WIDTH; }
-      canvas.width = width; canvas.height = height;
-      canvas.getContext('2d').drawImage(imgObj, 0, 0, width, height);
-      repairPhotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
-      
-      document.getElementById('repair-photo-preview').src = repairPhotoBase64;
-      document.getElementById('repair-photo-preview').style.display = 'block';
-      document.getElementById('repair-photo-placeholder').style.display = 'none';
+function renderRepairPhotos() {
+  const container = document.getElementById('repair-photos-container');
+  container.innerHTML = '';
+  repairPhotosBase64.forEach(function(b64, idx) {
+    const div = document.createElement('div');
+    div.style.position = 'relative';
+    div.style.paddingTop = '100%';
+    div.style.borderRadius = '12px';
+    div.style.overflow = 'hidden';
+    div.style.border = '1px solid #e5e7eb';
+    div.style.background = '#f3f4f6';
+    
+    const img = document.createElement('img');
+    img.src = b64;
+    img.style.position = 'absolute';
+    img.style.top = '0';
+    img.style.left = '0';
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'cover';
+    
+    const delBtn = document.createElement('button');
+    delBtn.innerHTML = '✕';
+    delBtn.style.position = 'absolute';
+    delBtn.style.top = '6px';
+    delBtn.style.right = '6px';
+    delBtn.style.background = 'rgba(0,0,0,0.6)';
+    delBtn.style.color = '#fff';
+    delBtn.style.border = 'none';
+    delBtn.style.borderRadius = '50%';
+    delBtn.style.width = '26px';
+    delBtn.style.height = '26px';
+    delBtn.style.fontSize = '12px';
+    delBtn.style.cursor = 'pointer';
+    delBtn.onclick = function() {
+      repairPhotosBase64.splice(idx, 1);
+      renderRepairPhotos();
     };
-    imgObj.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
+    
+    div.appendChild(img);
+    div.appendChild(delBtn);
+    container.appendChild(div);
+  });
+
+  if (repairPhotosBase64.length < 4) {
+    const addBtn = document.createElement('div');
+    addBtn.className = 'mi-photo-wrap';
+    addBtn.style.marginBottom = '0';
+    addBtn.style.minHeight = '0';
+    addBtn.style.paddingTop = '100%';
+    addBtn.style.position = 'relative';
+    addBtn.onclick = function() { document.getElementById('repair-file-input').click(); };
+    
+    const inner = document.createElement('div');
+    inner.className = 'mi-photo-placeholder';
+    inner.style.position = 'absolute';
+    inner.style.top = '50%';
+    inner.style.left = '50%';
+    inner.style.transform = 'translate(-50%, -50%)';
+    inner.innerHTML = '<div class="icon" style="font-size:28px;margin-bottom:4px">📷</div><p style="font-size:12px">เพิ่มรูป</p>';
+    
+    addBtn.appendChild(inner);
+    container.appendChild(addBtn);
+  }
+}
+
+function repairHandlePhotos(event) {
+  const files = event.target.files;
+  if(!files || files.length === 0) return;
+  
+  let remaining = 4 - repairPhotosBase64.length;
+  let toProcess = Math.min(files.length, remaining);
+  let processed = 0;
+  
+  for (let i = 0; i < toProcess; i++) {
+    const file = files[i];
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const imgObj = new Image();
+      imgObj.onload = function() {
+        const canvas = document.createElement('canvas');
+        let width = imgObj.width; let height = imgObj.height;
+        const MAX_WIDTH = 800; 
+        if (width > MAX_WIDTH) { height = Math.round(height * MAX_WIDTH / width); width = MAX_WIDTH; }
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(imgObj, 0, 0, width, height);
+        repairPhotosBase64.push(canvas.toDataURL('image/jpeg', 0.7));
+        processed++;
+        if(processed === toProcess) renderRepairPhotos();
+      };
+      imgObj.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
   event.target.value='';
 }
 
@@ -1894,7 +1962,7 @@ async function submitRepair() {
   if(!desc) { showToast('⚠️ กรุณากรอกรายละเอียดปัญหา'); return; }
   showLoading('กำลังส่งข้อมูลแจ้งซ่อม...');
   try {
-    const payload = { action: 'logRepair', employeeName: currentUser, fname: userProfile.fname, lname: userProfile.lname, position: userProfile.position, zone: userProfile.zone, description: desc, photoBase64: repairPhotoBase64 };
+    const payload = { action: 'logRepair', employeeName: currentUser, fname: userProfile.fname, lname: userProfile.lname, position: userProfile.position, zone: userProfile.zone, description: desc, photosBase64: repairPhotosBase64 };
     const data = await apiPost(payload);
     hideLoading();
     if(data.status === 'ok') { showToast('✓ ' + data.msg); showHome(); } 
