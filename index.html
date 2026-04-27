@@ -819,7 +819,6 @@ async function doLogin(){
   if(loginMode==='admin'){
     if(name!=='admin'||pass!==ADMIN_PASS){ err.textContent='ชื่อหรือรหัสผ่านไม่ถูกต้อง'; return; }
     currentUser='Admin'; isAdmin=true; currentFname='Admin';
-    sessionStorage.setItem(SESSION_KEY,JSON.stringify({name:currentUser,admin:isAdmin,fname:currentFname}));
     localStorage.setItem(SESSION_KEY,JSON.stringify({name:currentUser,admin:isAdmin,fname:currentFname}));
     showAfterLogin(); return;
   }
@@ -833,7 +832,6 @@ async function doLogin(){
       currentFname=data.user.fname ? `${data.user.fname} ${data.user.lname||''}`.trim() : data.user.username;
       userProfile = { fname: data.user.fname||'', lname: data.user.lname||'', position: data.user.position||'', zone: data.user.zone||'' };
       
-      sessionStorage.setItem(SESSION_KEY,JSON.stringify({name:currentUser,admin:isAdmin,fname:currentFname,profile:userProfile}));
       localStorage.setItem(SESSION_KEY,JSON.stringify({name:currentUser,admin:isAdmin,fname:currentFname,profile:userProfile}));
       if(remember){
         localStorage.setItem(REMEMBER_KEY, JSON.stringify({username:name, password:pass}));
@@ -860,7 +858,6 @@ loadSavedCredentials();
 document.getElementById('login-pass').addEventListener('keydown',function(e){ if(e.key==='Enter') doLogin(); });
 
 function doLogout(){
-  sessionStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(SESSION_KEY);
   currentUser=null; isAdmin=false; currentFname=''; userProfile={};
   document.getElementById('login-name').value='';
@@ -1513,7 +1510,6 @@ document.getElementById('photo-preview').addEventListener('click',function(e){
 // ═══════════════════════════════════════
 (function(){
   try{
-    const s=JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null');
     const s=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');
     if(s){ currentUser=s.name; isAdmin=s.admin; currentFname=s.fname||s.name; userProfile=s.profile||{}; showAfterLogin(); }
   }catch(e){}
