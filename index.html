@@ -169,6 +169,7 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
 .menu-icon.bg-green { background: #ecfdf5; color: #059669; }
 .menu-icon.bg-amber { background: #fffbeb; color: #d97706; }
 .menu-icon.bg-purple { background: #f5f3ff; color: #7c3aed; }
+.menu-icon.bg-red { background: #fee2e2; color: #dc2626; }
 .menu-text h3 { font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 4px; }
 .menu-text p { font-size: 13px; color: #6b7280; }
 
@@ -322,6 +323,13 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
           <p>ถ่ายรูปหน้าปัด หรือบิลเติมน้ำมัน</p>
         </div>
       </div>
+      <div class="menu-card" onclick="goRepair()">
+        <div class="menu-icon bg-red">🛠️</div>
+        <div class="menu-text">
+          <h3>แจ้งซ่อม / ปัญหา</h3>
+          <p>แจ้งซ่อมอุปกรณ์และส่งรูปภาพ</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -400,6 +408,37 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
   </div>
   <div class="sticky-capture">
     <button class="btn-capture" id="capture-btn" onclick="capturePhoto()">📷 ถ่ายภาพและบันทึก</button>
+  </div>
+</div>
+
+<!-- REPAIR SCREEN -->
+<div class="screen" id="repair-screen">
+  <div class="topbar" style="background:#dc2626">
+    <button class="back-btn" onclick="showHome()">←</button>
+    <h1>แจ้งซ่อม / แจ้งปัญหา</h1>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="input-group">
+        <label>ผู้แจ้ง</label>
+        <input type="text" id="repair-user" readonly>
+      </div>
+      <div class="input-group">
+        <label>ฝ่าย / เขต</label>
+        <input type="text" id="repair-dept" readonly>
+      </div>
+      <div class="input-group">
+        <label>รายละเอียดปัญหา / เรื่องที่ต้องการแจ้ง (จำเป็น)</label>
+        <textarea id="repair-desc" placeholder="พิมพ์รายละเอียดอาการเสียที่นี่..."></textarea>
+      </div>
+      <p style="font-size:12px;color:#6b7280;margin-bottom:5px;font-weight:500">📷 แนบรูปภาพประกอบ</p>
+      <div class="mi-photo-wrap" id="repair-photo-wrap" onclick="document.getElementById('repair-file-input').click()" style="margin-bottom:16px">
+        <div class="mi-photo-placeholder" id="repair-photo-placeholder"><div class="icon">📷</div><p>แตะเพื่อถ่ายรูป หรือ เลือกรูปภาพ</p></div>
+        <img id="repair-photo-preview" src="" alt="" style="display:none">
+      </div>
+      <input type="file" id="repair-file-input" accept="image/*" style="display:none" onchange="repairHandlePhoto(event)">
+      <button class="btn-action" style="background:#dc2626;color:#fff;border:none;margin-bottom:0" onclick="submitRepair()">📤 ส่งข้อมูลแจ้งซ่อม</button>
+    </div>
   </div>
 </div>
 
@@ -1808,6 +1847,59 @@ function miAdminExportCSV(){
   });
   dlCSV(csv, 'mileage_report_'+d.month+'.csv');
   showToast('✓ Export CSV สำเร็จ');
+}
+
+// ════════════════════════════════════════════════════════
+// REPAIR SYSTEM (ระบบแจ้งซ่อม)
+// ════════════════════════════════════════════════════════
+let repairPhotoBase64 = '';
+
+function goRepair() {
+  document.getElementById('repair-user').value = currentFname;
+  document.getElementById('repair-dept').value = ((userProfile.position||'') + ' ' + (userProfile.zone||'')).trim();
+  document.getElementById('repair-desc').value = '';
+  repairPhotoBase64 = '';
+  document.getElementById('repair-photo-preview').style.display = 'none';
+  document.getElementById('repair-photo-placeholder').style.display = 'flex';
+  go('repair-screen');
+}
+
+function repairHandlePhoto(event) {
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const imgObj = new Image();
+    imgObj.onload = function() {
+      const canvas = document.createElement('canvas');
+      let width = imgObj.width; let height = imgObj.height;
+      const MAX_WIDTH = 800; // บีบอัดความกว้างให้ไม่เกิน 800px จะได้ส่งไวๆ
+      if (width > MAX_WIDTH) { height = Math.round(height * MAX_WIDTH / width); width = MAX_WIDTH; }
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(imgObj, 0, 0, width, height);
+      repairPhotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
+      
+      document.getElementById('repair-photo-preview').src = repairPhotoBase64;
+      document.getElementById('repair-photo-preview').style.display = 'block';
+      document.getElementById('repair-photo-placeholder').style.display = 'none';
+    };
+    imgObj.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  event.target.value='';
+}
+
+async function submitRepair() {
+  const desc = document.getElementById('repair-desc').value.trim();
+  if(!desc) { showToast('⚠️ กรุณากรอกรายละเอียดปัญหา'); return; }
+  showLoading('กำลังส่งข้อมูลแจ้งซ่อม...');
+  try {
+    const payload = { action: 'logRepair', employeeName: currentUser, fname: userProfile.fname, lname: userProfile.lname, position: userProfile.position, zone: userProfile.zone, description: desc, photoBase64: repairPhotoBase64 };
+    const data = await apiPost(payload);
+    hideLoading();
+    if(data.status === 'ok') { showToast('✓ ' + data.msg); showHome(); } 
+    else { showToast('❌ ' + (data.msg || 'ส่งข้อมูลไม่สำเร็จ')); }
+  } catch(e) { hideLoading(); showToast('❌ เชื่อมต่อไม่ได้'); }
 }
 </script>
 </body>
