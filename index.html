@@ -557,6 +557,11 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
           </div>
         </div>
 
+        <div class="input-group" style="margin-bottom:16px;">
+          <label>📝 หมายเหตุ (ถ้ามี)</label>
+          <textarea id="mi-remark-input" placeholder="พิมพ์หมายเหตุเพิ่มเติม..." style="height:60px"></textarea>
+        </div>
+
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
           <button class="btn-action btn-outline" style="margin:0;border-color:#7c3aed;color:#7c3aed"
             onclick="miGoStep1()">← เปลี่ยนรถ</button>
@@ -1608,6 +1613,7 @@ async function miGoStep2(){
   miSetMode('odo');
   document.getElementById('mi-odometer-input').value='';
   document.getElementById('mi-fuel-input').value='';
+  document.getElementById('mi-remark-input').value='';
   miPhotoBase64='';
 
   const prevEl = document.getElementById('mi-prev-info');
@@ -1664,6 +1670,7 @@ async function miHandlePhoto(event){
 
 // ── SUBMIT ──
 async function miSubmit(){
+  const remarkInput = document.getElementById('mi-remark-input').value.trim();
   let odoInput = 0, fuel = 0;
   
   if (miRecordMode === 'odo') {
@@ -1687,6 +1694,7 @@ async function miSubmit(){
       licensePlate: miSelectedPlate,
       odometer: odoInput,
       fuelCost: fuel,
+      remark: remarkInput,
       employeeName: currentUser,
       date: today,
       photoBase64: miPhotoBase64
@@ -1820,6 +1828,7 @@ function renderMiAdminLogs(data){
     let desc = r.type === 'fuel' 
       ? 'เติมน้ำมัน: '+fuel.toLocaleString('th-TH')+' บ.' 
       : 'ไมล์: '+Number(r.odometer).toLocaleString('th-TH')+' กม.'+(dist>0?' | วิ่ง: '+dist.toLocaleString('th-TH')+' กม.':'');
+    if(r.remark) desc += ' <br><span style="color:#9ca3af;font-size:11px;">📝 '+r.remark+'</span>';
 
     return '<div class="admin-log-item">'
       +'<div class="admin-log-top">'
