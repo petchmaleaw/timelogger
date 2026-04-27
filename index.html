@@ -312,13 +312,6 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
           <p>ดูข้อมูลย้อนหลังของคุณ</p>
         </div>
       </div>
-      <div class="menu-card" onclick="goExport()">
-        <div class="menu-icon bg-amber">📤</div>
-        <div class="menu-text">
-          <h3>Export รายงานเวลา</h3>
-          <p>สรุปยอดและส่งออกข้อมูล</p>
-        </div>
-      </div>
       <div class="menu-card" onclick="goMileage()">
         <div class="menu-icon bg-purple">🚗</div>
         <div class="menu-text">
@@ -407,31 +400,6 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
   </div>
 </div>
 
-<!-- EXPORT -->
-<div class="screen" id="export-screen">
-  <div class="topbar">
-    <button class="back-btn" onclick="showHome()">←</button>
-    <h1>Export รายงานเวลา</h1>
-  </div>
-  <div class="content">
-    <div class="card">
-      <p style="font-size:13px;color:#6b7280;margin-bottom:10px;font-weight:500">เลือกเดือน</p>
-      <select class="month-select" id="month-select"></select>
-      <div class="stat-row">
-        <div class="stat-box"><div class="num" id="stat-count">0</div><div class="lbl">รายการ</div></div>
-        <div class="stat-box"><div class="num" id="stat-days">0</div><div class="lbl">วันทำงาน</div></div>
-      </div>
-      <button class="btn-action btn-green" onclick="syncNow()">☁️ Sync ขึ้น Google Sheets</button>
-      <button class="btn-action btn-blue" onclick="exportEmail()">📧 ส่งอีเมล</button>
-      <button class="btn-action btn-outline" onclick="exportDownload()">💾 บันทึก CSV</button>
-    </div>
-    <div class="card">
-      <p style="font-size:12px;font-weight:500;margin-bottom:8px;color:#374151">ตัวอย่างข้อมูล</p>
-      <div class="export-log" id="export-preview">เลือกเดือนเพื่อดูตัวอย่าง</div>
-    </div>
-  </div>
-</div>
-
 <!-- ADMIN -->
 <div class="screen" id="admin-screen">
   <div class="topbar">
@@ -487,7 +455,6 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
   <div class="topbar" style="background:#7c3aed">
     <button class="back-btn" onclick="showHome()">←</button>
     <h1>บันทึกรถ (ไมล์/น้ำมัน)</h1>
-    <button class="text-btn" onclick="goMileageHistory()">ประวัติ</button>
   </div>
   <div class="content">
 
@@ -582,33 +549,6 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
         <button class="btn-action btn-outline" style="border-color:#7c3aed;color:#7c3aed;margin:0;width:100%"
           onclick="showHome()">กลับหน้าหลัก</button>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- MILEAGE — ประวัติและ Report (User) -->
-<div class="screen" id="mileage-history-screen">
-  <div class="topbar" style="background:#7c3aed">
-    <button class="back-btn" onclick="go('mileage-screen')">←</button>
-    <h1>ประวัติรถของฉัน</h1>
-  </div>
-  <div class="content">
-    <div class="card">
-      <select class="month-select" id="mi-hist-month" style="margin-bottom:10px"></select>
-      <button class="btn-action" style="background:#7c3aed;color:#fff;border:none;border-radius:12px;padding:11px;font-size:13px;font-weight:500;cursor:pointer;width:100%;margin-bottom:0"
-        onclick="miLoadHistory()">🔄 โหลดประวัติ</button>
-    </div>
-    <!-- summary bar -->
-    <div class="mi-summary-bar" id="mi-hist-summary" style="display:none">
-      <div style="font-size:12px;opacity:.8;margin-bottom:4px">รวมเดือนนี้</div>
-      <div style="display:flex;gap:20px;flex-wrap:wrap">
-        <div><div class="big" id="mi-hist-total-dist">-</div><div class="small">กม. รวม</div></div>
-        <div><div class="big" id="mi-hist-total-fuel">-</div><div class="small">บาท น้ำมัน</div></div>
-        <div><div class="big" id="mi-hist-cpk">-</div><div class="small">บาท/กม.</div></div>
-      </div>
-    </div>
-    <div class="card" id="mi-hist-container">
-      <div class="empty-state"><div class="icon">📊</div><p>เลือกเดือนแล้วกด "โหลดประวัติ"</p></div>
     </div>
   </div>
 </div>
@@ -902,7 +842,6 @@ async function goCamera(){
   startCamera();
   startGPS();
 }
-function goExport(){ go('export-screen'); populateMonths(); }
 
 function myLogs(){ return logs.filter(function(l){ return l.empName===currentUser; }); }
 
@@ -1102,37 +1041,7 @@ function setSyncBadge(s){
 // ═══════════════════════════════════════
 // EXPORT
 // ═══════════════════════════════════════
-function getMK(ts){ const d=new Date(ts); return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'); }
-function populateMonths(){
-  const mine=myLogs(), sel=document.getElementById('month-select');
-  const keys=[...new Set(mine.map(function(l){ return getMK(l.ts); }))].sort().reverse();
-  const now=new Date(), tk=now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0');
-  if(!keys.includes(tk)) keys.unshift(tk);
-  sel.innerHTML=keys.map(function(k){ const [y,m]=k.split('-'); return '<option value="'+k+'">'+new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'})+'</option>'; }).join('');
-  sel.onchange=updateExportPreview; updateExportPreview();
-}
-function getFiltered(){ const k=document.getElementById('month-select').value; return myLogs().filter(function(l){ return getMK(l.ts)===k; }); }
-function updateExportPreview(){
-  const f=getFiltered(), days=new Set(f.map(function(l){ return new Date(l.ts).toDateString(); })).size;
-  document.getElementById('stat-count').textContent=f.length;
-  document.getElementById('stat-days').textContent=days;
-  if(!f.length){ document.getElementById('export-preview').textContent='ไม่มีข้อมูลในเดือนนี้'; return; }
-  const rows=['วันที่,เวลา,ผู้ใช้,ลูกค้า,รายละเอียด,GPS Lat,GPS Lng,ซิงค์'];
-  f.forEach(function(l){ const d=new Date(l.ts); rows.push([d.toLocaleDateString('th-TH'),d.toLocaleTimeString('th-TH'),'"'+(l.empName||'')+'"','"'+(l.customer||'')+'"','"'+(l.desc||'')+'"',l.lat?l.lat.toFixed(6):'',l.lng?l.lng.toFixed(6):'',l.synced?'✓':'รอ'].join(',')); });
-  document.getElementById('export-preview').textContent=rows.join('\n');
-}
 function dlCSV(c,n){ const b=new Blob(['\uFEFF'+c],{type:'text/csv;charset=utf-8'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download=n; a.click(); URL.revokeObjectURL(u); }
-function buildCSV(arr){ const rows=['วันที่,เวลา,ผู้ใช้,ลูกค้า,รายละเอียด,GPS Lat,GPS Lng']; arr.forEach(function(l){ const d=new Date(l.ts||l.timestamp); rows.push([d.toLocaleDateString('th-TH'),d.toLocaleTimeString('th-TH'),'"'+(l.empName||l.employeeName||'')+'"','"'+(l.customer||'')+'"','"'+(l.desc||l.description||'')+'"',l.lat?parseFloat(l.lat).toFixed(6):'',l.lng?parseFloat(l.lng).toFixed(6):''].join(',')); }); return rows.join('\n'); }
-function exportDownload(){ dlCSV(buildCSV(getFiltered()),'time_log_'+document.getElementById('month-select').value+'.csv'); }
-function exportEmail(){
-  const f=getFiltered(); if(!f.length){ alert('ไม่มีข้อมูล'); return; }
-  const k=document.getElementById('month-select').value; const [y,m]=k.split('-');
-  const ml=new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'});
-  const days=new Set(f.map(function(l){ return new Date(l.ts).toDateString(); })).size;
-  let body='รายงานบันทึกเวลาทำงาน เดือน'+ml+'\nผู้ใช้: '+currentFname+'\nจำนวน: '+f.length+' รายการ | วันทำงาน: '+days+' วัน\n\n';
-  f.forEach(function(l,i){ const d=new Date(l.ts); body+=(i+1)+'. '+d.toLocaleDateString('th-TH')+' '+d.toLocaleTimeString('th-TH')+'\n'; if(l.customer) body+='   ลูกค้า: '+l.customer+'\n'; if(l.desc) body+='   รายละเอียด: '+l.desc+'\n'; if(l.lat) body+='   GPS: '+l.lat.toFixed(5)+', '+l.lng.toFixed(5)+'\n'; if(l.photoUrl) body+='   รูปภาพ: '+l.photoUrl+'\n'; body+='\n'; });
-  window.location.href='mailto:?subject='+encodeURIComponent('รายงาน '+ml+' - '+currentFname)+'&body='+encodeURIComponent(body);
-}
 
 // ═══════════════════════════════════════
 // USER HISTORY
@@ -1690,79 +1599,6 @@ async function miSubmit(){
       showToast('✓ บันทึกสำเร็จ!');
     } else { showToast('❌ '+(data.msg||'บันทึกไม่สำเร็จ')); }
   } catch(e){ hideLoading(); showToast('❌ เชื่อมต่อไม่ได้'); }
-}
-
-// ── HISTORY (User) ──
-function miPopulateHistMonths(){
-  const sel = document.getElementById('mi-hist-month');
-  if(!sel) return;
-  const months = [];
-  const now = new Date();
-  for(let i=0; i<12; i++){
-    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
-    const key = d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0');
-    months.push({key, label: d.toLocaleDateString('th-TH',{year:'numeric',month:'long'})});
-  }
-  sel.innerHTML = months.map(function(m){ return '<option value="'+m.key+'">'+m.label+'</option>'; }).join('');
-}
-
-async function miLoadHistory(){
-  const month = document.getElementById('mi-hist-month').value;
-  showLoading('กำลังโหลดประวัติ...');
-  try{
-    const res = await fetch(WEBAPP_URL+'?action=getMileageLogs&secretKey='+_gsk()+'&employeeName='+encodeURIComponent(currentUser)+'&month='+month+'&t='+Date.now());
-    const json = await res.json();
-    hideLoading();
-    if(json.status==='ok'){
-      renderMiHistory(json.data||[]);
-    } else { showToast('❌ '+(json.msg||'โหลดไม่สำเร็จ')); }
-  } catch(e){ hideLoading(); showToast('❌ เชื่อมต่อไม่ได้'); }
-}
-
-function renderMiHistory(data){
-  const container = document.getElementById('mi-hist-container');
-  const summaryEl = document.getElementById('mi-hist-summary');
-  if(!data.length){
-    container.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>ไม่มีข้อมูลในเดือนนี้</p></div>';
-    summaryEl.style.display='none'; return;
-  }
-  const totalDist = data.reduce(function(s,r){ return s+(parseFloat(r.distance)||0); },0);
-  const totalFuel = data.reduce(function(s,r){ return s+(parseFloat(r.fuelCost)||0); },0);
-  const cpk = totalDist>0 && totalFuel>0 ? (totalFuel/totalDist).toFixed(2) : '-';
-  document.getElementById('mi-hist-total-dist').textContent = Math.round(totalDist).toLocaleString('th-TH');
-  document.getElementById('mi-hist-total-fuel').textContent = Math.round(totalFuel).toLocaleString('th-TH');
-  document.getElementById('mi-hist-cpk').textContent = cpk;
-  summaryEl.style.display='block';
-
-  container.innerHTML = data.map(function(r){
-    const d = new Date(r.date);
-    const dateStr = d.toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'});
-    const dist = parseFloat(r.distance)||0;
-    const fuel = parseFloat(r.fuelCost)||0;
-    const fixedUrl = r.photoUrl ? fixPhotoUrl(r.photoUrl) : '';
-    
-    let typeTag = '';
-    let detailHtml = '';
-    let valHtml = '';
-    
-    if(r.type === 'fuel'){
-      typeTag = '<span class="pill pill-amber">น้ำมัน</span>';
-      valHtml = fuel.toLocaleString('th-TH')+' <small style="font-size:13px;font-weight:400;color:#6b7280">บาท</small>';
-      detailHtml = 'เติมน้ำมัน: '+fuel.toLocaleString('th-TH')+' บาท';
-    } else {
-      typeTag = '<span class="pill pill-green">ไมล์</span>';
-      valHtml = dist>0 ? dist.toLocaleString('th-TH')+' <small style="font-size:13px;font-weight:400;color:#6b7280">กม.</small>' : '-';
-      detailHtml = 'ไมล์: '+Number(r.odometer).toLocaleString('th-TH')+' กม.';
-    }
-
-    return '<div class="mi-log-item"><div style="display:flex;gap:10px;align-items:flex-start">'
-      +(fixedUrl?'<img class="mi-thumb loading" src="'+fixedUrl+'" onclick="viewPhoto(\''+fixedUrl+'\')" onload="this.classList.remove(\'loading\')" onerror="this.style.display=\'none\'" referrerpolicy="no-referrer">':'')
-      +'<div style="flex:1;min-width:0">'
-      +'<div class="mi-log-top"><span class="mi-log-plate">'+r.licensePlate+'</span><span class="mi-log-date">'+dateStr+'</span></div>'
-      +'<div class="mi-log-dist">'+valHtml+'</div>'
-      +'<div class="mi-log-detail">'+typeTag+' '+detailHtml+'</div>'
-      +'</div></div></div>';
-  }).join('');
 }
 
 // ── ADMIN MILEAGE ──
