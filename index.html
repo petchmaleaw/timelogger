@@ -647,7 +647,6 @@ let userProfile={};
 window.userMap={};
 
 function loadLogs(){ try{ logs=JSON.parse(localStorage.getItem(DB_KEY)||'[]'); }catch(e){ logs=[]; } }
-function saveLogs(){ localStorage.setItem(DB_KEY,JSON.stringify(logs)); }
 function saveLogs(){ 
   try {
     localStorage.setItem(DB_KEY,JSON.stringify(logs)); 
@@ -1020,8 +1019,7 @@ function capturePhoto(){
   document.getElementById('customer-name').value='';
   document.getElementById('desc-input').value='';
   clearTaskChips();
-  stopCamera(); showHome();
-  setTimeout(function(){ checkPendingSync(); }, 100);
+  stopCamera(); showHome(); // showHome() จะทำการเรียก checkPendingSync() ให้อยู่แล้วแบบทันที
 }
 
 // ═══════════════════════════════════════
@@ -1053,7 +1051,6 @@ function postToSheet(log){
 }
 
 let isSyncing = false;
-let syncTimeout = null;
 let syncStartTime = 0;
 
 async function syncNow(isManual = false){
@@ -1093,10 +1090,7 @@ function checkPendingSync(){
   if(!currentUser) return;
   const p=logs.filter(function(l){ return l.empName===currentUser&&!l.synced; });
   setSyncBadge(p.length?'pending':'ok');
-  if(p.length) {
-    clearTimeout(syncTimeout);
-    syncTimeout = setTimeout(function(){ syncNow(false); }, 300);
-  }
+  if(p.length) syncNow(false);
 }
 
 window.addEventListener('online', checkPendingSync);
