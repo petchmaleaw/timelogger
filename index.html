@@ -356,49 +356,57 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
 <!-- CAMERA -->
 <div class="screen" id="cam-screen">
   <div class="topbar">
-    <button class="back-btn" onclick="stopCamera();showHome()">←</button>
-    <h1>บันทึกเวลา</h1>
+    <button class="back-btn" onclick="camBack()">←</button>
+    <h1 id="cam-topbar-title">กรอกข้อมูล</h1>
   </div>
   <div class="content">
-    <div class="cam-wrap">
-      <div class="video-wrap-container">
-        <div class="video-wrap" id="video-wrap">
-          <video id="video" autoplay playsinline muted></video>
-          <canvas id="overlay"></canvas>
-          <button type="button" class="cam-switch-btn" id="cam-switch" onclick="switchCamera()" title="สลับกล้อง">🔄</button>
+
+    <!-- STEP 1: กรอกข้อมูล -->
+    <div id="cam-step1" style="padding:14px;padding-bottom:0">
+      <div class="input-group">
+        <label>👤 ผู้ใช้</label>
+        <input type="text" id="emp-readonly" readonly>
+      </div>
+      <div class="input-group">
+        <label>🏢 ชื่อลูกค้า / สถานที่</label>
+        <input type="text" id="customer-name" placeholder="เช่น บริษัท ABC จำกัด">
+      </div>
+      <div class="input-group">
+        <label>⚡ ประเภทงาน (ติ๊กได้หลายข้อ)</label>
+        <div class="task-chips">
+          <label class="task-chip"><input type="checkbox" value="เสนอราคา" onchange="toggleTaskChip(this)"> 💰 เสนอราคา</label>
+          <label class="task-chip"><input type="checkbox" value="รับใบสั่ง" onchange="toggleTaskChip(this)"> 📋 รับใบสั่ง</label>
+          <label class="task-chip"><input type="checkbox" value="ส่งของ" onchange="toggleTaskChip(this)"> 📦 ส่งของ</label>
+          <label class="task-chip"><input type="checkbox" value="วางบิล/รับเช็ค" onchange="toggleTaskChip(this)"> 💵 วางบิล/รับเช็ค</label>
+          <label class="task-chip"><input type="checkbox" value="เปิดลูกค้าใหม่" onchange="toggleTaskChip(this)"> 🆕 เปิดลูกค้าใหม่</label>
+          <label class="task-chip"><input type="checkbox" value="ค่าสนับสนุนการขาย" onchange="toggleTaskChip(this)"> 💰 ค่าสนับสนุนการขาย</label>
         </div>
       </div>
-      <div class="cam-off-placeholder" id="cam-off" style="display:none">
-        <div class="icon">📷</div>
-        <div>ปิดกล้อง — บันทึกเฉพาะข้อมูล + GPS<br>(ไม่มีรูปภาพ)</div>
+      <div class="input-group" style="margin-bottom:0">
+        <label>📝 รายละเอียดเพิ่มเติม</label>
+        <textarea id="desc-input" placeholder="หมายเหตุอื่นๆ (ถ้ามี)" style="height:130px"></textarea>
       </div>
-      <div class="cam-controls">
-        <div class="camera-toggle">
-          <input type="checkbox" id="cam-enabled" checked onchange="toggleCamera()">
-          <label for="cam-enabled">📸 เปิดใช้งานกล้อง (ถ่ายรูปประกอบการบันทึก)</label>
-        </div>
-        <div class="input-group">
-          <label>👤 ผู้ใช้</label>
-          <input type="text" id="emp-readonly" readonly>
-        </div>
-        <div class="input-group">
-          <label>🏢 ชื่อลูกค้า / สถานที่</label>
-          <input type="text" id="customer-name" placeholder="เช่น บริษัท ABC จำกัด">
-        </div>
-        <div class="input-group">
-          <label>⚡ ประเภทงาน (ติ๊กได้หลายข้อ)</label>
-          <div class="task-chips">
-            <label class="task-chip"><input type="checkbox" value="เสนอราคา" onchange="toggleTaskChip(this)"> 💰 เสนอราคา</label>
-            <label class="task-chip"><input type="checkbox" value="รับใบสั่ง" onchange="toggleTaskChip(this)"> 📋 รับใบสั่ง</label>
-            <label class="task-chip"><input type="checkbox" value="ส่งของ" onchange="toggleTaskChip(this)"> 📦 ส่งของ</label>
-            <label class="task-chip"><input type="checkbox" value="วางบิล/รับเช็ค" onchange="toggleTaskChip(this)"> 💵 วางบิล/รับเช็ค</label>
-            <label class="task-chip"><input type="checkbox" value="เปิดลูกค้าใหม่" onchange="toggleTaskChip(this)"> 🆕 เปิดลูกค้าใหม่</label>
-            <label class="task-chip"><input type="checkbox" value="ค่าสนับสนุนการขาย" onchange="toggleTaskChip(this)"> 💰 ค่าสนับสนุนการขาย</label>
+    </div>
+
+    <!-- STEP 2: ถ่ายรูป -->
+    <div id="cam-step2" style="display:none">
+      <div class="cam-wrap">
+        <div class="video-wrap-container">
+          <div class="video-wrap" id="video-wrap">
+            <video id="video" autoplay playsinline muted></video>
+            <canvas id="overlay"></canvas>
+            <button type="button" class="cam-switch-btn" id="cam-switch" onclick="switchCamera()" title="สลับกล้อง">🔄</button>
           </div>
         </div>
-        <div class="input-group">
-          <label>📝 รายละเอียดเพิ่มเติม</label>
-          <textarea id="desc-input" placeholder="หมายเหตุอื่นๆ (ถ้ามี)"></textarea>
+        <div class="cam-off-placeholder" id="cam-off" style="display:none">
+          <div class="icon">📷</div>
+          <div>ปิดกล้อง — บันทึกเฉพาะข้อมูล<br>(ไม่มีรูปภาพ)</div>
+        </div>
+        <div style="padding:10px 14px 0">
+          <div class="camera-toggle">
+            <input type="checkbox" id="cam-enabled" checked onchange="toggleCamera()">
+            <label for="cam-enabled">📸 เปิดใช้งานกล้อง (ถ่ายรูปประกอบการบันทึก)</label>
+          </div>
         </div>
         <div class="gps-row" style="display:none">
           <div class="gps-dot" id="gps-dot"></div>
@@ -406,9 +414,10 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
         </div>
       </div>
     </div>
+
   </div>
   <div class="sticky-capture">
-    <button class="btn-capture" id="capture-btn" onclick="capturePhoto()">📷 ถ่ายภาพและบันทึก</button>
+    <button class="btn-capture" id="capture-btn" onclick="goCamStep2()">📷 ไปถ่ายรูป</button>
   </div>
 </div>
 
@@ -670,6 +679,7 @@ const ADMIN_PASS  = 'admin888';
 const DB_KEY      = 'time_logs_v3';
 const SESSION_KEY = 'tl_session_v2';
 const REMEMBER_KEY= 'tl_remember_v1';
+const CAM_PREF_KEY= 'tl_cam_pref_v1';
 
 // ฟังก์ชันดึง Secret Key โดยซ่อนไว้ในรูปแบบ Character Array ป้องกันการค้นหาตรงๆ
 function _gsk() {
@@ -910,11 +920,51 @@ function dismissInstallTip(){
   const t=document.getElementById('install-tip-box');
   if(t) t.style.display='none';
 }
-async function goCamera(){
+function goCamera(){
   updateEmpUI();
   go('cam-screen');
-  startCamera();
+  document.getElementById('cam-step1').style.display = 'block';
+  document.getElementById('cam-step2').style.display = 'none';
+  document.getElementById('cam-topbar-title').textContent = 'กรอกข้อมูล';
+  const btn = document.getElementById('capture-btn');
+  btn.textContent = '📷 ไปถ่ายรูป';
+  btn.onclick = goCamStep2;
   startGPS();
+}
+
+function goCamStep2(){
+  document.getElementById('cam-step1').style.display = 'none';
+  document.getElementById('cam-step2').style.display = 'block';
+  document.getElementById('cam-topbar-title').textContent = 'ถ่ายรูป';
+  const btn = document.getElementById('capture-btn');
+  btn.onclick = capturePhoto;
+  cameraEnabled = localStorage.getItem(CAM_PREF_KEY) !== '0';
+  document.getElementById('cam-enabled').checked = cameraEnabled;
+  if(cameraEnabled){
+    document.getElementById('video-wrap').style.display = 'block';
+    document.getElementById('cam-off').style.display = 'none';
+    btn.textContent = '📷 ถ่ายรูปและบันทึก';
+    startCamera();
+  } else {
+    document.getElementById('video-wrap').style.display = 'none';
+    document.getElementById('cam-off').style.display = 'flex';
+    btn.textContent = '✓ บันทึก (ไม่ถ่ายรูป)';
+  }
+}
+
+function camBack(){
+  if(document.getElementById('cam-step2').style.display !== 'none'){
+    stopCameraStream();
+    document.getElementById('cam-step1').style.display = 'block';
+    document.getElementById('cam-step2').style.display = 'none';
+    document.getElementById('cam-topbar-title').textContent = 'กรอกข้อมูล';
+    const btn = document.getElementById('capture-btn');
+    btn.textContent = '📷 ไปถ่ายรูป';
+    btn.onclick = goCamStep2;
+  } else {
+    stopCamera();
+    showHome();
+  }
 }
 
 function myLogs(){ return logs.filter(function(l){ return l.empName===currentUser; }); }
@@ -928,15 +978,16 @@ let cameraEnabled=true;
 function toggleCamera(){
   const cb=document.getElementById('cam-enabled');
   cameraEnabled=cb.checked;
+  localStorage.setItem(CAM_PREF_KEY, cameraEnabled?'1':'0');
   const wrap=document.getElementById('video-wrap');
   const off=document.getElementById('cam-off');
   const btn=document.getElementById('capture-btn');
   if(cameraEnabled){
     wrap.style.display='block'; off.style.display='none';
-    btn.textContent='📷 ถ่ายภาพและบันทึก'; startCamera();
+    btn.textContent='📷 ถ่ายรูปและบันทึก'; startCamera();
   } else {
     wrap.style.display='none'; off.style.display='flex';
-    btn.textContent='✓ บันทึกเวลา (ไม่ถ่ายรูป)'; stopCameraStream();
+    btn.textContent='✓ บันทึก (ไม่ถ่ายรูป)'; stopCameraStream();
   }
 }
 
