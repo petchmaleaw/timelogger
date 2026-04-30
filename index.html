@@ -288,7 +288,6 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
     </div>
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
       <span class="sync-badge sync-ok" id="sync-status" onclick="syncNow(true)" style="cursor:pointer">✓ ซิงค์แล้ว</span>
-      <button id="btn-emergency-backup" style="display:none;background:none;border:none;color:#d97706;font-size:11px;text-decoration:underline;cursor:pointer;padding:0" onclick="downloadPendingLogs()">📥 สำรองไฟล์ฉุกเฉิน</button>
     </div>
   </div>
   <div id="install-tip-box" class="install-tip" style="display:none">
@@ -401,7 +400,7 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
           <label>📝 รายละเอียดเพิ่มเติม</label>
           <textarea id="desc-input" placeholder="หมายเหตุอื่นๆ (ถ้ามี)"></textarea>
         </div>
-        <div class="gps-row">
+        <div class="gps-row" style="display:none">
           <div class="gps-dot" id="gps-dot"></div>
           <span id="gps-status">กำลังระบุตำแหน่ง...</span>
         </div>
@@ -695,8 +694,7 @@ function saveLogs(){
     localStorage.setItem(DB_KEY,JSON.stringify(logs)); 
   } catch(e) {
     if(e.name === 'QuotaExceededError' || e.code === 22 || e.name === 'NS_ERROR_DOM_QUOTA_REACHED'){
-      alert('⚠️ พื้นที่เก็บข้อมูลมือถือ (Browser Storage) ใกล้เต็ม!\nระบบกำลังดาวน์โหลดไฟล์ข้อมูลที่รอคิวแบบฉุกเฉินให้ เพื่อป้องกันข้อมูลสูญหาย');
-      downloadPendingLogs();
+      alert('⚠️ พื้นที่เก็บข้อมูลมือถือ (Browser Storage) ใกล้เต็ม!\nกรุณาติดต่อ Admin เพื่อจัดการข้อมูล');
     } else {
       console.error('Save error:', e);
     }
@@ -991,7 +989,7 @@ function drawOverlay(){
     ctx.fillText(now.toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'})+' '+now.toLocaleTimeString('th-TH'),10,cvs.height-barH+fs+4);
     ctx.fillStyle='#93c5fd'; ctx.font=Math.round(fs*.82)+'px sans-serif';
     ctx.fillText('👤 '+(currentFname||''),10,cvs.height-barH+fs*2+4);
-    if(gpsCoords){ ctx.fillStyle='rgba(255,255,255,.6)'; ctx.font=Math.round(fs*.68)+'px sans-serif'; ctx.fillText('GPS: '+gpsCoords.lat.toFixed(5)+', '+gpsCoords.lng.toFixed(5),10,cvs.height-8); }
+    // GPS ไม่แสดงบน overlay preview (เก็บข้อมูลไว้ส่งเซิร์ฟเวอร์เท่านั้น)
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
@@ -1033,8 +1031,8 @@ function capturePhoto(){
       '👤 '+(currentFname||''),
       customer?'🏢 '+customer:'',
       tasks.length?'⚡ '+tasks.join(', '):'',
-      extraDesc?'📝 '+extraDesc.substring(0,60):'',
-      gpsCoords?'📍 GPS: '+gpsCoords.lat.toFixed(5)+', '+gpsCoords.lng.toFixed(5):''
+      extraDesc?'📝 '+extraDesc.substring(0,60):''
+      // GPS ไม่แสดงบน watermark รูป (ข้อมูลยังเก็บและส่งเซิร์ฟเวอร์)
     ].filter(Boolean);
     const barH=(lines.length*(fs+6))+14;
     ctx.fillStyle='rgba(0,0,0,0.58)'; ctx.fillRect(0,cvs.height-barH,cvs.width,barH);
@@ -1149,15 +1147,6 @@ function setSyncBadge(s){
   else { el.classList.add('sync-err'); el.textContent='✗ Sync ล้มเหลว'; }
 }
 
-function downloadPendingLogs(){
-  const p=logs.filter(function(l){ return l.empName===currentUser&&!l.synced; });
-  if(!p.length){ showToast('ไม่มีข้อมูลตกค้าง'); return; }
-  const blob = new Blob([JSON.stringify(p, null, 2)], {type: 'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'offline_logs_backup_' + new Date().toISOString().split('T')[0] + '.json';
-  a.click();
-}
 
 // ═══════════════════════════════════════
 // EXPORT
@@ -1222,7 +1211,6 @@ function renderUserHistory(){
     const dt=new Date(r.timestamp);
     const dateStr=dt.toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'});
     const timeStr=dt.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-    const gps=r.lat?'📍 '+parseFloat(r.lat).toFixed(5)+', '+parseFloat(r.lng).toFixed(5):'';
     const fixedUrl=fixPhotoUrl(r.photoUrl);
     const photoHtml=fixedUrl
       ? '<img class="admin-photo loading" src="'+fixedUrl+'" onclick="event.stopPropagation();viewPhoto(\''+fixedUrl+'\')" onload="this.classList.remove(\'loading\')" onerror="this.style.display=\'none\'" alt="" referrerpolicy="no-referrer" loading="lazy">'
@@ -1232,7 +1220,6 @@ function renderUserHistory(){
                '<span class="admin-log-name" style="color:#059669">📅 '+dateStr+' '+timeStr+'</span>' +
              '</div>' +
              '<div class="admin-log-detail">'+([r.customer,r.description].filter(Boolean).join(' — ')||'(ไม่มีรายละเอียด)')+'</div>' +
-             (gps?'<div class="admin-log-gps">'+gps+'</div>':'') +
              photoHtml +
            '</div>';
   }).join('');
