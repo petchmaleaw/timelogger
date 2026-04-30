@@ -591,9 +591,25 @@ body.dark .pill-amber{background:#451a03;color:#fcd34d}
     <div id="mi-step1">
       <div class="card">
         <p style="font-size:13px;font-weight:600;color:#7c3aed;margin-bottom:10px">1️⃣ เลือกรถที่จะบันทึก</p>
+        
+        <div class="mi-mode-tabs" style="margin-bottom: 12px;">
+          <button type="button" class="mi-mode-btn active" id="btn-car-company" onclick="miSetCarType('company')">🏢 รถยนต์บริษัท</button>
+          <button type="button" class="mi-mode-btn" id="btn-car-personal" onclick="miSetCarType('personal')">👤 รถยนต์ส่วนตัว</button>
+        </div>
+
         <div class="mi-car-list" id="mi-car-list">
           <div class="empty-state"><div class="icon">🔄</div><p>กำลังโหลดรายการรถจากเซิร์ฟเวอร์...</p></div>
         </div>
+
+        <div id="mi-personal-car-section" style="display:none">
+          <div class="input-group" style="display:flex;gap:8px;margin-bottom:14px">
+            <input type="text" id="mi-new-personal-plate" placeholder="ระบุทะเบียนรถส่วนตัว..." style="flex:1;margin-bottom:0">
+            <button class="btn-action btn-outline" style="width:auto;margin:0;padding:10px 16px;min-height:0;border-color:#7c3aed;color:#7c3aed" onclick="miAddPersonalCar()">+ เพิ่ม</button>
+          </div>
+          <div class="mi-car-list" id="mi-personal-car-list">
+          </div>
+        </div>
+
         <button class="btn-action btn-action" id="mi-step1-next"
           style="background:#7c3aed;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:500;cursor:pointer;width:100%;margin-top:4px"
           onclick="miGoStep2()">ถัดไป → ถ่ายรูป</button>
@@ -1669,14 +1685,85 @@ let miVehicles = [];
 let miPhotoBase64 = '';
 let miPrevOdometer = 0;
 let miRecordMode = 'odo'; // 'odo' or 'fuel'
+let miCarType = 'company';
+let miPersonalCars = [];
+const PERSONAL_CARS_KEY = 'tl_personal_cars_v1';
 
 // ── NAVIGATION ──
 function goMileage(){
   miSelectedPlate = ''; miSelectedCarName = ''; miPhotoBase64 = '';
   go('mileage-screen');
   miShowStep(1);
+  loadPersonalCars();
+  miSetCarType('company');
   miLoadVehicles();
   miPopulateHistMonths();
+}
+
+function loadPersonalCars(){
+  try{ miPersonalCars = JSON.parse(localStorage.getItem(PERSONAL_CARS_KEY)||'[]'); } catch(e){ miPersonalCars=[]; }
+}
+function savePersonalCars(){
+  localStorage.setItem(PERSONAL_CARS_KEY, JSON.stringify(miPersonalCars));
+}
+
+function miSetCarType(type) {
+  miCarType = type;
+  document.getElementById('btn-car-company').classList.toggle('active', type === 'company');
+  document.getElementById('btn-car-personal').classList.toggle('active', type === 'personal');
+  
+  document.getElementById('mi-car-list').style.display = type === 'company' ? 'flex' : 'none';
+  document.getElementById('mi-personal-car-section').style.display = type === 'personal' ? 'block' : 'none';
+  
+  miSelectedPlate = '';
+  if (type === 'company') renderMiCarList();
+  else renderMiPersonalCarList();
+}
+
+function miAddPersonalCar() {
+  const input = document.getElementById('mi-new-personal-plate');
+  const plate = input.value.trim();
+  if(!plate) { showToast('⚠️ กรุณาระบุทะเบียนรถ'); return; }
+  if(!miPersonalCars.includes(plate)) {
+    miPersonalCars.push(plate);
+    savePersonalCars();
+  }
+  input.value = '';
+  miSelectPersonalCar(plate);
+}
+
+function renderMiPersonalCarList() {
+  const list = document.getElementById('mi-personal-car-list');
+  if(!miPersonalCars.length) {
+    list.innerHTML = '<div class="empty-state" style="padding:20px"><p>ยังไม่มีรถยนต์ส่วนตัวที่บันทึกไว้</p></div>';
+    return;
+  }
+  list.innerHTML = miPersonalCars.map(function(plate){
+    const isSelected = plate === miSelectedPlate;
+    return '<div class="mi-car-card '+(isSelected?'selected':'')+'" style="display:flex;justify-content:space-between;align-items:center" onclick="miSelectPersonalCar(\''+plate+'\')">'
+      +'<div>'
+        +'<div class="mi-car-plate">'+plate+'</div>'
+        +'<div class="mi-car-name">รถยนต์ส่วนตัว</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:12px;align-items:center;">'
+        +'<div class="mi-car-check" style="position:static; margin-top:0">'+(isSelected?'✓':'')+'</div>'
+        +'<button style="background:none;border:none;color:#dc2626;font-size:18px;cursor:pointer;padding:4px" onclick="event.stopPropagation();miDeletePersonalCar(\''+plate+'\')">🗑️</button>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function miSelectPersonalCar(plate) {
+  miSelectedPlate = plate;
+  renderMiPersonalCarList();
+}
+
+function miDeletePersonalCar(plate) {
+  if(!confirm('ต้องการลบรถยนต์ส่วนตัว "'+plate+'" ใช่หรือไม่?')) return;
+  miPersonalCars = miPersonalCars.filter(function(p){ return p !== plate; });
+  if (miSelectedPlate === plate) miSelectedPlate = '';
+  savePersonalCars();
+  renderMiPersonalCarList();
 }
 
 function goMileageHistory(){
