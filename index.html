@@ -93,9 +93,11 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
 .camera-toggle label{flex:1;font-size:13px;color:#374151;cursor:pointer;font-weight:500}
 
 .task-chips{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
-.task-chip{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #d1d5db;border-radius:10px;padding:10px 12px;cursor:pointer;font-size:13px;color:#374151;transition:all .15s;font-weight:500}
-.task-chip input{width:16px;height:16px;margin:0;accent-color:#2563eb;cursor:pointer;flex-shrink:0}
-.task-chip.active{background:#eff6ff;border-color:#2563eb;color:#1d4ed8}
+.task-chip{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #d1d5db;border-radius:10px;padding:10px 12px;cursor:pointer;font-size:13px;color:#374151;transition:all .15s;font-weight:500}
+.task-chip input{display:none}
+.task-chip-circle{width:20px;height:20px;border-radius:50%;border:2px solid #d1d5db;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;font-size:11px;color:transparent}
+.task-chip.active .task-chip-circle{background:#2563eb;border-color:#2563eb;color:#fff}
+.task-chip.active{border-color:#2563eb;color:#1d4ed8}
 .task-chip:active{opacity:.8}
 
 .month-select,.filter-select{width:100%;border:0.5px solid #d1d5db;border-radius:10px;padding:11px 12px;font-size:14px;color:#1a1a1a;background:#fff;margin-bottom:12px;-webkit-appearance:none}
@@ -308,13 +310,6 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
           <p>เช็คอินและถ่ายรูปสถานที่</p>
         </div>
       </div>
-      <div class="menu-card" onclick="showHistory()">
-        <div class="menu-icon bg-green">📜</div>
-        <div class="menu-text">
-          <h3>ประวัติการลงเวลา</h3>
-          <p>ดูข้อมูลย้อนหลังของคุณ</p>
-        </div>
-      </div>
       <div class="menu-card" onclick="goMileage()">
         <div class="menu-icon bg-purple">🚗</div>
         <div class="menu-text">
@@ -358,6 +353,7 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
   <div class="topbar">
     <button class="back-btn" onclick="camBack()">←</button>
     <h1 id="cam-topbar-title">กรอกข้อมูล</h1>
+    <button class="text-btn" onclick="stopCamera();showHistory()" id="cam-history-btn">ประวัติ</button>
   </div>
   <div class="content">
 
@@ -374,12 +370,12 @@ video{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#000
       <div class="input-group">
         <label>⚡ ประเภทงาน (ติ๊กได้หลายข้อ)</label>
         <div class="task-chips">
-          <label class="task-chip"><input type="checkbox" value="เสนอราคา" onchange="toggleTaskChip(this)"> 💰 เสนอราคา</label>
-          <label class="task-chip"><input type="checkbox" value="รับใบสั่ง" onchange="toggleTaskChip(this)"> 📋 รับใบสั่ง</label>
-          <label class="task-chip"><input type="checkbox" value="ส่งของ" onchange="toggleTaskChip(this)"> 📦 ส่งของ</label>
-          <label class="task-chip"><input type="checkbox" value="วางบิล/รับเช็ค" onchange="toggleTaskChip(this)"> 💵 วางบิล/รับเช็ค</label>
-          <label class="task-chip"><input type="checkbox" value="เปิดลูกค้าใหม่" onchange="toggleTaskChip(this)"> 🆕 เปิดลูกค้าใหม่</label>
-          <label class="task-chip"><input type="checkbox" value="ค่าสนับสนุนการขาย" onchange="toggleTaskChip(this)"> 💰 ค่าสนับสนุนการขาย</label>
+          <label class="task-chip"><input type="checkbox" value="เสนอราคา" onchange="toggleTaskChip(this)"><span class="task-chip-circle">✓</span> 💰 เสนอราคา</label>
+          <label class="task-chip"><input type="checkbox" value="รับใบสั่ง" onchange="toggleTaskChip(this)"><span class="task-chip-circle">✓</span> 📋 รับใบสั่ง</label>
+          <label class="task-chip"><input type="checkbox" value="ส่งของ" onchange="toggleTaskChip(this)"><span class="task-chip-circle">✓</span> 📦 ส่งของ</label>
+          <label class="task-chip"><input type="checkbox" value="วางบิล/รับเช็ค" onchange="toggleTaskChip(this)"><span class="task-chip-circle">✓</span> 💵 วางบิล/รับเช็ค</label>
+          <label class="task-chip"><input type="checkbox" value="เปิดลูกค้าใหม่" onchange="toggleTaskChip(this)"><span class="task-chip-circle">✓</span> 🆕 เปิดลูกค้าใหม่</label>
+          <label class="task-chip"><input type="checkbox" value="ค่าสนับสนุนการขาย" onchange="toggleTaskChip(this)"><span class="task-chip-circle">✓</span> 💰 ค่าสนับสนุนการขาย</label>
         </div>
       </div>
       <div class="input-group" style="margin-bottom:0">
@@ -926,6 +922,7 @@ function goCamera(){
   document.getElementById('cam-step1').style.display = 'block';
   document.getElementById('cam-step2').style.display = 'none';
   document.getElementById('cam-topbar-title').textContent = 'กรอกข้อมูล';
+  document.getElementById('cam-history-btn').style.display = '';
   const btn = document.getElementById('capture-btn');
   btn.textContent = '📷 ไปถ่ายรูป';
   btn.onclick = goCamStep2;
@@ -936,6 +933,7 @@ function goCamStep2(){
   document.getElementById('cam-step1').style.display = 'none';
   document.getElementById('cam-step2').style.display = 'block';
   document.getElementById('cam-topbar-title').textContent = 'ถ่ายรูป';
+  document.getElementById('cam-history-btn').style.display = 'none';
   const btn = document.getElementById('capture-btn');
   btn.onclick = capturePhoto;
   cameraEnabled = localStorage.getItem(CAM_PREF_KEY) !== '0';
@@ -958,6 +956,7 @@ function camBack(){
     document.getElementById('cam-step1').style.display = 'block';
     document.getElementById('cam-step2').style.display = 'none';
     document.getElementById('cam-topbar-title').textContent = 'กรอกข้อมูล';
+    document.getElementById('cam-history-btn').style.display = '';
     const btn = document.getElementById('capture-btn');
     btn.textContent = '📷 ไปถ่ายรูป';
     btn.onclick = goCamStep2;
