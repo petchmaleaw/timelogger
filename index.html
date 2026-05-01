@@ -487,8 +487,12 @@ body.dark .pill-amber{background:#451a03;color:#fcd34d}
             <input type="checkbox" id="cam-enabled" checked onchange="toggleCamera()">
             <label for="cam-enabled">📸 เปิดใช้งานกล้อง (ถ่ายรูปประกอบการบันทึก)</label>
           </div>
+          <div class="camera-toggle" style="margin-top:8px">
+            <input type="checkbox" id="gps-enabled-cb" checked onchange="toggleGPS()">
+            <label for="gps-enabled-cb">📍 เปิดใช้งาน GPS (บันทึกตำแหน่งที่อยู่)</label>
+          </div>
         </div>
-        <div class="gps-row" style="display:none">
+        <div class="gps-row" id="gps-row" style="display:none">
           <div class="gps-dot" id="gps-dot"></div>
           <span id="gps-status">กำลังระบุตำแหน่ง...</span>
         </div>
@@ -776,6 +780,7 @@ const DB_KEY      = 'time_logs_v3';
 const SESSION_KEY = 'tl_session_v2';
 const REMEMBER_KEY= 'tl_remember_v1';
 const CAM_PREF_KEY= 'tl_cam_pref_v1';
+const GPS_PREF_KEY= 'tl_gps_pref_v1';
 const THEME_KEY   = 'tl_theme_v1';
 
 // ฟังก์ชันดึง Secret Key โดยซ่อนไว้ในรูปแบบ Character Array ป้องกันการค้นหาตรงๆ
@@ -1046,7 +1051,8 @@ function goCamera(){
   const btn = document.getElementById('capture-btn');
   btn.textContent = '📷 ไปถ่ายรูป';
   btn.onclick = goCamStep2;
-  startGPS();
+  gpsEnabled = localStorage.getItem(GPS_PREF_KEY) !== '0';
+  if(gpsEnabled) startGPS();
 }
 
 function goCamStep2(){
@@ -1068,6 +1074,9 @@ function goCamStep2(){
     document.getElementById('cam-off').style.display = 'flex';
     btn.textContent = '✓ บันทึก (ไม่ถ่ายรูป)';
   }
+  gpsEnabled = localStorage.getItem(GPS_PREF_KEY) !== '0';
+  document.getElementById('gps-enabled-cb').checked = gpsEnabled;
+  document.getElementById('gps-row').style.display = gpsEnabled ? '' : 'none';
 }
 
 function camBack(){
@@ -1091,8 +1100,9 @@ function myLogs(){ return logs.filter(function(l){ return l.empName===currentUse
 // ═══════════════════════════════════════
 // CAMERA
 // ═══════════════════════════════════════
-let currentFacingMode='environment'; 
+let currentFacingMode='environment';
 let cameraEnabled=true;
+let gpsEnabled=true;
 
 function toggleCamera(){
   const cb=document.getElementById('cam-enabled');
@@ -1107,6 +1117,21 @@ function toggleCamera(){
   } else {
     wrap.style.display='none'; off.style.display='flex';
     btn.textContent='✓ บันทึก (ไม่ถ่ายรูป)'; stopCameraStream();
+  }
+}
+
+function toggleGPS(){
+  const cb=document.getElementById('gps-enabled-cb');
+  gpsEnabled=cb.checked;
+  localStorage.setItem(GPS_PREF_KEY, gpsEnabled?'1':'0');
+  const gpsRow=document.getElementById('gps-row');
+  if(gpsEnabled){
+    gpsRow.style.display='';
+    startGPS();
+  } else {
+    gpsRow.style.display='none';
+    if(gpsWatcher){ navigator.geolocation.clearWatch(gpsWatcher); gpsWatcher=null; }
+    gpsCoords=null;
   }
 }
 
@@ -1133,10 +1158,14 @@ function stopCamera(){
   if(gpsWatcher){ navigator.geolocation.clearWatch(gpsWatcher); gpsWatcher=null; }
 }
 function startGPS(){
+  if(!gpsEnabled) return;
   gpsCoords=null;
   const dot=document.getElementById('gps-dot'), st=document.getElementById('gps-status');
+  const gpsRow=document.getElementById('gps-row');
+  if(gpsRow) gpsRow.style.display='';
   dot.style.background='#f59e0b'; st.textContent='กำลังระบุตำแหน่ง...';
   if(!navigator.geolocation){ st.textContent='ไม่รองรับ GPS'; return; }
+  if(gpsWatcher){ navigator.geolocation.clearWatch(gpsWatcher); gpsWatcher=null; }
   gpsWatcher=navigator.geolocation.watchPosition(
     function(pos){ gpsCoords={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:Math.round(pos.coords.accuracy)}; dot.style.background='#22c55e'; st.textContent='📍 '+gpsCoords.lat.toFixed(5)+', '+gpsCoords.lng.toFixed(5)+' (±'+gpsCoords.acc+'m)'; },
     function(){ dot.style.background='#ef4444'; st.textContent='ไม่สามารถระบุตำแหน่งได้'; },
